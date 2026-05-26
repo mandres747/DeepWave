@@ -66,7 +66,7 @@ keytool -genkey -v \
   -alias binaural-beats \
   -storepass <SICHERES_PASSWORT> \
   -keypass <SICHERES_PASSWORT> \
-  -dname "CN=Matthias Andres, O=Independent Developer, L=Germany, C=DE"
+  -dname "CN=Michael Andres, O=Independent Developer, L=Germany, C=DE"
 ```
 
 **WICHTIG:**
