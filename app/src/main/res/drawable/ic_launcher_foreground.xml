@@ -4,29 +4,58 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group android:translateX="22" android:translateY="16">
-        <!-- Headphones (smaller, higher) -->
-        <group android:scaleX="0.8" android:scaleY="0.8" android:translateX="6" android:translateY="0">
-            <path
-                android:fillColor="#A8E6CF"
-                android:fillAlpha="0.85"
-                android:pathData="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z" />
-        </group>
-        <!-- Wave 1 (primary) -->
-        <path
-            android:pathData="M-6,56 Q6,44 18,56 Q30,68 42,56 Q54,44 66,56"
-            android:strokeColor="#A8E6CF"
-            android:strokeWidth="2.5"
-            android:strokeLineCap="round"
-            android:strokeAlpha="0.7"
-            android:fillColor="#00000000" />
-        <!-- Wave 2 (secondary, softer) -->
-        <path
-            android:pathData="M0,64 Q12,56 24,64 Q36,72 48,64 Q60,56 68,64"
-            android:strokeColor="#A8E6CF"
-            android:strokeWidth="1.8"
-            android:strokeLineCap="round"
-            android:strokeAlpha="0.35"
-            android:fillColor="#00000000" />
-    </group>
+
+    <!-- Outer halo arch -->
+    <path
+        android:pathData="M16,66 C16,34 32,20 54,20 C76,20 92,34 92,66"
+        android:strokeColor="#A8E6CF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.2"
+        android:fillColor="#00000000" />
+
+    <!-- Main headphone arch -->
+    <path
+        android:pathData="M20,66 C20,38 36,24 54,24 C72,24 88,38 88,66"
+        android:strokeColor="#A8E6CF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+
+    <!-- Arc 1: r=12 -->
+    <path
+        android:pathData="M42,54 A12,12 0 0,0 66,54"
+        android:strokeColor="#A8E6CF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.7"
+        android:fillColor="#00000000" />
+
+    <!-- Arc 2: r=22 -->
+    <path
+        android:pathData="M32,54 A22,22 0 0,0 76,54"
+        android:strokeColor="#A8E6CF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.45"
+        android:fillColor="#00000000" />
+
+    <!-- Arc 3: r=34 -->
+    <path
+        android:pathData="M20,54 A34,34 0 0,0 88,54"
+        android:strokeColor="#A8E6CF"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:strokeAlpha="0.25"
+        android:fillColor="#00000000" />
+
+    <!-- Left ear cup (capsule: x=12 y=58 w=14 h=30 rx=7) -->
+    <path
+        android:pathData="M12,65 A7,7 0 0,1 26,65 L26,81 A7,7 0 0,1 12,81 Z"
+        android:fillColor="#A8E6CF" />
+
+    <!-- Right ear cup (capsule: x=82 y=58 w=14 h=30 rx=7) -->
+    <path
+        android:pathData="M82,65 A7,7 0 0,1 96,65 L96,81 A7,7 0 0,1 82,81 Z"
+        android:fillColor="#A8E6CF" />
 </vector>

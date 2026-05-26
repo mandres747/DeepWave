@@ -30,6 +30,16 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val keystoreDir = rootProject.file("playstore")
+            storeFile = keystoreDir.resolve("deepwave-release.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = "deepwave"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -37,6 +47,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

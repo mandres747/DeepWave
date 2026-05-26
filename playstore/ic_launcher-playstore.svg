@@ -1,19 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#0f1b3d"/>
-      <stop offset="100%" stop-color="#1E3C72"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#162d5a"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A8E6CF"/>
+      <stop offset="100%" stop-color="#6BC5A0"/>
     </linearGradient>
   </defs>
-  <!-- Background -->
   <rect width="108" height="108" rx="24" fill="url(#bg)"/>
-  <!-- Headphones (smaller, higher) -->
-  <g transform="translate(28,18) scale(0.8)">
-    <path fill="#A8E6CF" fill-opacity="0.85"
-          d="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z"/>
-  </g>
-  <!-- Wave 1 -->
-  <path d="M16,72 Q28,60 40,72 Q52,84 64,72 Q76,60 88,72" fill="none" stroke="#A8E6CF" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
-  <!-- Wave 2 -->
-  <path d="M22,80 Q34,72 46,80 Q58,88 70,80 Q82,72 90,80" fill="none" stroke="#A8E6CF" stroke-width="1.8" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- Outer halo arch -->
+  <path d="M16,66 C16,34 32,20 54,20 C76,20 92,34 92,66"
+        fill="none" stroke="url(#glow)" stroke-width="4" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Main headphone arch -->
+  <path d="M20,66 C20,38 36,24 54,24 C72,24 88,38 88,66"
+        fill="none" stroke="url(#glow)" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Concentric arcs (before ear cups). Center y=54, largest reaches y=88. -->
+  <path d="M42,54 A12,12 0 0,0 66,54"
+        fill="none" stroke="#A8E6CF" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M32,54 A22,22 0 0,0 76,54"
+        fill="none" stroke="#A8E6CF" stroke-width="1.8" stroke-linecap="round" opacity="0.45"/>
+  <path d="M20,54 A34,34 0 0,0 88,54"
+        fill="none" stroke="#A8E6CF" stroke-width="1.2" stroke-linecap="round" opacity="0.25"/>
+
+  <!-- Left ear cup -->
+  <rect x="12" y="58" width="14" height="30" rx="7" fill="#A8E6CF"/>
+  <!-- Right ear cup -->
+  <rect x="82" y="58" width="14" height="30" rx="7" fill="#A8E6CF"/>
 </svg>
