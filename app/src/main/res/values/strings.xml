@@ -153,6 +153,37 @@
     <string name="preset_iso_med">Iso: Meditation</string>
     <string name="preset_iso_energy">Iso: Energie</string>
 
+    <!-- Premium Presets -->
+    <string name="cat_premium_sleep">Premium: Schlafprogramm</string>
+    <string name="cat_premium_focus">Premium: Focus-Bundle</string>
+    <string name="cat_premium_therapy">Premium: Therapeutisch</string>
+    <string name="preset_sleep_30d_w1">Schlaf-Reset Woche 1</string>
+    <string name="preset_sleep_30d_w2">Schlaf-Reset Woche 2</string>
+    <string name="preset_sleep_30d_w3">Schlaf-Reset Woche 3</string>
+    <string name="preset_sleep_30d_w4">Schlaf-Reset Woche 4</string>
+    <string name="preset_adhd_focus">ADHS Deep Work</string>
+    <string name="preset_adhd_calm">ADHS Beruhigung</string>
+    <string name="preset_exam_cram">Prüfungs-Marathon</string>
+    <string name="preset_writer_flow">Schreibfluss</string>
+    <string name="preset_tinnitus">Tinnitus-Linderung</string>
+    <string name="preset_migraine">Migräne-Hilfe</string>
+    <string name="preset_ptsd_calm">PTBS Beruhigung</string>
+    <string name="preset_jet_lag">Jetlag-Reset</string>
+    <string name="premium_presets_header">PREMIUM</string>
+
+    <!-- Statistics -->
+    <string name="stats_header">STATISTIKEN</string>
+    <string name="stats_total_sessions">Sessions gesamt</string>
+    <string name="stats_total_time">Gesamtzeit</string>
+    <string name="stats_avg_rating">Durchschnitt</string>
+    <string name="stats_current_streak">Aktuelle Serie</string>
+    <string name="stats_best_streak">Beste Serie</string>
+    <string name="stats_days">Tage</string>
+    <string name="stats_this_week">Diese Woche</string>
+    <string name="stats_top_presets">Top-Presets</string>
+    <string name="stats_no_data">Noch keine Sessions. Starte eine Session und bewerte sie.</string>
+    <string name="stats_hours_short">%1$dh %2$dm</string>
+
     <!-- Feature Limits -->
     <string name="preset_limit_reached">Max. %1$d eigene Presets erreicht. Lösche eines oder upgrade auf Premium.</string>
 

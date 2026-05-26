@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
@@ -41,7 +42,6 @@ import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.CustomPreset
 import de.binauralbeats.app.data.PresetCategory
-import de.binauralbeats.app.data.Presets
 import de.binauralbeats.app.ui.BinauralViewModel
 import de.binauralbeats.app.ui.components.BreathingGuide
 import de.binauralbeats.app.ui.components.FrequencyCurve
@@ -128,6 +128,18 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                     color = colors.accentPrimary,
                                     fontWeight = FontWeight.Bold
                                 )
+                            }
+                        }
+                    }
+
+                    if (FeatureFlagsImpl.statisticsEnabled) {
+                        Surface(
+                            onClick = { viewModel.showStatistics = true },
+                            color = colors.accentPrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(modifier = Modifier.padding(12.dp)) {
+                                Icon(Icons.Default.BarChart, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
                             }
                         }
                     }
@@ -368,8 +380,10 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 }
             }
 
-            val categories = Presets.byCategory.entries.toList()
-            items(categories, key = { it.key }) { (category, presets) ->
+            val standardCategories = viewModel.allByCategory.entries.filter { !it.key.isPremium }
+            val premiumCategories = viewModel.allByCategory.entries.filter { it.key.isPremium }
+
+            items(standardCategories.toList(), key = { it.key }) { (category, presets) ->
                 PresetCategoryCard(
                     category = category,
                     presets = presets,
@@ -379,6 +393,30 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         if (!viewModel.isPlaying) viewModel.play()
                     }
                 )
+            }
+
+            if (premiumCategories.isNotEmpty()) {
+                item {
+                    Text(
+                        stringResource(R.string.premium_presets_header),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.accentPrimary,
+                        letterSpacing = 2.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                items(premiumCategories.toList(), key = { it.key }) { (category, presets) ->
+                    PresetCategoryCard(
+                        category = category,
+                        presets = presets,
+                        selectedKey = viewModel.selectedPreset?.key,
+                        onSelect = { preset ->
+                            viewModel.selectPreset(preset)
+                            if (!viewModel.isPlaying) viewModel.play()
+                        }
+                    )
+                }
             }
 
             // Bottom spacer
@@ -428,6 +466,13 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     onClose = { viewModel.showSettings = false }
                 )
             }
+        }
+
+        if (viewModel.showStatistics) {
+            StatisticsOverlay(
+                entries = journalEntries,
+                onClose = { viewModel.showStatistics = false }
+            )
         }
     }
 }

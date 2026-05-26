@@ -18,6 +18,7 @@ import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.Preset
 import de.binauralbeats.app.data.PresetRepository
+import de.binauralbeats.app.data.PremiumPresetProviderImpl
 import de.binauralbeats.app.data.Presets
 import de.binauralbeats.app.data.SettingsRepository
 import de.binauralbeats.app.data.ToneType
@@ -108,6 +109,16 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var showJournal by mutableStateOf(false)
     var showRatingDialog by mutableStateOf(false)
     var showSettings by mutableStateOf(false)
+    var showStatistics by mutableStateOf(false)
+
+    val allByCategory = buildMap {
+        putAll(Presets.byCategory)
+        if (features.premiumPresetsEnabled) {
+            PremiumPresetProviderImpl.presets.groupBy { it.category }.forEach { (cat, presets) ->
+                put(cat, presets)
+            }
+        }
+    }
 
     // --- Settings ---
 

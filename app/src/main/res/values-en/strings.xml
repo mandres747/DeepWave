@@ -153,6 +153,37 @@
     <string name="preset_iso_med">Iso: Meditation</string>
     <string name="preset_iso_energy">Iso: Energy</string>
 
+    <!-- Premium Presets -->
+    <string name="cat_premium_sleep">Premium: Sleep Program</string>
+    <string name="cat_premium_focus">Premium: Focus Bundle</string>
+    <string name="cat_premium_therapy">Premium: Therapeutic</string>
+    <string name="preset_sleep_30d_w1">Sleep Reset Week 1</string>
+    <string name="preset_sleep_30d_w2">Sleep Reset Week 2</string>
+    <string name="preset_sleep_30d_w3">Sleep Reset Week 3</string>
+    <string name="preset_sleep_30d_w4">Sleep Reset Week 4</string>
+    <string name="preset_adhd_focus">ADHD Deep Work</string>
+    <string name="preset_adhd_calm">ADHD Calming</string>
+    <string name="preset_exam_cram">Exam Marathon</string>
+    <string name="preset_writer_flow">Writer\'s Flow</string>
+    <string name="preset_tinnitus">Tinnitus Relief</string>
+    <string name="preset_migraine">Migraine Relief</string>
+    <string name="preset_ptsd_calm">PTSD Calming</string>
+    <string name="preset_jet_lag">Jetlag Reset</string>
+    <string name="premium_presets_header">PREMIUM</string>
+
+    <!-- Statistics -->
+    <string name="stats_header">STATISTICS</string>
+    <string name="stats_total_sessions">Total Sessions</string>
+    <string name="stats_total_time">Total Time</string>
+    <string name="stats_avg_rating">Average</string>
+    <string name="stats_current_streak">Current Streak</string>
+    <string name="stats_best_streak">Best Streak</string>
+    <string name="stats_days">days</string>
+    <string name="stats_this_week">This Week</string>
+    <string name="stats_top_presets">Top Presets</string>
+    <string name="stats_no_data">No sessions yet. Start a session and rate it.</string>
+    <string name="stats_hours_short">%1$dh %2$dm</string>
+
     <!-- Feature Limits -->
     <string name="preset_limit_reached">Max. %1$d custom presets reached. Delete one or upgrade to Premium.</string>
 

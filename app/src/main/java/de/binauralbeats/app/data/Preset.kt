@@ -36,7 +36,7 @@ data class Preset(
     val totalDurationMinutes: Int get() = phases.sumOf { it.durationMinutes }
 }
 
-enum class PresetCategory(@StringRes val labelRes: Int, val emoji: String) {
+enum class PresetCategory(@StringRes val labelRes: Int, val emoji: String, val isPremium: Boolean = false) {
     SLEEP(R.string.cat_sleep, "😴"),
     FOCUS(R.string.cat_focus, "🎯"),
     MEDITATION(R.string.cat_meditation, "🧘"),
@@ -45,7 +45,10 @@ enum class PresetCategory(@StringRes val labelRes: Int, val emoji: String) {
     SPORT(R.string.cat_sport, "🏋️"),
     RELAXATION(R.string.cat_relaxation, "🌿"),
     SOLFEGGIO(R.string.cat_solfeggio, "🔔"),
-    ISOCHRONIC(R.string.cat_isochronic, "🎵")
+    ISOCHRONIC(R.string.cat_isochronic, "🎵"),
+    PREMIUM_SLEEP(R.string.cat_premium_sleep, "🌙", isPremium = true),
+    PREMIUM_FOCUS(R.string.cat_premium_focus, "🧠", isPremium = true),
+    PREMIUM_THERAPY(R.string.cat_premium_therapy, "💆", isPremium = true)
 }
 
 @Serializable
