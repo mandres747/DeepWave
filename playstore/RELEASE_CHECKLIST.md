@@ -4,25 +4,21 @@
 
 - [ ] Google Play Developer-Konto registriert (25 USD Einmalgebühr)
       → https://play.google.com/console/signup
-- [ ] Repo auf public geschaltet (für Open-Source-Verweis in Privacy Policy)
-      ```
-      gh repo edit BinauralBeatsApp --visibility public
-      ```
+- [x] Repo auf public geschaltet → https://github.com/mandres747/DeepWave
 
 ---
 
 ## Phase 1: Assets vorbereiten
 
 ### 1.1 Hi-Res App-Icon (512×512 PNG)
-- [ ] Icon generieren (siehe `generate_icon.md` oder Android Studio → Image Asset)
-- [ ] Datei: `playstore/ic_launcher-playstore.png`
+- [x] Icon generieren → DeepWave v9 (Headphones + Concentric Arcs)
+- [x] Datei: `playstore/ic_launcher-playstore.png` (512×512)
 - Play Store erwartet: 512×512px, PNG, 32-bit, max 1024 KB
 
 ### 1.2 Feature Graphic (1024×500 PNG)
-- [ ] Feature Graphic erstellen
-- [ ] Datei: `playstore/feature_graphic.png`
+- [x] Feature Graphic erstellt (DeepWave Icon + Waveforms + Feature Tags)
+- [x] Datei: `playstore/feature_graphic.png` (1024×500)
 - Wird prominent im Store angezeigt
-- Empfehlung: App-Name + Waveform-Grafik + Kopfhörer-Symbol auf dunklem Gradient (#1E3C72 → #2A5298)
 
 ### 1.3 Screenshots (mind. 2, empf. 6–8)
 - [ ] Bereits vorhanden in `fastlane/metadata/android/*/images/phoneScreenshots/`
@@ -52,59 +48,37 @@ git push -u origin gh-pages
 ### Option C: Eigene Website
 - HTML-Dateien auf eigenen Server hochladen
 
-**Gewählte URL notieren:** ___________________________
+**Gewählte URLs:**
+- EN: https://mandres747.github.io/DeepWave/
+- DE: https://mandres747.github.io/DeepWave/datenschutz.html
 
 ---
 
 ## Phase 3: Release Build signieren
 
 ### 3.1 Keystore erstellen (einmalig!)
-```bash
-keytool -genkey -v \
-  -keystore playstore/binaural-release.jks \
-  -keyalg RSA -keysize 2048 -validity 10000 \
-  -alias binaural-beats \
-  -storepass <SICHERES_PASSWORT> \
-  -keypass <SICHERES_PASSWORT> \
-  -dname "CN=Michael Andres, O=Independent Developer, L=Germany, C=DE"
-```
+- [x] Keystore erstellt: `playstore/deepwave-release.jks`
+- [x] Alias: `deepwave`
+- [x] `.gitignore` enthält `*.jks`
 
 **WICHTIG:**
 - Keystore SICHER aufbewahren (NICHT im Git-Repo!)
 - Passwort separat sichern
 - Verlust = App kann nie mehr aktualisiert werden
-- `.gitignore` enthält bereits `*.jks`
 
 ### 3.2 Signing Config in build.gradle.kts
-```kotlin
-android {
-    signingConfigs {
-        create("release") {
-            storeFile = file("../playstore/binaural-release.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = "binaural-beats"
-            keyPassword = System.getenv("KEY_PASSWORD")
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-        }
-    }
-}
-```
+- [x] `signingConfigs` in `app/build.gradle.kts` konfiguriert
+- [x] Env-Variablen: `KEYSTORE_PASSWORD`, `KEY_PASSWORD`
 
 ### 3.3 AAB (Android App Bundle) bauen
-```bash
-# Umgebungsvariablen setzen:
-export KEYSTORE_PASSWORD="<passwort>"
-export KEY_PASSWORD="<passwort>"
+- [x] Premium Release AAB erfolgreich gebaut
+- Output: `app/build/outputs/bundle/premiumRelease/app-premium-release.aab`
 
-# Premium Release bauen:
-./gradlew bundlePremiumRelease
-
-# Output:
-# app/build/outputs/bundle/premiumRelease/app-premium-release.aab
+Build-Kommandos:
+```powershell
+$env:KEYSTORE_PASSWORD = "<passwort>"
+$env:KEY_PASSWORD = "<passwort>"
+.\gradlew.bat bundlePremiumRelease
 ```
 
 ### 3.4 Release-Tag erstellen
@@ -119,14 +93,13 @@ git push origin v1.0.0
 
 ### 4.1 App erstellen
 - [ ] Play Console → "Create app"
-- [ ] App name: **Binaural Beats - Brain Entrainer**
+- [ ] App name: **DeepWave: Binaural Beats**
 - [ ] Default language: **Deutsch (de-DE)**
 - [ ] App or Game: **App**
 - [ ] Free or Paid: **Paid** (oder Free mit IAP – siehe Monetarisierungsstrategie)
 
 ### 4.2 Store Listing ausfüllen
-- [ ] **Title**: "Binaural Beats - Brain Entrainer" (max. 30 Zeichen!)
-      Falls zu lang: "Binaural Beats" (14 Zeichen)
+- [ ] **Title**: "DeepWave: Binaural Beats" (24 Zeichen)
 - [ ] **Short description**: Aus `fastlane/metadata/android/de-DE/short_description.txt`
 - [ ] **Full description**: Aus `fastlane/metadata/android/de-DE/full_description.txt`
 - [ ] **Screenshots**: Aus `fastlane/metadata/android/de-DE/images/phoneScreenshots/`

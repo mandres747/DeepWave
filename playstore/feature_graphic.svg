@@ -22,10 +22,21 @@
   <path d="M0,320 Q50,300 100,320 Q150,340 200,320 Q250,300 300,320 Q350,340 400,320 Q450,300 500,320 Q550,340 600,320 Q650,300 700,320 Q750,340 800,320 Q850,300 900,320 Q950,340 1024,320"
         fill="none" stroke="url(#wave)" stroke-width="1.5" opacity="0.25"/>
 
-  <!-- Headphones icon -->
-  <g transform="translate(462, 60) scale(1.5)">
-    <path fill="#A8E6CF" fill-opacity="0.85"
-          d="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z"/>
+  <!-- DeepWave icon (v9 design) -->
+  <g transform="translate(437, 30) scale(1.4)">
+    <!-- Outer halo arch -->
+    <path d="M16,66 C16,34 32,20 54,20 C76,20 92,34 92,66"
+          fill="none" stroke="#A8E6CF" stroke-width="4" stroke-linecap="round" opacity="0.2"/>
+    <!-- Main headphone arch -->
+    <path d="M20,66 C20,38 36,24 54,24 C72,24 88,38 88,66"
+          fill="none" stroke="#A8E6CF" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+    <!-- Concentric arcs -->
+    <path d="M42,54 A12,12 0 0,0 66,54" fill="none" stroke="#A8E6CF" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+    <path d="M32,54 A22,22 0 0,0 76,54" fill="none" stroke="#A8E6CF" stroke-width="1.8" stroke-linecap="round" opacity="0.38"/>
+    <path d="M20,54 A34,34 0 0,0 88,54" fill="none" stroke="#A8E6CF" stroke-width="1.2" stroke-linecap="round" opacity="0.2"/>
+    <!-- Ear cups -->
+    <rect x="12" y="58" width="14" height="30" rx="7" fill="#A8E6CF" opacity="0.85"/>
+    <rect x="82" y="58" width="14" height="30" rx="7" fill="#A8E6CF" opacity="0.85"/>
   </g>
 
   <!-- App name -->
