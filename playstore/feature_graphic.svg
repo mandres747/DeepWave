@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1b3d"/>
+      <stop offset="50%" stop-color="#1E3C72"/>
+      <stop offset="100%" stop-color="#2A5298"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A8E6CF" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#A8E6CF" stop-opacity="0.6"/>
+      <stop offset="80%" stop-color="#A8E6CF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#A8E6CF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- Subtle waveform lines -->
+  <path d="M0,320 Q50,280 100,320 Q150,360 200,320 Q250,280 300,320 Q350,360 400,320 Q450,280 500,320 Q550,360 600,320 Q650,280 700,320 Q750,360 800,320 Q850,280 900,320 Q950,360 1024,320"
+        fill="none" stroke="url(#wave)" stroke-width="2" opacity="0.4"/>
+  <path d="M0,340 Q50,310 100,340 Q150,370 200,340 Q250,310 300,340 Q350,370 400,340 Q450,310 500,340 Q550,370 600,340 Q650,310 700,340 Q750,370 800,340 Q850,310 900,340 Q950,370 1024,340"
+        fill="none" stroke="url(#wave)" stroke-width="1.5" opacity="0.25"/>
+
+  <!-- Headphones icon (centered, smaller) -->
+  <g transform="translate(462, 80) scale(1.5)">
+    <path fill="#A8E6CF" fill-opacity="0.9"
+          d="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z"/>
+  </g>
+
+  <!-- App name -->
+  <text x="512" y="260" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">
+    Binaural Beats
+  </text>
+
+  <!-- Subtitle -->
+  <text x="512" y="300" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#A8E6CF" letter-spacing="3">
+    BRAIN ENTRAINMENT GENERATOR
+  </text>
+
+  <!-- Feature tags -->
+  <g transform="translate(512, 370)" text-anchor="middle" font-family="sans-serif" font-size="16" fill="white" fill-opacity="0.7">
+    <text x="-300" y="0">😴 Sleep</text>
+    <text x="-150" y="0">🎯 Focus</text>
+    <text x="0" y="0">🧘 Meditation</text>
+    <text x="150" y="0">⚡ Energy</text>
+    <text x="300" y="0">🔔 Solfeggio</text>
+  </g>
+
+  <!-- Bottom tagline -->
+  <text x="512" y="450" text-anchor="middle" font-family="sans-serif" font-size="14" fill="white" fill-opacity="0.4" letter-spacing="2">
+    OFFLINE • NO ADS • NO TRACKING • OPEN SOURCE
+  </text>
+</svg>

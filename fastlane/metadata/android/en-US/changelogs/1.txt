@@ -1,0 +1,12 @@
+First release!
+
+• 30+ presets for sleep, focus, meditation, energy, creativity and sports
+• Binaural beats, isochronic tones & Solfeggio frequencies (396–963 Hz)
+• Flexible phase editor for creating custom sessions
+• Breathing guide with 4 patterns (Box, 4-7-8, Calming, Energizing)
+• Session journal with ratings and mood tracking
+• WAV export for offline listening
+• Premium presets: 30-Day Sleep Reset, ADHD Bundle, Therapeutic sessions
+• Statistics: streaks, top presets, total time
+• Background playback via foreground service
+• Fully offline – no ads, no tracking

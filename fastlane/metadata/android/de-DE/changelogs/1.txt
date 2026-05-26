@@ -1,0 +1,12 @@
+Erste Veröffentlichung!
+
+• 30+ Presets für Schlaf, Fokus, Meditation, Energie, Kreativität und Sport
+• Binaurale Beats, isochronische Töne & Solfeggio-Frequenzen (396–963 Hz)
+• Flexibler Phasen-Editor zum Erstellen eigener Sessions
+• Atemführung mit 4 Mustern (Box, 4-7-8, Beruhigend, Energetisch)
+• Session-Journal mit Bewertung und Stimmungs-Tracking
+• WAV-Export zum Offline-Hören
+• Premium-Presets: 30-Tage Schlaf-Reset, ADHS-Bundle, Therapeutische Sessions
+• Statistiken: Streaks, Top-Presets, Gesamtzeit
+• Hintergrund-Wiedergabe via Foreground Service
+• Komplett offline – keine Werbung, kein Tracking
