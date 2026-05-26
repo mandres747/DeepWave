@@ -4,9 +4,29 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group android:translateX="22" android:translateY="22">
+    <group android:translateX="22" android:translateY="16">
+        <!-- Headphones (smaller, higher) -->
+        <group android:scaleX="0.8" android:scaleY="0.8" android:translateX="6" android:translateY="0">
+            <path
+                android:fillColor="#A8E6CF"
+                android:fillAlpha="0.85"
+                android:pathData="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z" />
+        </group>
+        <!-- Wave 1 (primary) -->
         <path
-            android:fillColor="#A8E6CF"
-            android:pathData="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z" />
+            android:pathData="M-6,56 Q6,44 18,56 Q30,68 42,56 Q54,44 66,56"
+            android:strokeColor="#A8E6CF"
+            android:strokeWidth="2.5"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.7"
+            android:fillColor="#00000000" />
+        <!-- Wave 2 (secondary, softer) -->
+        <path
+            android:pathData="M0,64 Q12,56 24,64 Q36,72 48,64 Q60,56 68,64"
+            android:strokeColor="#A8E6CF"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.35"
+            android:fillColor="#00000000" />
     </group>
 </vector>

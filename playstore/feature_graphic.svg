@@ -16,26 +16,26 @@
   <!-- Background -->
   <rect width="1024" height="500" fill="url(#bg)"/>
 
-  <!-- Subtle waveform lines -->
-  <path d="M0,320 Q50,280 100,320 Q150,360 200,320 Q250,280 300,320 Q350,360 400,320 Q450,280 500,320 Q550,360 600,320 Q650,280 700,320 Q750,360 800,320 Q850,280 900,320 Q950,360 1024,320"
+  <!-- Waveform lines -->
+  <path d="M0,300 Q50,270 100,300 Q150,330 200,300 Q250,270 300,300 Q350,330 400,300 Q450,270 500,300 Q550,330 600,300 Q650,270 700,300 Q750,330 800,300 Q850,270 900,300 Q950,330 1024,300"
         fill="none" stroke="url(#wave)" stroke-width="2" opacity="0.4"/>
-  <path d="M0,340 Q50,310 100,340 Q150,370 200,340 Q250,310 300,340 Q350,370 400,340 Q450,310 500,340 Q550,370 600,340 Q650,310 700,340 Q750,370 800,340 Q850,310 900,340 Q950,370 1024,340"
+  <path d="M0,320 Q50,300 100,320 Q150,340 200,320 Q250,300 300,320 Q350,340 400,320 Q450,300 500,320 Q550,340 600,320 Q650,300 700,320 Q750,340 800,320 Q850,300 900,320 Q950,340 1024,320"
         fill="none" stroke="url(#wave)" stroke-width="1.5" opacity="0.25"/>
 
-  <!-- Headphones icon (centered, smaller) -->
-  <g transform="translate(462, 80) scale(1.5)">
-    <path fill="#A8E6CF" fill-opacity="0.9"
+  <!-- Headphones icon -->
+  <g transform="translate(462, 60) scale(1.5)">
+    <path fill="#A8E6CF" fill-opacity="0.85"
           d="M32,5.43C18.32,5.43 7.14,16.61 7.14,30.29v9.64c0,8.87 7.2,16.07 16.07,16.07h3.21V33.5H16.07v-3.21c0-12.44 10.07-22.5 22.5-22.5s22.5,10.06 22.5,22.5v3.21h-12.86V56h3.22c8.87,0 16.07-7.2 16.07-16.07v-9.64C67.5,16.61 56.32,5.43 42.64,5.43z"/>
   </g>
 
   <!-- App name -->
-  <text x="512" y="260" text-anchor="middle" font-family="sans-serif" font-size="48" font-weight="bold" fill="white">
-    Binaural Beats
+  <text x="512" y="230" text-anchor="middle" font-family="sans-serif" font-size="56" font-weight="bold" fill="white">
+    DeepWave
   </text>
 
   <!-- Subtitle -->
-  <text x="512" y="300" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#A8E6CF" letter-spacing="3">
-    BRAIN ENTRAINMENT GENERATOR
+  <text x="512" y="270" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#A8E6CF" letter-spacing="4">
+    BINAURAL BEATS
   </text>
 
   <!-- Feature tags -->
@@ -49,6 +49,6 @@
 
   <!-- Bottom tagline -->
   <text x="512" y="450" text-anchor="middle" font-family="sans-serif" font-size="14" fill="white" fill-opacity="0.4" letter-spacing="2">
-    OFFLINE • NO ADS • NO TRACKING • OPEN SOURCE
+    OFFLINE · NO ADS · NO TRACKING · OPEN SOURCE
   </text>
 </svg>

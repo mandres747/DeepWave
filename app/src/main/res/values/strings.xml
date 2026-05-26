@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Binaurale Beats</string>
-    <string name="app_subtitle">Brainwave Entrainment Generator</string>
+    <string name="app_name">DeepWave</string>
+    <string name="app_subtitle">Binaural Beats &amp; Brainwave Entrainment</string>
 
     <!-- General -->
     <string name="save">Speichern</string>
@@ -36,7 +36,7 @@
     <string name="wav_export_desc">Session als Audiodatei speichern</string>
     <string name="export">Exportieren</string>
     <string name="share">Teilen</string>
-    <string name="share_subject">Binaurale Beats Session</string>
+    <string name="share_subject">DeepWave Session</string>
     <string name="share_via">Session teilen</string>
     <string name="export_success">Exportiert: %1$s</string>
     <string name="export_error">Fehler: %1$s</string>
@@ -100,9 +100,9 @@
     <string name="band_gamma">Gamma (&gt; 30 Hz)</string>
 
     <!-- Notification -->
-    <string name="notif_channel_name">Binaural Beats Wiedergabe</string>
+    <string name="notif_channel_name">DeepWave Wiedergabe</string>
     <string name="notif_channel_desc">Zeigt den aktuellen Wiedergabestatus</string>
-    <string name="notif_title">Binaurale Beats</string>
+    <string name="notif_title">DeepWave</string>
     <string name="notif_playing">Session läuft…</string>
 
     <!-- Preset Categories -->
