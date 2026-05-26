@@ -1,0 +1,31 @@
+Binaural Beats App - Your Personal Brain Entrainer
+
+Harness the power of binaural beats and isochronic tones for better sleep, deeper focus, and true relaxation.
+
+FEATURES:
+- 30+ scientifically-based presets in 9 categories
+- Binaural beats and isochronic tones
+- Solfeggio frequencies (396 Hz - 963 Hz)
+- Customizable phase editor
+- Waveform visualizer and frequency curve
+- Breathing guide
+- Background sounds (Pink Noise, Brown Noise)
+- Session journal with mood tracking
+- Create and save custom presets
+- Session sharing via deep links
+- Fully offline - no internet connection needed
+- No ads, no tracking
+
+CATEGORIES:
+- Sleep & Recovery (Power Nap, Deep Sleep, Lucid Dreaming)
+- Focus & Productivity (Deep Focus, Pomodoro, Flow State)
+- Meditation & Relaxation (Stress Relief, Anxiety Relief)
+- Energy & Activation (Morning Boost, Afternoon Revival)
+- Creativity (Creative Flow, Brainstorming)
+- Sports (Workout, Marathon, Yoga)
+- Solfeggio Frequencies (Healing Frequencies)
+- Isochronic Tones (No headphones required)
+
+HEADPHONES RECOMMENDED for binaural beats. Isochronic tones also work through speakers.
+
+Open Source (GPL-3.0) - Your brain, your data, your code.

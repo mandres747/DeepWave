@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Binaural Beats</string>
+    <string name="app_subtitle">Brainwave Entrainment Generator</string>
+
+    <!-- General -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="reset">Reset</string>
+    <string name="delete">Delete</string>
+    <string name="skip">Skip</string>
+    <string name="start">Start</string>
+    <string name="stop_label">Stop</string>
+    <string name="start_label">Start</string>
+
+    <!-- Main Screen -->
+    <string name="headphones_recommended">Headphones recommended</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+    <string name="presets_header">PRESETS</string>
+    <string name="custom_presets">Custom Presets</string>
+    <string name="custom_session">Custom Session</string>
+    <string name="phase_info">Phase %1$d/%2$d</string>
+
+    <!-- Controls -->
+    <string name="carrier_frequency">Carrier Frequency</string>
+    <string name="volume">Volume</string>
+    <string name="noise_volume">Background Noise</string>
+    <string name="transition_time">Transition</string>
+
+    <!-- WAV Export -->
+    <string name="wav_export">WAV Export</string>
+    <string name="wav_export_desc">Save session as audio file</string>
+    <string name="export">Export</string>
+    <string name="share">Share</string>
+    <string name="share_subject">Binaural Beats Session</string>
+    <string name="share_via">Share session</string>
+    <string name="export_success">Exported: %1$s</string>
+    <string name="export_error">Error: %1$s</string>
+    <string name="export_file_error">Could not create file</string>
+
+    <!-- Phase Editor -->
+    <string name="phases_header">PHASES</string>
+    <string name="phases_info">%1$d phases · %2$d min</string>
+    <string name="add_phase">Add Phase</string>
+    <string name="save_as_preset">Save as Preset</string>
+    <string name="save_preset_title">Save Preset</string>
+    <string name="preset_name_label">Name</string>
+    <string name="default_preset_name">My Preset</string>
+    <string name="modified_preset_name">%1$s (Modified)</string>
+    <string name="frequency_label">Frequency</string>
+    <string name="duration_label">Duration</string>
+    <string name="modulation_label">Modulation</string>
+    <string name="background_label">Background</string>
+    <string name="tone_type_label">Tone Type</string>
+
+    <!-- Breathing Guide -->
+    <string name="breathing_header">BREATHING GUIDE</string>
+    <string name="breathing_cycles">%1$d cycles</string>
+    <string name="inhale">Inhale</string>
+    <string name="hold">Hold</string>
+    <string name="exhale">Exhale</string>
+    <string name="breath_pattern_box">Box</string>
+    <string name="breath_pattern_relaxing">4-7-8</string>
+    <string name="breath_pattern_calm">Calming</string>
+    <string name="breath_pattern_energize">Energizing</string>
+
+    <!-- Journal -->
+    <string name="rate_session">Rate Session</string>
+    <string name="stars_desc">%1$d stars</string>
+    <string name="mood_label">Mood:</string>
+    <string name="notes_label">Notes</string>
+    <string name="journal_header">SESSION JOURNAL</string>
+    <string name="journal_entries">%1$d entries</string>
+    <string name="journal_empty">No sessions recorded yet.\nStart a session and rate it afterwards.</string>
+    <string name="stat_sessions">Sessions</string>
+    <string name="stat_total">Total</string>
+    <string name="stat_avg_rating">Avg Rating</string>
+    <string name="stat_top">Top:</string>
+    <string name="time_format">%1$dh %2$dm</string>
+
+    <!-- Moods -->
+    <string name="mood_relaxed">Relaxed</string>
+    <string name="mood_focused">Focused</string>
+    <string name="mood_sleepy">Sleepy</string>
+    <string name="mood_energetic">Energetic</string>
+    <string name="mood_creative">Creative</string>
+    <string name="mood_calm">Calm</string>
+    <string name="mood_neutral">Neutral</string>
+
+    <!-- Band Labels -->
+    <string name="band_delta_sub">Delta (&lt; 1 Hz)</string>
+    <string name="band_delta">Delta (1–4 Hz)</string>
+    <string name="band_theta">Theta (4–8 Hz)</string>
+    <string name="band_alpha">Alpha (8–13 Hz)</string>
+    <string name="band_beta">Beta (13–30 Hz)</string>
+    <string name="band_gamma">Gamma (&gt; 30 Hz)</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Binaural Beats Playback</string>
+    <string name="notif_channel_desc">Shows current playback status</string>
+    <string name="notif_title">Binaural Beats</string>
+    <string name="notif_playing">Session playing…</string>
+
+    <!-- Preset Categories -->
+    <string name="cat_sleep">Sleep &amp; Recovery</string>
+    <string name="cat_focus">Focus &amp; Productivity</string>
+    <string name="cat_meditation">Meditation &amp; Relaxation</string>
+    <string name="cat_energy">Energy &amp; Activation</string>
+    <string name="cat_creativity">Creativity</string>
+    <string name="cat_sport">Sports &amp; Training</string>
+    <string name="cat_relaxation">Relaxation &amp; Regeneration</string>
+    <string name="cat_solfeggio">Solfeggio Frequencies</string>
+    <string name="cat_isochronic">Isochronic Tones</string>
+
+    <!-- Preset Names -->
+    <string name="preset_power_nap">Power Nap</string>
+    <string name="preset_deep_sleep">Deep Sleep</string>
+    <string name="preset_full_night">8h Sleep Cycle</string>
+    <string name="preset_lucid_dream">Lucid Dreaming</string>
+    <string name="preset_wbtb">WBTB Lucid Dream</string>
+    <string name="preset_obe">OBE Monroe Method</string>
+    <string name="preset_deep_focus">Deep Focus</string>
+    <string name="preset_pomodoro">Pomodoro</string>
+    <string name="preset_flow">Flow State</string>
+    <string name="preset_study">Study Session</string>
+    <string name="preset_quick_med">Quick Meditation</string>
+    <string name="preset_deep_med">Deep Meditation</string>
+    <string name="preset_stress">Stress Relief</string>
+    <string name="preset_anxiety">Anxiety Relief</string>
+    <string name="preset_morning">Morning Boost</string>
+    <string name="preset_energy">Energy Kick</string>
+    <string name="preset_afternoon">Afternoon Revival</string>
+    <string name="preset_creative">Creativity</string>
+    <string name="preset_brainstorm">Brainstorming</string>
+    <string name="preset_marathon">Half Marathon</string>
+    <string name="preset_workout">Workout</string>
+    <string name="preset_yoga">Yoga</string>
+    <string name="preset_deep_relax">Deep Relaxation</string>
+    <string name="preset_calm">Calming</string>
+    <string name="preset_regen">Regeneration</string>
+    <string name="preset_solf_396">396 Hz – Liberation</string>
+    <string name="preset_solf_528">528 Hz – Transformation</string>
+    <string name="preset_solf_639">639 Hz – Connection</string>
+    <string name="preset_solf_741">741 Hz – Expression</string>
+    <string name="preset_solf_852">852 Hz – Intuition</string>
+    <string name="preset_solf_963">963 Hz – Unity</string>
+    <string name="preset_iso_focus">Iso: Deep Focus</string>
+    <string name="preset_iso_relax">Iso: Relaxation</string>
+    <string name="preset_iso_med">Iso: Meditation</string>
+    <string name="preset_iso_energy">Iso: Energy</string>
+
+    <!-- Guidance Texts -->
+    <string name="guide_eyes_close">Close your eyes. Relax your body.</string>
+    <string name="guide_thoughts">Let thoughts drift by like clouds.</string>
+    <string name="guide_theta">Theta zone: Observe hypnagogic images.</string>
+    <string name="guide_gamma_trigger">Gamma trigger: "I am awake in the dream."</string>
+    <string name="guide_awareness">Maintain awareness, let go of the body.</string>
+    <string name="guide_wbtb_intent">Set intention: "I will become aware in the dream."</string>
+    <string name="guide_deep_cycle1">Deep sleep cycle 1.</string>
+    <string name="guide_deep_cycle2">Deep sleep cycle 2.</string>
+    <string name="guide_rem_prep">REM preparation.</string>
+    <string name="guide_gamma_wbtb">Gamma trigger after ~4.5h of sleep.</string>
+    <string name="guide_rem_gamma">REM phase with gamma support.</string>
+    <string name="guide_wake_journal">Gentle awakening. Write your dream journal!</string>
+    <string name="guide_pmr">Progressive muscle relaxation.</string>
+    <string name="guide_theta_body">Theta transition. Body becomes heavy.</string>
+    <string name="guide_mind_awake">"Mind Awake, Body Asleep."</string>
+    <string name="guide_vibrations">When vibrations occur: visualize "rolling upward."</string>
+    <string name="guide_return">Return. Move fingers and toes.</string>
+    <string name="guide_solf_396">396 Hz: Liberation from guilt and fear.</string>
+    <string name="guide_solf_528">528 Hz: The frequency of love.</string>
+    <string name="guide_solf_639">639 Hz: Harmonious relationships.</string>
+    <string name="guide_solf_741">741 Hz: Self-expression and clarity.</string>
+    <string name="guide_solf_852">852 Hz: Return to spiritual order.</string>
+    <string name="guide_solf_963">963 Hz: Connection with the Higher.</string>
+</resources>
