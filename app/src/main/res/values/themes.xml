@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.BinauralBeats" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.BinauralBeats" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">#FF0F1F3D</item>
         <item name="android:navigationBarColor">#FF0F1F3D</item>
         <item name="android:windowBackground">#FF0F1F3D</item>

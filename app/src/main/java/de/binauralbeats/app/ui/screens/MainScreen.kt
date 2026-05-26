@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -45,14 +46,17 @@ import de.binauralbeats.app.ui.BinauralViewModel
 import de.binauralbeats.app.ui.components.BreathingGuide
 import de.binauralbeats.app.ui.components.FrequencyCurve
 import de.binauralbeats.app.ui.components.WaveformVisualizer
-import de.binauralbeats.app.ui.theme.*
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: BinauralViewModel) {
+    val colors = LocalBinauralColors.current
     val generator = remember { BinauralGenerator() }
     val customPresets by viewModel.customPresets.collectAsState()
     val journalEntries by viewModel.journalEntries.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
+    val languageTag by viewModel.languageTag.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -60,7 +64,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(SurfaceDark, PrimaryDark, PrimaryMid, SurfaceVariant)
+                        colors = listOf(colors.surfaceDark, colors.primaryDark, colors.primaryMid, colors.surfaceVariant)
                     )
                 )
                 .padding(horizontal = 16.dp),
@@ -74,25 +78,25 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         stringResource(R.string.app_name),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = colors.onSurface
                     )
                     Text(
                         stringResource(R.string.app_subtitle),
                         fontSize = 13.sp,
-                        color = OnSurfaceMuted,
+                        color = colors.onSurfaceMuted,
                         letterSpacing = 1.sp
                     )
                 }
             }
 
-            // Headphones hint + Journal button
+            // Headphones hint + Journal + Settings
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Surface(
-                        color = AccentPrimary.copy(alpha = 0.1f),
+                        color = colors.accentPrimary.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -101,14 +105,14 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.Default.Headphones, null, tint = AccentPrimary, modifier = Modifier.size(20.dp))
-                            Text(stringResource(R.string.headphones_recommended), fontSize = 12.sp, color = AccentPrimary)
+                            Icon(Icons.Default.Headphones, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
+                            Text(stringResource(R.string.headphones_recommended), fontSize = 12.sp, color = colors.accentPrimary)
                         }
                     }
 
                     Surface(
                         onClick = { viewModel.showJournal = true },
-                        color = AccentPrimary.copy(alpha = 0.1f),
+                        color = colors.accentPrimary.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Row(
@@ -116,15 +120,25 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Icon(Icons.Default.Book, null, tint = AccentPrimary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Book, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
                             if (journalEntries.isNotEmpty()) {
                                 Text(
                                     "${journalEntries.size}",
                                     fontSize = 12.sp,
-                                    color = AccentPrimary,
+                                    color = colors.accentPrimary,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
+                        }
+                    }
+
+                    Surface(
+                        onClick = { viewModel.showSettings = true },
+                        color = colors.accentPrimary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Box(modifier = Modifier.padding(12.dp)) {
+                            Icon(Icons.Default.Settings, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
@@ -163,8 +177,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp)),
-                            color = AccentPrimary,
-                            trackColor = Color.White.copy(alpha = 0.06f)
+                            color = colors.accentPrimary,
+                            trackColor = colors.overlay.copy(alpha = 0.06f)
                         )
 
                         val phases = viewModel.editablePhases
@@ -178,18 +192,18 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                 Text(
                                     stringResource(R.string.phase_info, viewModel.currentPhaseIndex + 1, phases.size),
                                     fontSize = 12.sp,
-                                    color = OnSurfaceMuted
+                                    color = colors.onSurfaceMuted
                                 )
                                 Text(
                                     stringResource(generator.getBandLabelRes(phase.frequency)),
                                     fontSize = 12.sp,
-                                    color = AccentPrimary,
+                                    color = colors.accentPrimary,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
                                     "${phase.frequency} Hz · ${phase.durationMinutes} min",
                                     fontSize = 12.sp,
-                                    color = OnSurfaceMuted
+                                    color = colors.onSurfaceMuted
                                 )
                             }
                         }
@@ -202,7 +216,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 item {
                     AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
                         Surface(
-                            color = AccentPrimary.copy(alpha = 0.08f),
+                            color = colors.accentPrimary.copy(alpha = 0.08f),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -210,7 +224,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                 guidance,
                                 modifier = Modifier.padding(16.dp),
                                 fontSize = 14.sp,
-                                color = AccentPrimary,
+                                color = colors.accentPrimary,
                                 textAlign = TextAlign.Center,
                                 lineHeight = 22.sp
                             )
@@ -231,14 +245,14 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             onClick = { viewModel.togglePlayback() },
                             modifier = Modifier.size(64.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = AccentPrimary
+                                containerColor = colors.accentPrimary
                             )
                         ) {
                             Icon(
                                 if (viewModel.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
                                 contentDescription = stringResource(if (viewModel.isPaused) R.string.resume else R.string.pause),
                                 modifier = Modifier.size(32.dp),
-                                tint = PrimaryDark
+                                tint = colors.onAccent
                             )
                         }
 
@@ -259,14 +273,14 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             modifier = Modifier
                                 .height(56.dp)
                                 .widthIn(min = 200.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                            colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary),
                             shape = RoundedCornerShape(28.dp)
                         ) {
-                            Icon(Icons.Default.PlayArrow, null, tint = PrimaryDark)
+                            Icon(Icons.Default.PlayArrow, null, tint = colors.onAccent)
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 stringResource(R.string.start_label),
-                                color = PrimaryDark,
+                                color = colors.onAccent,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -290,7 +304,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 ControlsSection(viewModel)
             }
 
-            // Phase Editor (replaces old read-only PhasesDetail)
+            // Phase Editor
             item {
                 PhaseEditorCard(
                     viewModel = viewModel,
@@ -305,7 +319,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     stringResource(R.string.presets_header),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     letterSpacing = 2.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -346,7 +360,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             Text(
                                 "✕",
                                 fontSize = 14.sp,
-                                color = OnSurfaceMuted,
+                                color = colors.onSurfaceMuted,
                                 modifier = Modifier.clickable { viewModel.customPresetLimitReached = false }
                             )
                         }
@@ -373,7 +387,6 @@ fun MainScreen(viewModel: BinauralViewModel) {
 
         // --- Dialogs & Overlays ---
 
-        // Save preset dialog
         if (viewModel.showSaveDialog) {
             SavePresetDialog(
                 initialName = viewModel.selectedPreset?.let {
@@ -384,7 +397,6 @@ fun MainScreen(viewModel: BinauralViewModel) {
             )
         }
 
-        // Rating dialog (after session completion)
         if (viewModel.showRatingDialog) {
             RatingDialog(
                 presetName = viewModel.activePresetName,
@@ -395,7 +407,6 @@ fun MainScreen(viewModel: BinauralViewModel) {
             )
         }
 
-        // Journal overlay
         if (viewModel.showJournal) {
             JournalOverlay(
                 entries = journalEntries,
@@ -403,17 +414,34 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 onClose = { viewModel.showJournal = false }
             )
         }
+
+        if (viewModel.showSettings) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                SettingsSheet(
+                    currentTheme = themeMode,
+                    currentLanguage = languageTag,
+                    onThemeChange = { viewModel.setThemeMode(it) },
+                    onLanguageChange = { viewModel.setLanguage(it) },
+                    onClose = { viewModel.showSettings = false }
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun ControlsSection(viewModel: BinauralViewModel) {
+    val colors = LocalBinauralColors.current
+
     Surface(
-        color = Color.White.copy(alpha = 0.04f),
+        color = colors.overlay.copy(alpha = 0.04f),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.carrier_frequency), fontSize = 12.sp, color = AccentPrimary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.carrier_frequency), fontSize = 12.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Slider(
                     value = viewModel.carrierFrequency,
@@ -421,14 +449,14 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
                     valueRange = 100f..500f,
                     modifier = Modifier.weight(1f),
                     colors = SliderDefaults.colors(
-                        thumbColor = AccentPrimary,
-                        activeTrackColor = AccentPrimary
+                        thumbColor = colors.accentPrimary,
+                        activeTrackColor = colors.accentPrimary
                     )
                 )
                 Text(
                     "${viewModel.carrierFrequency.toInt()} Hz",
                     fontSize = 13.sp,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.width(60.dp),
                     textAlign = TextAlign.End
@@ -437,7 +465,7 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 
             Spacer(Modifier.height(12.dp))
 
-            Text(stringResource(R.string.volume), fontSize = 12.sp, color = AccentPrimary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.volume), fontSize = 12.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Slider(
                     value = viewModel.masterVolume,
@@ -445,14 +473,14 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
                     valueRange = 0f..1f,
                     modifier = Modifier.weight(1f),
                     colors = SliderDefaults.colors(
-                        thumbColor = AccentPrimary,
-                        activeTrackColor = AccentPrimary
+                        thumbColor = colors.accentPrimary,
+                        activeTrackColor = colors.accentPrimary
                     )
                 )
                 Text(
                     "${(viewModel.masterVolume * 100).toInt()}%",
                     fontSize = 13.sp,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.width(44.dp),
                     textAlign = TextAlign.End
@@ -461,7 +489,7 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 
             Spacer(Modifier.height(12.dp))
 
-            Text(stringResource(R.string.noise_volume), fontSize = 12.sp, color = AccentPrimary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.noise_volume), fontSize = 12.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Slider(
                     value = viewModel.noiseVolume,
@@ -469,14 +497,14 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
                     valueRange = 0f..0.5f,
                     modifier = Modifier.weight(1f),
                     colors = SliderDefaults.colors(
-                        thumbColor = AccentPrimary,
-                        activeTrackColor = AccentPrimary
+                        thumbColor = colors.accentPrimary,
+                        activeTrackColor = colors.accentPrimary
                     )
                 )
                 Text(
                     "${(viewModel.noiseVolume * 100).toInt()}%",
                     fontSize = 13.sp,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.width(44.dp),
                     textAlign = TextAlign.End
@@ -485,7 +513,7 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 
             Spacer(Modifier.height(12.dp))
 
-            Text(stringResource(R.string.transition_time), fontSize = 12.sp, color = AccentPrimary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.transition_time), fontSize = 12.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Slider(
                     value = viewModel.transitionTimeMs.toFloat(),
@@ -494,14 +522,14 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
                     steps = 5,
                     modifier = Modifier.weight(1f),
                     colors = SliderDefaults.colors(
-                        thumbColor = AccentPrimary,
-                        activeTrackColor = AccentPrimary
+                        thumbColor = colors.accentPrimary,
+                        activeTrackColor = colors.accentPrimary
                     )
                 )
                 Text(
                     "${viewModel.transitionTimeMs} ms",
                     fontSize = 13.sp,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.width(60.dp),
                     textAlign = TextAlign.End
@@ -513,8 +541,10 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 
 @Composable
 private fun WavExportSection(viewModel: BinauralViewModel) {
+    val colors = LocalBinauralColors.current
+
     Surface(
-        color = Color.White.copy(alpha = 0.04f),
+        color = colors.overlay.copy(alpha = 0.04f),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -527,13 +557,13 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                     Text(
                         stringResource(R.string.wav_export),
                         fontSize = 12.sp,
-                        color = AccentPrimary,
+                        color = colors.accentPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         stringResource(R.string.wav_export_desc),
                         fontSize = 11.sp,
-                        color = OnSurfaceMuted
+                        color = colors.onSurfaceMuted
                     )
                 }
 
@@ -551,13 +581,13 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                         },
                         modifier = Modifier.size(36.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = AccentPrimary.copy(alpha = 0.15f)
+                            containerColor = colors.accentPrimary.copy(alpha = 0.15f)
                         )
                     ) {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = stringResource(R.string.share),
-                            tint = AccentPrimary,
+                            tint = colors.accentPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -567,7 +597,7 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                             CircularProgressIndicator(
                                 progress = { viewModel.exportProgress },
                                 modifier = Modifier.size(36.dp),
-                                color = AccentPrimary,
+                                color = colors.accentPrimary,
                                 strokeWidth = 3.dp
                             )
                         } else {
@@ -575,13 +605,13 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                                 onClick = { viewModel.exportWav() },
                                 modifier = Modifier.size(36.dp),
                                 colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = AccentPrimary.copy(alpha = 0.15f)
+                                    containerColor = colors.accentPrimary.copy(alpha = 0.15f)
                                 )
                             ) {
                                 Icon(
                                     Icons.Default.FileDownload,
                                     contentDescription = stringResource(R.string.export),
-                                    tint = AccentPrimary,
+                                    tint = colors.accentPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -598,13 +628,13 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                         .fillMaxWidth()
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp)),
-                    color = AccentPrimary,
-                    trackColor = Color.White.copy(alpha = 0.06f)
+                    color = colors.accentPrimary,
+                    trackColor = colors.overlay.copy(alpha = 0.06f)
                 )
                 Text(
                     "${(viewModel.exportProgress * 100).toInt()}%",
                     fontSize = 11.sp,
-                    color = OnSurfaceMuted,
+                    color = colors.onSurfaceMuted,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -613,7 +643,7 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                 Spacer(Modifier.height(8.dp))
                 val isError = viewModel.isExportError
                 Surface(
-                    color = if (isError) Color(0x33FF6B6B) else AccentPrimary.copy(alpha = 0.1f),
+                    color = if (isError) Color(0x33FF6B6B) else colors.accentPrimary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Row(
@@ -626,13 +656,13 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                         Text(
                             result,
                             fontSize = 12.sp,
-                            color = if (isError) Color(0xFFFF8A8A) else AccentPrimary,
+                            color = if (isError) Color(0xFFFF8A8A) else colors.accentPrimary,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
                             "✕",
                             fontSize = 14.sp,
-                            color = OnSurfaceMuted,
+                            color = colors.onSurfaceMuted,
                             modifier = Modifier.clickable { viewModel.exportResult = null }
                         )
                     }
@@ -649,10 +679,11 @@ private fun PresetCategoryCard(
     selectedKey: String?,
     onSelect: (de.binauralbeats.app.data.Preset) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var expanded by remember { mutableStateOf(false) }
 
     Surface(
-        color = Color.White.copy(alpha = 0.04f),
+        color = colors.overlay.copy(alpha = 0.04f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -668,12 +699,12 @@ private fun PresetCategoryCard(
                     "${category.emoji} ${stringResource(category.labelRes)}",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = OnSurfaceMuted
+                    color = colors.onSurfaceMuted
                 )
                 Text(
                     if (expanded) "▾" else "▸",
                     fontSize = 12.sp,
-                    color = OnSurfaceMuted
+                    color = colors.onSurfaceMuted
                 )
             }
 
@@ -682,11 +713,11 @@ private fun PresetCategoryCard(
                     presets.forEach { preset ->
                         val isSelected = preset.key == selectedKey
                         val bgColor by animateColorAsState(
-                            if (isSelected) AccentPrimary.copy(alpha = 0.15f)
+                            if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
                             else Color.Transparent,
                             label = "presetBg"
                         )
-                        val borderColor = if (isSelected) AccentPrimary else Color.White.copy(alpha = 0.15f)
+                        val borderColor = if (isSelected) colors.accentPrimary else colors.overlay.copy(alpha = 0.15f)
 
                         Surface(
                             onClick = { onSelect(preset) },
@@ -707,13 +738,13 @@ private fun PresetCategoryCard(
                                 Text(
                                     "${preset.emoji} ${stringResource(preset.nameRes)}",
                                     fontSize = 13.sp,
-                                    color = if (isSelected) AccentPrimary else Color.White.copy(0.7f),
+                                    color = if (isSelected) colors.accentPrimary else colors.onSurface.copy(0.7f),
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                                 )
                                 Text(
                                     "${preset.totalDurationMinutes} min",
                                     fontSize = 11.sp,
-                                    color = OnSurfaceMuted
+                                    color = colors.onSurfaceMuted
                                 )
                             }
                         }
@@ -731,10 +762,11 @@ private fun CustomPresetsCard(
     onSelect: (CustomPreset) -> Unit,
     onDelete: (String) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var expanded by remember { mutableStateOf(true) }
 
     Surface(
-        color = AccentPrimary.copy(alpha = 0.06f),
+        color = colors.accentPrimary.copy(alpha = 0.06f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -750,12 +782,12 @@ private fun CustomPresetsCard(
                     "🎵 ${stringResource(R.string.custom_presets)}",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = AccentPrimary
+                    color = colors.accentPrimary
                 )
                 Text(
                     if (expanded) "▾" else "▸",
                     fontSize = 12.sp,
-                    color = AccentPrimary
+                    color = colors.accentPrimary
                 )
             }
 
@@ -764,11 +796,11 @@ private fun CustomPresetsCard(
                     presets.forEach { preset ->
                         val isSelected = preset.id == selectedId
                         val bgColor by animateColorAsState(
-                            if (isSelected) AccentPrimary.copy(alpha = 0.15f)
+                            if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
                             else Color.Transparent,
                             label = "customBg"
                         )
-                        val borderColor = if (isSelected) AccentPrimary else Color.White.copy(alpha = 0.15f)
+                        val borderColor = if (isSelected) colors.accentPrimary else colors.overlay.copy(alpha = 0.15f)
 
                         Surface(
                             onClick = { onSelect(preset) },
@@ -789,14 +821,14 @@ private fun CustomPresetsCard(
                                 Text(
                                     "${preset.emoji} ${preset.name}",
                                     fontSize = 13.sp,
-                                    color = if (isSelected) AccentPrimary else Color.White.copy(0.7f),
+                                    color = if (isSelected) colors.accentPrimary else colors.onSurface.copy(0.7f),
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Text(
                                     "${preset.totalDurationMinutes} min",
                                     fontSize = 11.sp,
-                                    color = OnSurfaceMuted
+                                    color = colors.onSurfaceMuted
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 IconButton(
@@ -806,7 +838,7 @@ private fun CustomPresetsCard(
                                     Icon(
                                         Icons.Default.Delete, null,
                                         Modifier.size(14.dp),
-                                        tint = Color.White.copy(0.3f)
+                                        tint = colors.onSurface.copy(0.3f)
                                     )
                                 }
                             }

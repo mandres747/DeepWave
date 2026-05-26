@@ -20,7 +20,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,7 +33,7 @@ import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.ToneType
 import de.binauralbeats.app.ui.BinauralViewModel
-import de.binauralbeats.app.ui.theme.*
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 
 @Composable
 fun PhaseEditorCard(
@@ -42,16 +41,16 @@ fun PhaseEditorCard(
     activeIndex: Int,
     isPlaying: Boolean
 ) {
+    val colors = LocalBinauralColors.current
     val generator = remember { BinauralGenerator() }
     val phases = viewModel.editablePhases
     val totalMinutes = phases.sumOf { it.durationMinutes }
 
     Surface(
-        color = Color.White.copy(alpha = 0.04f),
+        color = colors.overlay.copy(alpha = 0.04f),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -62,13 +61,13 @@ fun PhaseEditorCard(
                         stringResource(R.string.phases_header),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = AccentPrimary,
+                        color = colors.accentPrimary,
                         letterSpacing = 2.sp
                     )
                     Text(
                         stringResource(R.string.phases_info, phases.size, totalMinutes),
                         fontSize = 11.sp,
-                        color = OnSurfaceMuted
+                        color = colors.onSurfaceMuted
                     )
                 }
 
@@ -79,12 +78,12 @@ fun PhaseEditorCard(
                             modifier = Modifier.height(32.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp),
                             colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = Color.White.copy(0.08f)
+                                containerColor = colors.overlay.copy(0.08f)
                             )
                         ) {
-                            Icon(Icons.Default.Restore, null, Modifier.size(14.dp), tint = OnSurfaceMuted)
+                            Icon(Icons.Default.Restore, null, Modifier.size(14.dp), tint = colors.onSurfaceMuted)
                             Spacer(Modifier.width(4.dp))
-                            Text(stringResource(R.string.reset), fontSize = 10.sp, color = OnSurfaceMuted)
+                            Text(stringResource(R.string.reset), fontSize = 10.sp, color = colors.onSurfaceMuted)
                         }
                     }
 
@@ -95,7 +94,7 @@ fun PhaseEditorCard(
                         Icon(
                             if (viewModel.isEditing) Icons.Default.ExpandLess else Icons.Default.Edit,
                             null,
-                            tint = AccentPrimary,
+                            tint = colors.accentPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -104,7 +103,6 @@ fun PhaseEditorCard(
 
             Spacer(Modifier.height(12.dp))
 
-            // Phase list
             phases.forEachIndexed { idx, phase ->
                 PhaseRow(
                     index = idx,
@@ -119,20 +117,18 @@ fun PhaseEditorCard(
                 )
             }
 
-            // Add + Save buttons
             AnimatedVisibility(visible = viewModel.isEditing) {
                 Column {
                     Spacer(Modifier.height(8.dp))
 
-                    // Add phase
                     OutlinedButton(
                         onClick = { viewModel.addPhase() },
                         modifier = Modifier.fillMaxWidth().height(40.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AccentPrimary),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.accentPrimary),
                         border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
                             brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                                listOf(AccentPrimary.copy(0.3f), AccentPrimary.copy(0.3f))
+                                listOf(colors.accentPrimary.copy(0.3f), colors.accentPrimary.copy(0.3f))
                             )
                         )
                     ) {
@@ -143,16 +139,15 @@ fun PhaseEditorCard(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Save as preset
                     Button(
                         onClick = { viewModel.showSaveDialog = true },
                         modifier = Modifier.fillMaxWidth().height(40.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary)
                     ) {
-                        Icon(Icons.Default.Save, null, Modifier.size(16.dp), tint = PrimaryDark)
+                        Icon(Icons.Default.Save, null, Modifier.size(16.dp), tint = colors.onAccent)
                         Spacer(Modifier.width(4.dp))
-                        Text(stringResource(R.string.save_as_preset), fontSize = 12.sp, color = PrimaryDark)
+                        Text(stringResource(R.string.save_as_preset), fontSize = 12.sp, color = colors.onAccent)
                     }
                 }
             }
@@ -173,11 +168,12 @@ private fun PhaseRow(
     onDuplicate: () -> Unit,
     onRemove: () -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var expanded by remember { mutableStateOf(false) }
     val bgColor by animateColorAsState(
         when {
-            isActive -> AccentPrimary.copy(alpha = 0.1f)
-            expanded && isEditing -> Color.White.copy(alpha = 0.04f)
+            isActive -> colors.accentPrimary.copy(alpha = 0.1f)
+            expanded && isEditing -> colors.overlay.copy(alpha = 0.04f)
             else -> Color.Transparent
         },
         label = "phaseBg"
@@ -189,7 +185,6 @@ private fun PhaseRow(
         modifier = Modifier.padding(vertical = 2.dp)
     ) {
         Column {
-            // Compact row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,7 +202,7 @@ private fun PhaseRow(
                         modifier = Modifier
                             .size(24.dp)
                             .background(
-                                if (isActive) AccentPrimary else Color.White.copy(0.15f),
+                                if (isActive) colors.accentPrimary else colors.overlay.copy(0.15f),
                                 CircleShape
                             ),
                         contentAlignment = Alignment.Center
@@ -216,20 +211,20 @@ private fun PhaseRow(
                             "${index + 1}",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isActive) PrimaryDark else Color.White.copy(0.6f)
+                            color = if (isActive) colors.onAccent else colors.onSurface.copy(0.6f)
                         )
                     }
                     Column {
                         Text(
                             "${phase.frequency} Hz · ${stringResource(generator.getBandLabelRes(phase.frequency))}",
                             fontSize = 13.sp,
-                            color = if (isActive) Color.White else Color.White.copy(0.7f),
+                            color = if (isActive) colors.onSurface else colors.onSurface.copy(0.7f),
                             fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
                         )
                         Text(
                             "${phase.modulation.name.lowercase()} · ${phase.durationMinutes} min",
                             fontSize = 11.sp,
-                            color = OnSurfaceMuted
+                            color = colors.onSurfaceMuted
                         )
                     }
                 }
@@ -237,7 +232,7 @@ private fun PhaseRow(
                 if (isEditing) {
                     Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                         IconButton(onClick = onDuplicate, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.ContentCopy, null, Modifier.size(14.dp), tint = OnSurfaceMuted)
+                            Icon(Icons.Default.ContentCopy, null, Modifier.size(14.dp), tint = colors.onSurfaceMuted)
                         }
                         IconButton(
                             onClick = onRemove,
@@ -246,20 +241,19 @@ private fun PhaseRow(
                         ) {
                             Icon(
                                 Icons.Default.Delete, null, Modifier.size(14.dp),
-                                tint = if (isLastPhase) Color.White.copy(0.15f) else Color(0xFFFF8A8A)
+                                tint = if (isLastPhase) colors.overlay.copy(0.15f) else Color(0xFFFF8A8A)
                             )
                         }
                         Icon(
                             if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                             null,
                             Modifier.size(16.dp),
-                            tint = OnSurfaceMuted
+                            tint = colors.onSurfaceMuted
                         )
                     }
                 }
             }
 
-            // Expanded editor
             AnimatedVisibility(visible = expanded && isEditing) {
                 PhaseInlineEditor(phase = phase, onUpdate = onUpdate)
             }
@@ -273,13 +267,14 @@ private fun PhaseInlineEditor(
     phase: Phase,
     onUpdate: (Phase) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 44.dp, end = 12.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Frequency slider (0.1 - 40 Hz)
         LabeledSlider(
             label = stringResource(R.string.frequency_label),
             value = phase.frequency,
@@ -288,7 +283,6 @@ private fun PhaseInlineEditor(
             onValueChange = { onUpdate(phase.copy(frequency = "%.1f".format(it).toFloat())) }
         )
 
-        // Duration slider (1 - 180 min)
         LabeledSlider(
             label = stringResource(R.string.duration_label),
             value = phase.durationMinutes.toFloat(),
@@ -297,7 +291,6 @@ private fun PhaseInlineEditor(
             onValueChange = { onUpdate(phase.copy(durationMinutes = it.toInt())) }
         )
 
-        // Modulation dropdown
         LabeledDropdown(
             label = stringResource(R.string.modulation_label),
             selected = phase.modulation.name,
@@ -305,7 +298,6 @@ private fun PhaseInlineEditor(
             onSelect = { onUpdate(phase.copy(modulation = ModulationType.valueOf(it))) }
         )
 
-        // Background noise dropdown
         LabeledDropdown(
             label = stringResource(R.string.background_label),
             selected = phase.background.name,
@@ -313,7 +305,6 @@ private fun PhaseInlineEditor(
             onSelect = { onUpdate(phase.copy(background = BackgroundNoise.valueOf(it))) }
         )
 
-        // Tone type dropdown
         LabeledDropdown(
             label = stringResource(R.string.tone_type_label),
             selected = phase.toneType.name,
@@ -331,13 +322,15 @@ private fun LabeledSlider(
     displayText: String,
     onValueChange: (Float) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
+
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(label, fontSize = 11.sp, color = OnSurfaceMuted)
-            Text(displayText, fontSize = 11.sp, color = AccentPrimary, fontWeight = FontWeight.SemiBold)
+            Text(label, fontSize = 11.sp, color = colors.onSurfaceMuted)
+            Text(displayText, fontSize = 11.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
         }
         Slider(
             value = value,
@@ -345,9 +338,9 @@ private fun LabeledSlider(
             valueRange = valueRange,
             modifier = Modifier.height(24.dp),
             colors = SliderDefaults.colors(
-                thumbColor = AccentPrimary,
-                activeTrackColor = AccentPrimary,
-                inactiveTrackColor = Color.White.copy(0.08f)
+                thumbColor = colors.accentPrimary,
+                activeTrackColor = colors.accentPrimary,
+                inactiveTrackColor = colors.overlay.copy(0.08f)
             )
         )
     }
@@ -361,6 +354,7 @@ private fun LabeledDropdown(
     options: List<String>,
     onSelect: (String) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -368,7 +362,7 @@ private fun LabeledDropdown(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 11.sp, color = OnSurfaceMuted)
+        Text(label, fontSize = 11.sp, color = colors.onSurfaceMuted)
 
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -376,7 +370,7 @@ private fun LabeledDropdown(
         ) {
             Surface(
                 onClick = { expanded = true },
-                color = Color.White.copy(0.06f),
+                color = colors.overlay.copy(0.06f),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.menuAnchor()
             ) {
@@ -387,18 +381,18 @@ private fun LabeledDropdown(
                     Text(
                         selected.lowercase().replaceFirstChar { it.uppercase() },
                         fontSize = 11.sp,
-                        color = AccentPrimary,
+                        color = colors.accentPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Default.ExpandMore, null, Modifier.size(14.dp), tint = OnSurfaceMuted)
+                    Icon(Icons.Default.ExpandMore, null, Modifier.size(14.dp), tint = colors.onSurfaceMuted)
                 }
             }
 
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                containerColor = SurfaceDark
+                containerColor = colors.surfaceDark
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
@@ -406,7 +400,7 @@ private fun LabeledDropdown(
                             Text(
                                 option.lowercase().replaceFirstChar { it.uppercase() },
                                 fontSize = 12.sp,
-                                color = if (option == selected) AccentPrimary else Color.White.copy(0.7f)
+                                color = if (option == selected) colors.accentPrimary else colors.onSurface.copy(0.7f)
                             )
                         },
                         onClick = {
@@ -426,27 +420,28 @@ fun SavePresetDialog(
     onSave: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var name by remember { mutableStateOf(initialName) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = SurfaceDark,
+        containerColor = colors.surfaceDark,
         title = {
-            Text(stringResource(R.string.save_preset_title), color = Color.White)
+            Text(stringResource(R.string.save_preset_title), color = colors.onSurface)
         },
         text = {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(stringResource(R.string.preset_name_label), color = OnSurfaceMuted) },
+                label = { Text(stringResource(R.string.preset_name_label), color = colors.onSurfaceMuted) },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentPrimary,
-                    unfocusedBorderColor = Color.White.copy(0.15f),
-                    focusedLabelColor = AccentPrimary,
-                    cursorColor = AccentPrimary,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedBorderColor = colors.accentPrimary,
+                    unfocusedBorderColor = colors.overlay.copy(0.15f),
+                    focusedLabelColor = colors.accentPrimary,
+                    cursorColor = colors.accentPrimary,
+                    focusedTextColor = colors.onSurface,
+                    unfocusedTextColor = colors.onSurface
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -454,15 +449,15 @@ fun SavePresetDialog(
         confirmButton = {
             Button(
                 onClick = { if (name.isNotBlank()) onSave(name.trim()) },
-                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary),
                 enabled = name.isNotBlank()
             ) {
-                Text(stringResource(R.string.save), color = PrimaryDark)
+                Text(stringResource(R.string.save), color = colors.onAccent)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel), color = OnSurfaceMuted)
+                Text(stringResource(R.string.cancel), color = colors.onSurfaceMuted)
             }
         }
     )

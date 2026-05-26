@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
 import de.binauralbeats.app.data.JournalEntry
 import de.binauralbeats.app.data.Moods
-import de.binauralbeats.app.ui.theme.*
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,22 +39,22 @@ fun RatingDialog(
     onSave: (rating: Int, moods: List<String>, notes: String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     var rating by remember { mutableIntStateOf(0) }
     var selectedMoods by remember { mutableStateOf(setOf<String>()) }
     var notes by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = SurfaceDark,
+        containerColor = colors.surfaceDark,
         title = {
             Column {
-                Text(stringResource(R.string.rate_session), color = Color.White, fontSize = 18.sp)
-                Text(presetName, color = OnSurfaceMuted, fontSize = 12.sp)
+                Text(stringResource(R.string.rate_session), color = colors.onSurface, fontSize = 18.sp)
+                Text(presetName, color = colors.onSurfaceMuted, fontSize = 12.sp)
             }
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Star rating
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
@@ -64,15 +64,14 @@ fun RatingDialog(
                             Icon(
                                 if (star <= rating) Icons.Default.Star else Icons.Default.StarBorder,
                                 contentDescription = stringResource(R.string.stars_desc, star),
-                                tint = if (star <= rating) Color(0xFFFFD700) else Color.White.copy(0.3f),
+                                tint = if (star <= rating) Color(0xFFFFD700) else colors.onSurface.copy(0.3f),
                                 modifier = Modifier.size(36.dp)
                             )
                         }
                     }
                 }
 
-                // Mood tags
-                Text(stringResource(R.string.mood_label), fontSize = 12.sp, color = OnSurfaceMuted)
+                Text(stringResource(R.string.mood_label), fontSize = 12.sp, color = colors.onSurfaceMuted)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -80,10 +79,10 @@ fun RatingDialog(
                     Moods.all.forEach { mood ->
                         val isSelected = mood.key in selectedMoods
                         val chipColor by animateColorAsState(
-                            if (isSelected) AccentPrimary.copy(0.2f) else Color.White.copy(0.06f),
+                            if (isSelected) colors.accentPrimary.copy(0.2f) else colors.overlay.copy(0.06f),
                             label = "mood"
                         )
-                        val borderColor = if (isSelected) AccentPrimary else Color.White.copy(0.15f)
+                        val borderColor = if (isSelected) colors.accentPrimary else colors.overlay.copy(0.15f)
 
                         Surface(
                             onClick = {
@@ -100,27 +99,26 @@ fun RatingDialog(
                                 "${mood.emoji} ${stringResource(mood.labelRes)}",
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                 fontSize = 11.sp,
-                                color = if (isSelected) AccentPrimary else Color.White.copy(0.6f)
+                                color = if (isSelected) colors.accentPrimary else colors.onSurface.copy(0.6f)
                             )
                         }
                     }
                 }
 
-                // Notes
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text(stringResource(R.string.notes_label), color = OnSurfaceMuted) },
+                    label = { Text(stringResource(R.string.notes_label), color = colors.onSurfaceMuted) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AccentPrimary,
-                        unfocusedBorderColor = Color.White.copy(0.15f),
-                        focusedLabelColor = AccentPrimary,
-                        cursorColor = AccentPrimary,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = colors.accentPrimary,
+                        unfocusedBorderColor = colors.overlay.copy(0.15f),
+                        focusedLabelColor = colors.accentPrimary,
+                        cursorColor = colors.accentPrimary,
+                        focusedTextColor = colors.onSurface,
+                        unfocusedTextColor = colors.onSurface
                     )
                 )
             }
@@ -128,15 +126,15 @@ fun RatingDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(rating, selectedMoods.toList(), notes) },
-                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary),
                 enabled = rating > 0
             ) {
-                Text(stringResource(R.string.save), color = PrimaryDark)
+                Text(stringResource(R.string.save), color = colors.onAccent)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.skip), color = OnSurfaceMuted)
+                Text(stringResource(R.string.skip), color = colors.onSurfaceMuted)
             }
         }
     )
@@ -148,14 +146,14 @@ fun JournalOverlay(
     onDelete: (String) -> Unit,
     onClose: () -> Unit
 ) {
+    val colors = LocalBinauralColors.current
     val dateFormat = remember { SimpleDateFormat("dd.MM.yy · HH:mm", Locale.getDefault()) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = SurfaceDark.copy(alpha = 0.97f)
+        color = colors.surfaceDark.copy(alpha = 0.97f)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -168,21 +166,21 @@ fun JournalOverlay(
                         stringResource(R.string.journal_header),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = AccentPrimary,
+                        color = colors.accentPrimary,
                         letterSpacing = 2.sp
                     )
                     Text(
                         stringResource(R.string.journal_entries, entries.size),
                         fontSize = 11.sp,
-                        color = OnSurfaceMuted
+                        color = colors.onSurfaceMuted
                     )
                 }
                 IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, stringResource(R.string.close), tint = Color.White)
+                    Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
                 }
             }
 
-            HorizontalDivider(color = Color.White.copy(0.06f))
+            HorizontalDivider(color = colors.overlay.copy(0.06f))
 
             if (entries.isEmpty()) {
                 Box(
@@ -194,13 +192,12 @@ fun JournalOverlay(
                     Text(
                         stringResource(R.string.journal_empty),
                         fontSize = 14.sp,
-                        color = OnSurfaceMuted,
+                        color = colors.onSurfaceMuted,
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp
                     )
                 }
             } else {
-                // Stats summary
                 val avgRating = entries.map { it.rating }.average()
                 val totalMinutes = entries.sumOf { it.totalDurationMinutes }
                 val topMoods = entries.flatMap { it.moods }
@@ -212,7 +209,7 @@ fun JournalOverlay(
                     .map { it.key }
 
                 Surface(
-                    color = Color.White.copy(0.04f),
+                    color = colors.overlay.copy(0.04f),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -235,12 +232,12 @@ fun JournalOverlay(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Text(stringResource(R.string.stat_top), fontSize = 11.sp, color = OnSurfaceMuted)
+                        Text(stringResource(R.string.stat_top), fontSize = 11.sp, color = colors.onSurfaceMuted)
                         topMoods.forEach { moodKey ->
                             val mood = Moods.findByKey(moodKey)
                             Text(
                                 if (mood != null) "${mood.emoji} ${stringResource(mood.labelRes)}" else moodKey,
-                                fontSize = 11.sp, color = AccentPrimary
+                                fontSize = 11.sp, color = colors.accentPrimary
                             )
                         }
                     }
@@ -248,7 +245,6 @@ fun JournalOverlay(
 
                 Spacer(Modifier.height(8.dp))
 
-                // Entry list
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -265,9 +261,10 @@ fun JournalOverlay(
 
 @Composable
 private fun StatItem(label: String, value: String) {
+    val colors = LocalBinauralColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AccentPrimary)
-        Text(label, fontSize = 10.sp, color = OnSurfaceMuted)
+        Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.accentPrimary)
+        Text(label, fontSize = 10.sp, color = colors.onSurfaceMuted)
     }
 }
 
@@ -277,8 +274,10 @@ private fun JournalEntryCard(
     dateFormat: SimpleDateFormat,
     onDelete: (String) -> Unit
 ) {
+    val colors = LocalBinauralColors.current
+
     Surface(
-        color = Color.White.copy(0.04f),
+        color = colors.overlay.copy(0.04f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -292,17 +291,16 @@ private fun JournalEntryCard(
                         entry.presetName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = colors.onSurface
                     )
                     Text(
                         "${dateFormat.format(Date(entry.completedAt))} · ${entry.totalDurationMinutes} min",
                         fontSize = 11.sp,
-                        color = OnSurfaceMuted
+                        color = colors.onSurfaceMuted
                     )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Stars
                     Text(
                         "★".repeat(entry.rating) + "☆".repeat(5 - entry.rating),
                         fontSize = 12.sp,
@@ -313,7 +311,7 @@ private fun JournalEntryCard(
                         onClick = { onDelete(entry.id) },
                         modifier = Modifier.size(28.dp)
                     ) {
-                        Icon(Icons.Default.Delete, null, Modifier.size(14.dp), tint = Color.White.copy(0.3f))
+                        Icon(Icons.Default.Delete, null, Modifier.size(14.dp), tint = colors.onSurface.copy(0.3f))
                     }
                 }
             }
@@ -324,14 +322,14 @@ private fun JournalEntryCard(
                     entry.moods.forEach { moodKey ->
                         val mood = Moods.findByKey(moodKey)
                         Surface(
-                            color = AccentPrimary.copy(0.1f),
+                            color = colors.accentPrimary.copy(0.1f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
                                 if (mood != null) "${mood.emoji} ${stringResource(mood.labelRes)}" else moodKey,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                 fontSize = 10.sp,
-                                color = AccentPrimary
+                                color = colors.accentPrimary
                             )
                         }
                     }
@@ -343,7 +341,7 @@ private fun JournalEntryCard(
                 Text(
                     entry.notes,
                     fontSize = 12.sp,
-                    color = Color.White.copy(0.6f),
+                    color = colors.onSurface.copy(0.6f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 18.sp

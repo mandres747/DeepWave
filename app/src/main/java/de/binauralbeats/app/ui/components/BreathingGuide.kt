@@ -43,8 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
-import de.binauralbeats.app.ui.theme.AccentPrimary
-import de.binauralbeats.app.ui.theme.OnSurfaceMuted
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import kotlinx.coroutines.delay
 
 enum class BreathPhase(@StringRes val labelRes: Int) {
@@ -67,6 +66,7 @@ fun BreathingGuide(
     isActive: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalBinauralColors.current
     var selectedPattern by remember { mutableStateOf(BreathingPattern.RELAXING) }
     var isRunning by remember { mutableStateOf(false) }
     var currentPhase by remember { mutableStateOf(BreathPhase.INHALE) }
@@ -105,7 +105,7 @@ fun BreathingGuide(
     }
 
     Surface(
-        color = Color.White.copy(alpha = 0.04f),
+        color = colors.overlay.copy(alpha = 0.04f),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
     ) {
@@ -122,14 +122,14 @@ fun BreathingGuide(
                     stringResource(R.string.breathing_header),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = AccentPrimary,
+                    color = colors.accentPrimary,
                     letterSpacing = 2.sp
                 )
                 if (cycleCount > 0) {
                     Text(
                         stringResource(R.string.breathing_cycles, cycleCount),
                         fontSize = 11.sp,
-                        color = OnSurfaceMuted
+                        color = colors.onSurfaceMuted
                     )
                 }
             }
@@ -147,15 +147,15 @@ fun BreathingGuide(
                             isRunning = false
                         },
                         color = if (pattern == selectedPattern)
-                            AccentPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                            colors.accentPrimary.copy(alpha = 0.15f) else Color.Transparent,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             stringResource(pattern.labelRes),
                             fontSize = 10.sp,
-                            color = if (pattern == selectedPattern) AccentPrimary
-                            else OnSurfaceMuted,
+                            color = if (pattern == selectedPattern) colors.accentPrimary
+                            else colors.onSurfaceMuted,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp)
                         )
@@ -177,7 +177,7 @@ fun BreathingGuide(
             Button(
                 onClick = { isRunning = !isRunning },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isRunning) Color(0x33FF6B6B) else AccentPrimary.copy(alpha = 0.15f)
+                    containerColor = if (isRunning) Color(0x33FF6B6B) else colors.accentPrimary.copy(alpha = 0.15f)
                 ),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.height(36.dp)
@@ -185,7 +185,7 @@ fun BreathingGuide(
                 Text(
                     stringResource(if (isRunning) R.string.stop_label else R.string.start_label),
                     fontSize = 12.sp,
-                    color = if (isRunning) Color(0xFFFF8A8A) else AccentPrimary
+                    color = if (isRunning) Color(0xFFFF8A8A) else colors.accentPrimary
                 )
             }
         }
@@ -199,6 +199,7 @@ private fun BreathingCircle(
     progress: Float,
     pattern: BreathingPattern
 ) {
+    val colors = LocalBinauralColors.current
     val infiniteTransition = rememberInfiniteTransition(label = "breathPulse")
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -218,6 +219,8 @@ private fun BreathingCircle(
         }
     } else 0.6f
 
+    val accentColor = colors.accentPrimary
+
     Box(
         modifier = Modifier.size(120.dp),
         contentAlignment = Alignment.Center
@@ -229,7 +232,7 @@ private fun BreathingCircle(
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        AccentPrimary.copy(alpha = if (isRunning) 0.2f * circleScale else 0.05f),
+                        accentColor.copy(alpha = if (isRunning) 0.2f * circleScale else 0.05f),
                         Color.Transparent
                     ),
                     center = center,
@@ -240,7 +243,7 @@ private fun BreathingCircle(
             )
 
             drawCircle(
-                color = AccentPrimary.copy(alpha = if (isRunning) pulseAlpha else 0.3f),
+                color = accentColor.copy(alpha = if (isRunning) pulseAlpha else 0.3f),
                 radius = maxRadius * circleScale,
                 center = center,
                 style = Stroke(width = 3f)
@@ -248,7 +251,7 @@ private fun BreathingCircle(
 
             if (isRunning) {
                 drawCircle(
-                    color = AccentPrimary.copy(alpha = 0.1f),
+                    color = accentColor.copy(alpha = 0.1f),
                     radius = maxRadius * circleScale * 1.15f,
                     center = center,
                     style = Stroke(width = 1.5f)
@@ -261,13 +264,13 @@ private fun BreathingCircle(
                 if (isRunning) stringResource(currentPhase.labelRes) else stringResource(R.string.start),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = AccentPrimary
+                color = colors.accentPrimary
             )
             if (isRunning) {
                 Text(
                     stringResource(pattern.labelRes),
                     fontSize = 10.sp,
-                    color = OnSurfaceMuted
+                    color = colors.onSurfaceMuted
                 )
             }
         }

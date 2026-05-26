@@ -9,20 +9,22 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import de.binauralbeats.app.service.AudioPlaybackService
 import de.binauralbeats.app.ui.BinauralViewModel
 import de.binauralbeats.app.ui.screens.MainScreen
 import de.binauralbeats.app.ui.theme.BinauralBeatsTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: BinauralViewModel by viewModels()
     private var audioService: AudioPlaybackService? = null
@@ -53,7 +55,12 @@ class MainActivity : ComponentActivity() {
         handleDeepLink(intent)
 
         setContent {
-            BinauralBeatsTheme {
+            val themeMode by viewModel.themeMode.collectAsState()
+            val languageTag by viewModel.languageTag.collectAsState()
+
+            applyLocale(languageTag)
+
+            BinauralBeatsTheme(themeMode = themeMode) {
                 MainScreen(viewModel = viewModel)
             }
         }
@@ -66,6 +73,14 @@ class MainActivity : ComponentActivity() {
 
     private fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { uri -> viewModel.importFromUri(uri) }
+    }
+
+    private fun applyLocale(tag: String) {
+        val locales = if (tag.isBlank()) LocaleListCompat.getEmptyLocaleList()
+        else LocaleListCompat.forLanguageTags(tag)
+        if (AppCompatDelegate.getApplicationLocales() != locales) {
+            AppCompatDelegate.setApplicationLocales(locales)
+        }
     }
 
     private fun requestNotificationPermission() {

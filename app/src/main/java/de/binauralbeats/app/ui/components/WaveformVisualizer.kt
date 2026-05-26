@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import de.binauralbeats.app.ui.theme.AccentPrimary
-import de.binauralbeats.app.ui.theme.AccentSecondary
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -29,6 +27,10 @@ fun WaveformVisualizer(
     isPlaying: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalBinauralColors.current
+    val accentColor = colors.accentPrimary
+    val secondaryColor = colors.accentSecondary
+
     val transition = rememberInfiniteTransition(label = "waveform")
     val phase by transition.animateFloat(
         initialValue = 0f,
@@ -78,9 +80,9 @@ fun WaveformVisualizer(
             path = leftPath,
             brush = Brush.horizontalGradient(
                 colors = listOf(
-                    AccentPrimary.copy(alpha = 0.2f),
-                    AccentPrimary.copy(alpha = 0.8f),
-                    AccentPrimary.copy(alpha = 0.2f)
+                    accentColor.copy(alpha = 0.2f),
+                    accentColor.copy(alpha = 0.8f),
+                    accentColor.copy(alpha = 0.2f)
                 )
             ),
             style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
@@ -90,9 +92,9 @@ fun WaveformVisualizer(
             path = rightPath,
             brush = Brush.horizontalGradient(
                 colors = listOf(
-                    AccentSecondary.copy(alpha = 0.15f),
-                    AccentSecondary.copy(alpha = 0.6f),
-                    AccentSecondary.copy(alpha = 0.15f)
+                    secondaryColor.copy(alpha = 0.15f),
+                    secondaryColor.copy(alpha = 0.6f),
+                    secondaryColor.copy(alpha = 0.15f)
                 )
             ),
             style = Stroke(width = 1.5f.dp.toPx(), cap = StrokeCap.Round)

@@ -16,15 +16,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.data.Phase
-import de.binauralbeats.app.ui.theme.AccentPrimary
-import de.binauralbeats.app.ui.theme.OnSurfaceMuted
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import kotlin.math.max
 
 private val BandColors = mapOf(
@@ -43,7 +41,7 @@ private fun bandName(freq: Float): String = when {
     else -> "Gamma"
 }
 
-private fun bandColor(freq: Float): Color = BandColors[bandName(freq)] ?: AccentPrimary
+private fun bandColor(freq: Float): Color = BandColors[bandName(freq)] ?: Color(0xFFA8E6CF)
 
 @Composable
 fun FrequencyCurve(
@@ -52,9 +50,13 @@ fun FrequencyCurve(
     isPlaying: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalBinauralColors.current
     val textMeasurer = rememberTextMeasurer()
     val totalMinutes = remember(phases) { phases.sumOf { it.durationMinutes } }
     val maxFreq = remember(phases) { max(phases.maxOfOrNull { it.frequency } ?: 40f, 10f) }
+    val accentColor = colors.accentPrimary
+    val overlayColor = colors.overlay
+    val mutedColor = colors.onSurfaceMuted
 
     Canvas(
         modifier = modifier
@@ -68,13 +70,10 @@ fun FrequencyCurve(
         val chartW = w - padding * 2
         val chartH = h - padding
 
-        // Background
-        drawRect(Color.White.copy(alpha = 0.03f))
+        drawRect(overlayColor.copy(alpha = 0.03f))
 
-        // Band zone backgrounds
-        drawBandZones(padding, chartW, chartH, maxFreq)
+        drawBandZones(padding, chartW, chartH, maxFreq, accentColor)
 
-        // Frequency line
         val path = Path()
         var xOffset = padding
         phases.forEachIndexed { idx, phase ->
@@ -85,7 +84,6 @@ fun FrequencyCurve(
             else path.lineTo(xOffset, y)
             path.lineTo(xOffset + phaseWidth, y)
 
-            // Phase frequency label
             if (phaseWidth > 60f) {
                 drawText(
                     textMeasurer = textMeasurer,
@@ -98,10 +96,9 @@ fun FrequencyCurve(
                 )
             }
 
-            // Phase separator
             if (idx > 0) {
                 drawLine(
-                    Color.White.copy(0.1f),
+                    overlayColor.copy(0.1f),
                     Offset(xOffset, padding / 2),
                     Offset(xOffset, chartH + padding / 2),
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 4f))
@@ -111,14 +108,12 @@ fun FrequencyCurve(
             xOffset += phaseWidth
         }
 
-        // Draw the frequency path
         drawPath(
             path,
-            color = AccentPrimary,
+            color = accentColor,
             style = Stroke(width = 2.5f)
         )
 
-        // Fill under curve with gradient
         val fillPath = Path().apply {
             addPath(path)
             lineTo(xOffset, chartH + padding / 2)
@@ -128,13 +123,12 @@ fun FrequencyCurve(
         drawPath(
             fillPath,
             brush = Brush.verticalGradient(
-                colors = listOf(AccentPrimary.copy(0.15f), Color.Transparent),
+                colors = listOf(accentColor.copy(0.15f), Color.Transparent),
                 startY = 0f,
                 endY = chartH + padding / 2
             )
         )
 
-        // Playback position line
         if (isPlaying || totalProgress > 0f) {
             val posX = padding + totalProgress * chartW
             drawLine(
@@ -150,23 +144,22 @@ fun FrequencyCurve(
             )
         }
 
-        // Bottom time labels
         drawText(
             textMeasurer = textMeasurer,
             text = "0",
             topLeft = Offset(padding, chartH + padding / 2 + 2f),
-            style = TextStyle(color = OnSurfaceMuted.copy(0.5f), fontSize = 8.sp)
+            style = TextStyle(color = mutedColor.copy(0.5f), fontSize = 8.sp)
         )
         drawText(
             textMeasurer = textMeasurer,
             text = "${totalMinutes}m",
             topLeft = Offset(w - padding - 20f, chartH + padding / 2 + 2f),
-            style = TextStyle(color = OnSurfaceMuted.copy(0.5f), fontSize = 8.sp)
+            style = TextStyle(color = mutedColor.copy(0.5f), fontSize = 8.sp)
         )
     }
 }
 
-private fun DrawScope.drawBandZones(padding: Float, chartW: Float, chartH: Float, maxFreq: Float) {
+private fun DrawScope.drawBandZones(padding: Float, chartW: Float, chartH: Float, maxFreq: Float, accentColor: Color) {
     val bands = listOf(
         Triple(0f, 4f, "Delta"),
         Triple(4f, 8f, "Theta"),
@@ -181,7 +174,7 @@ private fun DrawScope.drawBandZones(padding: Float, chartW: Float, chartH: Float
 
         val yTop = chartH - (clampedHigh / maxFreq) * chartH + padding / 2
         val yBottom = chartH - (low / maxFreq) * chartH + padding / 2
-        val color = BandColors[name] ?: AccentPrimary
+        val color = BandColors[name] ?: accentColor
 
         drawRect(
             color = color.copy(alpha = 0.04f),
