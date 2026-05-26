@@ -19,9 +19,12 @@ import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.Preset
 import de.binauralbeats.app.data.PresetRepository
 import de.binauralbeats.app.data.Presets
+import de.binauralbeats.app.data.SettingsRepository
 import de.binauralbeats.app.data.ToneType
+import de.binauralbeats.app.FeatureFlagsImpl
 import de.binauralbeats.app.R
 import de.binauralbeats.app.service.AudioPlaybackService
+import de.binauralbeats.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -29,8 +32,11 @@ import java.util.UUID
 
 class BinauralViewModel(application: Application) : AndroidViewModel(application) {
 
+    val features = FeatureFlagsImpl
+
     private val presetRepo = PresetRepository(application)
     private val journalRepo = JournalRepository(application)
+    private val settingsRepo = SettingsRepository(application)
 
     // --- Built-in preset selection ---
 
@@ -101,6 +107,17 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var showSaveDialog by mutableStateOf(false)
     var showJournal by mutableStateOf(false)
     var showRatingDialog by mutableStateOf(false)
+    var showSettings by mutableStateOf(false)
+
+    // --- Settings ---
+
+    val themeMode = settingsRepo.themeMode.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM
+    )
+
+    val languageTag = settingsRepo.languageTag.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), ""
+    )
 
     // --- WAV Export ---
 
@@ -201,8 +218,19 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     // --- Custom preset persistence ---
 
+    var customPresetLimitReached by mutableStateOf(false)
+
     fun saveAsCustomPreset(name: String, emoji: String = "🎵") {
         viewModelScope.launch {
+            val isUpdate = selectedCustomPresetId != null
+            if (!isUpdate) {
+                val current = presetRepo.currentCount()
+                if (current >= features.maxCustomPresets) {
+                    customPresetLimitReached = true
+                    showSaveDialog = false
+                    return@launch
+                }
+            }
             val preset = CustomPreset(
                 id = selectedCustomPresetId ?: UUID.randomUUID().toString(),
                 name = name,
@@ -213,6 +241,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             )
             presetRepo.save(preset)
             selectedCustomPresetId = preset.id
+            customPresetLimitReached = false
             showSaveDialog = false
         }
     }
@@ -294,7 +323,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     // --- WAV Export ---
 
     fun exportWav() {
-        if (isExporting) return
+        if (isExporting || !features.wavExportEnabled) return
         isExporting = true
         exportProgress = 0f
         exportResult = null
@@ -353,6 +382,16 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         } catch (_: Exception) {
             return false
         }
+    }
+
+    // --- Settings ---
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { settingsRepo.setThemeMode(mode) }
+    }
+
+    fun setLanguage(tag: String) {
+        viewModelScope.launch { settingsRepo.setLanguage(tag) }
     }
 
     override fun onCleared() {

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import android.content.Intent
+import de.binauralbeats.app.FeatureFlagsImpl
 import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.CustomPreset
@@ -325,6 +326,34 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 }
             }
 
+            if (viewModel.customPresetLimitReached) {
+                item {
+                    Surface(
+                        color = Color(0x33FF6B6B),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.preset_limit_reached, viewModel.features.maxCustomPresets),
+                                fontSize = 12.sp,
+                                color = Color(0xFFFF8A8A),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                "✕",
+                                fontSize = 14.sp,
+                                color = OnSurfaceMuted,
+                                modifier = Modifier.clickable { viewModel.customPresetLimitReached = false }
+                            )
+                        }
+                    }
+                }
+            }
+
             val categories = Presets.byCategory.entries.toList()
             items(categories, key = { it.key }) { (category, presets) ->
                 PresetCategoryCard(
@@ -533,27 +562,29 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                         )
                     }
 
-                    if (viewModel.isExporting) {
-                        CircularProgressIndicator(
-                            progress = { viewModel.exportProgress },
-                            modifier = Modifier.size(36.dp),
-                            color = AccentPrimary,
-                            strokeWidth = 3.dp
-                        )
-                    } else {
-                        FilledIconButton(
-                            onClick = { viewModel.exportWav() },
-                            modifier = Modifier.size(36.dp),
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = AccentPrimary.copy(alpha = 0.15f)
+                    if (FeatureFlagsImpl.wavExportEnabled) {
+                        if (viewModel.isExporting) {
+                            CircularProgressIndicator(
+                                progress = { viewModel.exportProgress },
+                                modifier = Modifier.size(36.dp),
+                                color = AccentPrimary,
+                                strokeWidth = 3.dp
                             )
-                        ) {
-                            Icon(
-                                Icons.Default.FileDownload,
-                                contentDescription = stringResource(R.string.export),
-                                tint = AccentPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
+                        } else {
+                            FilledIconButton(
+                                onClick = { viewModel.exportWav() },
+                                modifier = Modifier.size(36.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = AccentPrimary.copy(alpha = 0.15f)
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.FileDownload,
+                                    contentDescription = stringResource(R.string.export),
+                                    tint = AccentPrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }
