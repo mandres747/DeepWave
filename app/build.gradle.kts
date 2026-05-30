@@ -30,13 +30,22 @@ android {
         }
     }
 
+    // Release signing is applied only when the keystore is present (local Play
+    // Store builds). On F-Droid's build server the keystore is absent — it is
+    // gitignored, so it is never cloned — and the release stays unsigned; F-Droid
+    // then signs it with its own key. Hard-wiring the signingConfig would make
+    // F-Droid's `assembleFossRelease` fail at the signing step.
+    val releaseKeystore = rootProject.file("playstore/deepwave-release.jks")
+    val hasReleaseKeystore = releaseKeystore.exists()
+
     signingConfigs {
-        create("release") {
-            val keystoreDir = rootProject.file("playstore")
-            storeFile = keystoreDir.resolve("deepwave-release.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
-            keyAlias = "deepwave"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = "deepwave"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            }
         }
     }
 
@@ -47,7 +56,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
