@@ -3,7 +3,7 @@ Binaural Beats App - Dein persönlicher Brain Entrainer
 Nutze die Kraft binauraler Beats und isochroner Töne für besseren Schlaf, tiefere Konzentration und echte Entspannung.
 
 FEATURES:
-- 30+ wissenschaftlich basierte Presets in 9 Kategorien
+- 30+ Presets in 9 Kategorien
 - Binaurale Beats und isochronische Töne
 - Solfeggio-Frequenzen (396 Hz - 963 Hz)
 - Anpassbarer Phasen-Editor
@@ -14,7 +14,6 @@ FEATURES:
 - Eigene Presets erstellen und speichern
 - Session-Sharing via Deep Links
 - Komplett offline - keine Internetverbindung nötig
-- Keine Werbung, kein Tracking
 
 KATEGORIEN:
 - Schlaf & Erholung (Power Nap, Tiefschlaf, Luzides Träumen)
