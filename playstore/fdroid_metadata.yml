@@ -2,52 +2,29 @@ Categories:
   - Meditation
   - Multimedia
   - Sports & Health
-
 License: GPL-3.0-only
-
 AuthorName: Michael Andres
 AuthorEmail: man7477@gmail.com
-
 SourceCode: https://github.com/mandres747/DeepWave
 IssueTracker: https://github.com/mandres747/DeepWave/issues
 
 AutoName: DeepWave
 
-Summary: Binaural beats & isochronic tones for sleep, focus and relaxation
-
-Description: |
-  DeepWave generates precise binaural beats and isochronic tones to help with
-  sleep, focus, meditation, and relaxation.
-
-  Features:
-  * 30+ scientifically-based presets in 9 categories
-  * Binaural beats and isochronic tones
-  * Solfeggio frequencies (396 Hz – 963 Hz)
-  * Customizable phase editor
-  * Waveform visualizer and frequency curve
-  * Breathing guide
-  * Background sounds (Pink Noise, Brown Noise)
-  * Session journal with mood tracking
-  * Create and save custom presets
-  * Session sharing via deep links
-  * Fully offline – no internet connection needed
-  * No ads, no tracking
-
-  Headphones recommended for binaural beats. Isochronic tones also work
-  through speakers.
-
 RepoType: git
 Repo: https://github.com/mandres747/DeepWave.git
+Binaries: https://github.com/mandres747/DeepWave/releases/download/v%v/DeepWave-%v-foss.apk
 
 Builds:
-  - versionName: '1.0'
+  - versionName: 1.0.0
     versionCode: 1
     commit: v1.0.0
     subdir: app
     gradle:
       - foss
 
+AllowedAPKSigningKeys: dd561e9f3c96312bff1a20fc87aa2149c7a8fcc65563fd6c77df309cd8b49427
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '1.0'
+CurrentVersion: 1.0.0
 CurrentVersionCode: 1
