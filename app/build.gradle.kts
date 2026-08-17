@@ -23,7 +23,6 @@ android {
         create("foss") {
             dimension = "distribution"
             applicationIdSuffix = ".foss"
-            versionNameSuffix = "-foss"
         }
         create("premium") {
             dimension = "distribution"
