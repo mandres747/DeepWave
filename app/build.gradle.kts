@@ -84,6 +84,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Google Play's encrypted dependency-metadata signing block is an opaque
+    // blob that F-Droid's scanner rejects; Play treats it as optional.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 dependencies {
