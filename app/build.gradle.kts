@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -39,7 +41,7 @@ android {
 
     // Credentials come from playstore/keystore.properties (gitignored) when
     // present, with environment variables as fallback.
-    val keystoreProps = java.util.Properties().apply {
+    val keystoreProps = Properties().apply {
         val f = rootProject.file("playstore/keystore.properties")
         if (f.exists()) f.inputStream().use { load(it) }
     }
