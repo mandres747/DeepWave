@@ -17,7 +17,7 @@ Binaries: https://github.com/mandres747/DeepWave/releases/download/v%v/DeepWave-
 Builds:
   - versionName: 1.0.0
     versionCode: 1
-    commit: v1.0.0
+    commit: dfa1068996448de59939395f562cc15c5e5b202c
     subdir: app
     gradle:
       - foss
