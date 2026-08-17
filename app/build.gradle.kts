@@ -37,13 +37,22 @@ android {
     val releaseKeystore = rootProject.file("playstore/deepwave-release.jks")
     val hasReleaseKeystore = releaseKeystore.exists()
 
+    // Credentials come from playstore/keystore.properties (gitignored) when
+    // present, with environment variables as fallback.
+    val keystoreProps = java.util.Properties().apply {
+        val f = rootProject.file("playstore/keystore.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+
     signingConfigs {
         if (hasReleaseKeystore) {
             create("release") {
                 storeFile = releaseKeystore
-                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
-                keyAlias = "deepwave"
-                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+                storePassword = keystoreProps.getProperty("storePassword")
+                    ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = keystoreProps.getProperty("keyAlias") ?: "deepwave"
+                keyPassword = keystoreProps.getProperty("keyPassword")
+                    ?: System.getenv("KEY_PASSWORD") ?: ""
             }
         }
     }

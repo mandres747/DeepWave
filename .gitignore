@@ -19,3 +19,6 @@ local.properties
 # Android
 app/release/
 app/debug/
+
+# Signing (never commit)
+keystore.properties
