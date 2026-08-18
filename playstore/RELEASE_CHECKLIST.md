@@ -21,8 +21,8 @@
 - Wird prominent im Store angezeigt
 
 ### 1.3 Screenshots (mind. 2, empf. 6–8)
-- [ ] Bereits vorhanden in `fastlane/metadata/android/*/images/phoneScreenshots/`
-- [ ] Prüfen ob aktuell (Premium-Features sichtbar?)
+- [x] Bereits vorhanden in `fastlane/metadata/android/*/images/phoneScreenshots/` (je 6 für de-DE/en-US)
+- [ ] Prüfen ob aktuell (Premium-Features sichtbar? Statistik-Tab, Premium-Kategorien, WAV-Export)
 - Formate: 16:9 oder 9:16, min. 320px, max. 3840px pro Seite
 
 ---
@@ -48,9 +48,9 @@ git push -u origin gh-pages
 ### Option C: Eigene Website
 - HTML-Dateien auf eigenen Server hochladen
 
-**Gewählte URLs:**
-- EN: https://mandres747.github.io/DeepWave/
-- DE: https://mandres747.github.io/DeepWave/datenschutz.html
+**Gewählte URLs (LIVE, 2026-08-18 auf DeepWave-Naming aktualisiert):**
+- [x] EN: https://mandres747.github.io/DeepWave/
+- [x] DE: https://mandres747.github.io/DeepWave/datenschutz.html
 
 ---
 
@@ -71,15 +71,17 @@ git push -u origin gh-pages
 - [x] Env-Variablen: `KEYSTORE_PASSWORD`, `KEY_PASSWORD`
 
 ### 3.3 AAB (Android App Bundle) bauen
-- [x] Premium Release AAB erfolgreich gebaut
+- [x] Premium Release AAB erfolgreich gebaut (targetSdk 36 — Pflicht für neue Apps ab 31.08.2026)
 - Output: `app/build/outputs/bundle/premiumRelease/app-premium-release.aab`
 
-Build-Kommandos:
+Build-Kommando (Credentials kommen automatisch aus `playstore/keystore.properties`):
 ```powershell
-$env:KEYSTORE_PASSWORD = "<passwort>"
-$env:KEY_PASSWORD = "<passwort>"
 .\gradlew.bat bundlePremiumRelease
 ```
+
+**Play App Signing:** Beim ersten Upload verwaltet Google den App-Signing-Key;
+unser JKS wird zum Upload-Key. Vorteil: Ein verlorener Upload-Key ist über den
+Play-Support ersetzbar (anders als bei F-Droid, wo der JKS unersetzlich bleibt).
 
 ### 3.4 Release-Tag erstellen
 ```bash
@@ -168,8 +170,10 @@ Seit November 2023 verlangt Google für neue Developer-Konten:
 - Erfordert Google Play Billing Library Integration
 - Höhere Reichweite, komplexerer Code
 
-**Empfehlung für v1.0:** Option A (Kaufpreis), da kein zusätzlicher Code nötig
-und die App bereits eine vollständige Premium-Erfahrung bietet.
+**✅ ENTSCHIEDEN (2026-08-18): Option A (Kaufpreis).** Kein zusätzlicher Code nötig,
+die Play-Variante ist bereits die vollständige Premium-Erfahrung. In Play Console
+bei "Free or Paid" → **Paid** wählen; Preis dort festlegen (Rahmen: 2,99–5,99 €).
+ACHTUNG: "Free → Paid" ist nachträglich NICHT möglich, "Paid → Free" schon.
 
 ---
 
