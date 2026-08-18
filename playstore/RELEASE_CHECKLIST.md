@@ -21,8 +21,10 @@
 - Wird prominent im Store angezeigt
 
 ### 1.3 Screenshots (mind. 2, empf. 6–8)
-- [x] Bereits vorhanden in `fastlane/metadata/android/*/images/phoneScreenshots/` (je 6 für de-DE/en-US)
-- [ ] Prüfen ob aktuell (Premium-Features sichtbar? Statistik-Tab, Premium-Kategorien, WAV-Export)
+- [x] **Play Store (Premium)**: `playstore/screenshots/{de-DE,en-US}/01-06.png` (2026-08-18, Emulator,
+      DeepWave-Branding, zeigen Premium-Sektion, WAV-Export, laufende Session, Phasen-Editor)
+- [x] **F-Droid (FOSS)**: `fastlane/metadata/android/*/images/phoneScreenshots/` ersetzt (2026-08-18,
+      ohne Premium-Features — die alten zeigten noch »Binaurale Beats« + Permission-Dialoge)
 - Formate: 16:9 oder 9:16, min. 320px, max. 3840px pro Seite
 
 ---
