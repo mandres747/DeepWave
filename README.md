@@ -17,7 +17,7 @@ DeepWave is preparing its **Google Play release** and needs **12+ testers** for 
 mandatory 14-day closed test. Helping out takes two minutes:
 
 1. **Send your Google account e-mail address** — either by commenting on the
-   [pinned tester issue](../../issues/1) or by mail to <man7477@gmail.com>
+   [pinned tester issue](../../issues/1) or by mail to <deepwave-tools@proton.me>
 2. You will be added to the tester list and receive an opt-in link
 3. Install the app via the link and **keep it installed for 14 days** — that's it!
 
