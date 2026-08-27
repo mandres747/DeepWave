@@ -212,17 +212,20 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         // ViewModel is (re)created - e.g. Activity/process recreated while the tone
         // kept running in the background. Without this, the UI shows "Start" over a
         // session that is actually still playing.
-        if (svc.generator.isPlaying) {
-            svc.lastPlaybackParams?.let { params ->
-                editablePhases = params.phases
-                carrierFrequency = params.carrier
-                masterVolume = params.volume
-                noiseVolume = params.noiseVolume
-                transitionTimeMs = params.transitionMs
-            }
+        computeRestoredPlaybackState(
+            generatorIsPlaying = svc.generator.isPlaying,
+            generatorIsPaused = svc.generator.isPaused,
+            generatorCurrentPhaseIndex = svc.generator.currentPhaseIndex,
+            lastPlaybackParams = svc.lastPlaybackParams
+        )?.let { restored ->
+            restored.phases?.let { editablePhases = it }
+            restored.carrier?.let { carrierFrequency = it }
+            restored.volume?.let { masterVolume = it }
+            restored.noiseVolume?.let { noiseVolume = it }
+            restored.transitionMs?.let { transitionTimeMs = it }
             isPlaying = true
-            isPaused = svc.generator.isPaused
-            currentPhaseIndex = svc.generator.currentPhaseIndex
+            isPaused = restored.isPaused
+            currentPhaseIndex = restored.currentPhaseIndex
             val phase = editablePhases.getOrNull(currentPhaseIndex)
             currentGuidance = if (phase != null && phase.guidanceRes != 0) {
                 app.getString(phase.guidanceRes)
