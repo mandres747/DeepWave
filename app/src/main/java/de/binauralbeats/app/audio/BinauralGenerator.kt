@@ -28,8 +28,13 @@ class BinauralGenerator(
     var isPaused = false
         private set
 
+    // Sleep-timer fade; multiplied into the envelope. Float writes are atomic.
     @Volatile
-    private var currentPhaseIndex = 0
+    var fadeScale = 1f
+
+    @Volatile
+    var currentPhaseIndex = 0
+        private set
 
     @Volatile
     private var elapsedSeconds = 0.0
@@ -57,6 +62,7 @@ class BinauralGenerator(
         stop()
         isPlaying = true
         isPaused = false
+        fadeScale = 1f
         currentPhaseIndex = 0
         elapsedSeconds = 0.0
         totalElapsedSeconds = 0.0
@@ -206,7 +212,7 @@ class BinauralGenerator(
                         else -> 1f
                     } else 1f
 
-                    val envelope = fadeEnvelope * globalFade * vol
+                    val envelope = fadeEnvelope * globalFade * vol * fadeScale
 
                     leftSample = (leftSample * envelope).coerceIn(-1f, 1f)
                     rightSample = (rightSample * envelope).coerceIn(-1f, 1f)

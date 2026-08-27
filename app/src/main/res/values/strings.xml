@@ -34,6 +34,8 @@
     <!-- WAV Export -->
     <string name="wav_export">WAV Export</string>
     <string name="wav_export_desc">Session als Audiodatei speichern</string>
+    <string name="share_session">Session teilen</string>
+    <string name="share_session_desc">Link zu dieser Session teilen</string>
     <string name="export">Exportieren</string>
     <string name="share">Teilen</string>
     <string name="share_subject">DeepWave Session</string>
@@ -222,4 +224,24 @@
     <string name="guide_solf_741">741 Hz: Selbstausdruck und Klarheit.</string>
     <string name="guide_solf_852">852 Hz: Rückkehr zur spirituellen Ordnung.</string>
     <string name="guide_solf_963">963 Hz: Verbindung mit dem Höheren.</string>
+
+    <!-- Ambient-Mixer & Sleep-Timer -->
+    <string name="notif_ambient">Ambient-Sounds laufen…</string>
+    <string name="mixer_header">AMBIENT-SOUNDS</string>
+    <string name="mixer_open">Ambient-Sounds und Sleep-Timer öffnen</string>
+    <string name="mixer_hint">Läuft unabhängig von der Session – auch kombinierbar. Der Sleep-Timer blendet alles sanft aus.</string>
+    <string name="sleep_timer">Sleep-Timer</string>
+    <string name="sleep_timer_off">Aus</string>
+    <string name="sleep_timer_min">%1$d min</string>
+    <string name="sleep_timer_remaining">🌙 Sleep-Timer: %1$s</string>
+    <string name="ambient_play">Sounds starten</string>
+    <string name="ambient_stop">Sounds stoppen</string>
+    <string name="sound_rain">Regen</string>
+    <string name="sound_ocean">Meeresrauschen</string>
+    <string name="sound_wind">Wind</string>
+    <string name="sound_fire">Lagerfeuer</string>
+    <string name="sound_stream">Bach</string>
+    <string name="sound_white">Weißes Rauschen</string>
+    <string name="sound_pink">Rosa Rauschen</string>
+    <string name="sound_brown">Braunes Rauschen</string>
 </resources>

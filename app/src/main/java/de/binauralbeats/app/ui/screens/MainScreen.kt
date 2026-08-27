@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
@@ -67,6 +68,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         colors = listOf(colors.surfaceDark, colors.primaryDark, colors.primaryMid, colors.surfaceVariant)
                     )
                 )
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -140,6 +142,24 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
                                 Icon(Icons.Default.BarChart, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    }
+
+                    if (FeatureFlagsImpl.soundMixerEnabled) {
+                        Surface(
+                            onClick = { viewModel.showMixer = true },
+                            color = colors.accentPrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(modifier = Modifier.padding(12.dp)) {
+                                Icon(
+                                    Icons.Default.Bedtime,
+                                    stringResource(R.string.mixer_open),
+                                    tint = if (viewModel.isAmbientPlaying) colors.accentPrimary
+                                    else colors.accentPrimary.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
                     }
@@ -297,6 +317,28 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                 fontSize = 16.sp
                             )
                         }
+                    }
+                }
+            }
+
+            // Sleep timer countdown
+            if (viewModel.sleepTimerRemainingSec > 0) {
+                item {
+                    Surface(
+                        color = colors.accentPrimary.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            stringResource(
+                                R.string.sleep_timer_remaining,
+                                formatRemaining(viewModel.sleepTimerRemainingSec)
+                            ),
+                            modifier = Modifier.padding(12.dp),
+                            fontSize = 13.sp,
+                            color = colors.accentPrimary,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -474,6 +516,24 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 onClose = { viewModel.showStatistics = false }
             )
         }
+
+        if (viewModel.showMixer) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                MixerSheet(
+                    volumes = viewModel.ambientVolumes,
+                    isPlaying = viewModel.isAmbientPlaying,
+                    sleepTimerMinutes = viewModel.sleepTimerMinutes,
+                    sleepTimerRemainingSec = viewModel.sleepTimerRemainingSec,
+                    onVolumeChange = { sound, volume -> viewModel.setAmbientVolume(sound, volume) },
+                    onTogglePlay = { viewModel.toggleAmbient() },
+                    onSleepTimerSelect = { viewModel.setSleepTimer(it) },
+                    onClose = { viewModel.showMixer = false }
+                )
+            }
+        }
     }
 }
 
@@ -600,13 +660,19 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        stringResource(R.string.wav_export),
+                        stringResource(
+                            if (FeatureFlagsImpl.wavExportEnabled) R.string.wav_export
+                            else R.string.share_session
+                        ),
                         fontSize = 12.sp,
                         color = colors.accentPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        stringResource(R.string.wav_export_desc),
+                        stringResource(
+                            if (FeatureFlagsImpl.wavExportEnabled) R.string.wav_export_desc
+                            else R.string.share_session_desc
+                        ),
                         fontSize = 11.sp,
                         color = colors.onSurfaceMuted
                     )

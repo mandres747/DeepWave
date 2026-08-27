@@ -127,7 +127,7 @@ git push origin v1.0.0
 - [ ] **Tags**: Meditation, Binaural Beats, Sleep, Focus, Relaxation
 
 ### 4.7 Kontaktdaten
-- [ ] E-Mail: man7477@gmail.com
+- [ ] E-Mail: deepwave-tools@proton.me
 - [ ] Website: https://github.com/mandres747/BinauralBeatsApp (optional)
 
 ---

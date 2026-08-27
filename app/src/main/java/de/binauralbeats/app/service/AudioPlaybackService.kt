@@ -9,9 +9,13 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.SystemClock
 import de.binauralbeats.app.MainActivity
 import de.binauralbeats.app.R
+import de.binauralbeats.app.audio.AmbientEngine
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.Phase
 
@@ -23,6 +27,27 @@ class AudioPlaybackService : Service() {
 
     private val binder = LocalBinder()
     val generator = BinauralGenerator()
+    val ambient = AmbientEngine()
+
+    // Lets a ViewModel recreated after process death (Activity/service rebind while
+    // the foreground service keeps playing) restore what is actually running.
+    data class PlaybackParams(
+        val phases: List<Phase>,
+        val carrier: Float,
+        val volume: Float,
+        val noiseVolume: Float,
+        val transitionMs: Int
+    )
+
+    var lastPlaybackParams: PlaybackParams? = null
+        private set
+
+    // Sleep timer lives here so it survives screen-off while the foreground
+    // service keeps playing.
+    private val handler = Handler(Looper.getMainLooper())
+    private var sleepTimerEndAt = 0L
+    var onSleepTimerTick: ((remainingSeconds: Int) -> Unit)? = null
+    var onSleepTimerFinished: (() -> Unit)? = null
 
     override fun onBind(intent: Intent?): IBinder = binder
 
@@ -38,23 +63,94 @@ class AudioPlaybackService : Service() {
         noiseVolume: Float = 0.15f,
         transitionMs: Int = 500
     ) {
-        startForegroundService(Intent(this, AudioPlaybackService::class.java))
-
-        val notification = buildNotification(getString(R.string.notif_title), getString(R.string.notif_playing))
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
-        }
-
+        lastPlaybackParams = PlaybackParams(phases, carrier, volume, noiseVolume, transitionMs)
+        ensureForeground(getString(R.string.notif_title), getString(R.string.notif_playing))
         generator.start(phases, carrier, volume, noiseVolume, transitionMs)
     }
 
     fun stopPlayback() {
         generator.stop()
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        maybeExitForeground()
+    }
+
+    fun startAmbient() {
+        ensureForeground(getString(R.string.notif_title), getString(R.string.notif_ambient))
+        ambient.start()
+    }
+
+    fun stopAmbient() {
+        ambient.stop()
+        maybeExitForeground()
+    }
+
+    // --- Sleep timer ---
+
+    fun setSleepTimer(minutes: Int) {
+        cancelSleepTimer()
+        if (minutes <= 0) return
+        sleepTimerEndAt = SystemClock.elapsedRealtime() + minutes * 60_000L
+        handler.post(timerTick)
+    }
+
+    fun cancelSleepTimer() {
+        handler.removeCallbacks(timerTick)
+        handler.removeCallbacks(fadeStep)
+        sleepTimerEndAt = 0L
+        generator.fadeScale = 1f
+        ambient.fadeScale = 1f
+    }
+
+    private val timerTick = object : Runnable {
+        override fun run() {
+            val remainingMs = sleepTimerEndAt - SystemClock.elapsedRealtime()
+            if (remainingMs <= 0L) {
+                onSleepTimerTick?.invoke(0)
+                fadeStartedAt = SystemClock.elapsedRealtime()
+                handler.post(fadeStep)
+            } else {
+                onSleepTimerTick?.invoke((remainingMs / 1000L).toInt() + 1)
+                handler.postDelayed(this, 1000L)
+            }
+        }
+    }
+
+    private var fadeStartedAt = 0L
+
+    private val fadeStep = object : Runnable {
+        override fun run() {
+            val elapsed = SystemClock.elapsedRealtime() - fadeStartedAt
+            val scale = (1f - elapsed.toFloat() / FADE_DURATION_MS).coerceIn(0f, 1f)
+            generator.fadeScale = scale
+            ambient.fadeScale = scale
+            if (scale > 0f) {
+                handler.postDelayed(this, 250L)
+            } else {
+                generator.stop()
+                ambient.stop()
+                sleepTimerEndAt = 0L
+                maybeExitForeground()
+                onSleepTimerFinished?.invoke()
+            }
+        }
+    }
+
+    // --- Foreground lifecycle (shared by both engines) ---
+
+    private fun ensureForeground(title: String, text: String) {
+        startForegroundService(Intent(this, AudioPlaybackService::class.java))
+        val notification = buildNotification(title, text)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
+    private fun maybeExitForeground() {
+        if (!generator.isPlaying && !ambient.isPlaying) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
     }
 
     fun updateNotification(presetName: String, phaseInfo: String) {
@@ -92,12 +188,15 @@ class AudioPlaybackService : Service() {
     }
 
     override fun onDestroy() {
+        cancelSleepTimer()
         generator.stop()
+        ambient.stop()
         super.onDestroy()
     }
 
     companion object {
         const val CHANNEL_ID = "binaural_playback"
         const val NOTIFICATION_ID = 1
+        const val FADE_DURATION_MS = 15_000L
     }
 }

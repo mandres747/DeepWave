@@ -5,11 +5,13 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.binauralbeats.app.audio.WavExporter
+import de.binauralbeats.app.data.AmbientSound
 import de.binauralbeats.app.data.BackgroundNoise
 import de.binauralbeats.app.data.CustomPreset
 import de.binauralbeats.app.data.JournalEntry
@@ -27,6 +29,7 @@ import de.binauralbeats.app.R
 import de.binauralbeats.app.service.AudioPlaybackService
 import de.binauralbeats.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -110,6 +113,31 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var showRatingDialog by mutableStateOf(false)
     var showSettings by mutableStateOf(false)
     var showStatistics by mutableStateOf(false)
+    var showMixer by mutableStateOf(false)
+
+    // --- Ambient mixer & sleep timer ---
+
+    val ambientVolumes = mutableStateMapOf<AmbientSound, Float>().apply {
+        AmbientSound.entries.forEach { put(it, 0f) }
+    }
+
+    var isAmbientPlaying by mutableStateOf(false)
+        private set
+
+    var sleepTimerMinutes by mutableIntStateOf(0)
+        private set
+
+    var sleepTimerRemainingSec by mutableIntStateOf(0)
+        private set
+
+    init {
+        viewModelScope.launch {
+            val saved = settingsRepo.ambientVolumes.first()
+            saved.forEach { (name, volume) ->
+                AmbientSound.entries.find { it.name == name }?.let { ambientVolumes[it] = volume }
+            }
+        }
+    }
 
     val allByCategory = buildMap {
         putAll(Presets.byCategory)
@@ -167,6 +195,73 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             totalProgress = 1f
             showRatingDialog = true
         }
+        svc.onSleepTimerTick = { seconds ->
+            sleepTimerRemainingSec = seconds
+        }
+        svc.onSleepTimerFinished = {
+            isPlaying = false
+            isPaused = false
+            isAmbientPlaying = false
+            sleepTimerMinutes = 0
+            sleepTimerRemainingSec = 0
+            currentGuidance = null
+        }
+        isAmbientPlaying = svc.ambient.isPlaying
+
+        // The service (foreground, own lifecycle) may already be playing when this
+        // ViewModel is (re)created - e.g. Activity/process recreated while the tone
+        // kept running in the background. Without this, the UI shows "Start" over a
+        // session that is actually still playing.
+        if (svc.generator.isPlaying) {
+            svc.lastPlaybackParams?.let { params ->
+                editablePhases = params.phases
+                carrierFrequency = params.carrier
+                masterVolume = params.volume
+                noiseVolume = params.noiseVolume
+                transitionTimeMs = params.transitionMs
+            }
+            isPlaying = true
+            isPaused = svc.generator.isPaused
+            currentPhaseIndex = svc.generator.currentPhaseIndex
+            val phase = editablePhases.getOrNull(currentPhaseIndex)
+            currentGuidance = if (phase != null && phase.guidanceRes != 0) {
+                app.getString(phase.guidanceRes)
+            } else {
+                phase?.guidance
+            }
+        }
+    }
+
+    // --- Ambient mixer ---
+
+    fun setAmbientVolume(sound: AmbientSound, volume: Float) {
+        ambientVolumes[sound] = volume
+        service?.ambient?.setVolume(sound, volume)
+        viewModelScope.launch {
+            settingsRepo.setAmbientVolumes(ambientVolumes.entries.associate { it.key.name to it.value })
+        }
+    }
+
+    fun toggleAmbient() {
+        val svc = service ?: return
+        if (isAmbientPlaying) {
+            svc.stopAmbient()
+            isAmbientPlaying = false
+        } else {
+            // Starting an all-silent mix would confuse — default to gentle rain.
+            if (ambientVolumes.values.none { it > 0.001f }) {
+                setAmbientVolume(AmbientSound.RAIN, 0.5f)
+            }
+            AmbientSound.entries.forEach { svc.ambient.setVolume(it, ambientVolumes[it] ?: 0f) }
+            svc.startAmbient()
+            isAmbientPlaying = true
+        }
+    }
+
+    fun setSleepTimer(minutes: Int) {
+        sleepTimerMinutes = minutes
+        sleepTimerRemainingSec = minutes * 60
+        service?.setSleepTimer(minutes)
     }
 
     // --- Preset selection ---
@@ -407,6 +502,8 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     override fun onCleared() {
         stop()
+        service?.cancelSleepTimer()
+        service?.stopAmbient()
         super.onCleared()
     }
 }

@@ -34,6 +34,8 @@
     <!-- WAV Export -->
     <string name="wav_export">WAV Export</string>
     <string name="wav_export_desc">Save session as audio file</string>
+    <string name="share_session">Share Session</string>
+    <string name="share_session_desc">Share a link to this session</string>
     <string name="export">Export</string>
     <string name="share">Share</string>
     <string name="share_subject">DeepWave Session</string>
@@ -222,4 +224,24 @@
     <string name="guide_solf_741">741 Hz: Self-expression and clarity.</string>
     <string name="guide_solf_852">852 Hz: Return to spiritual order.</string>
     <string name="guide_solf_963">963 Hz: Connection with the Higher.</string>
+
+    <!-- Ambient mixer & sleep timer -->
+    <string name="notif_ambient">Ambient sounds playing…</string>
+    <string name="mixer_header">AMBIENT SOUNDS</string>
+    <string name="mixer_open">Open ambient sounds and sleep timer</string>
+    <string name="mixer_hint">Runs independently of the session – can also be combined. The sleep timer fades everything out gently.</string>
+    <string name="sleep_timer">Sleep timer</string>
+    <string name="sleep_timer_off">Off</string>
+    <string name="sleep_timer_min">%1$d min</string>
+    <string name="sleep_timer_remaining">🌙 Sleep timer: %1$s</string>
+    <string name="ambient_play">Start sounds</string>
+    <string name="ambient_stop">Stop sounds</string>
+    <string name="sound_rain">Rain</string>
+    <string name="sound_ocean">Ocean waves</string>
+    <string name="sound_wind">Wind</string>
+    <string name="sound_fire">Campfire</string>
+    <string name="sound_stream">Stream</string>
+    <string name="sound_white">White noise</string>
+    <string name="sound_pink">Pink noise</string>
+    <string name="sound_brown">Brown noise</string>
 </resources>

@@ -6,4 +6,5 @@ object FeatureFlagsImpl : FeatureFlags {
     override val wavExportEnabled = false
     override val statisticsEnabled = false
     override val premiumPresetsEnabled = false
+    override val soundMixerEnabled = false
 }

@@ -6,4 +6,5 @@ interface FeatureFlags {
     val wavExportEnabled: Boolean
     val statisticsEnabled: Boolean
     val premiumPresetsEnabled: Boolean
+    val soundMixerEnabled: Boolean
 }
