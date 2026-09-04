@@ -1,0 +1,6 @@
+• New: ambient sound mixer (rain, wind, noise, …) – combinable with any session
+• New: sleep timer with gentle fade-out
+• Fixed: playback state after reopening the app
+• Fixed: screen turned off during the breathing guide
+• Fixed: header overlapping the front camera cutout
+• Fixed: wrong label on the share button

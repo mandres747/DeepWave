@@ -1,0 +1,6 @@
+• Neu: Ambient-Mixer (Regen, Wind, Rauschen u. a.) – kombinierbar mit jeder Session
+• Neu: Sleep-Timer mit sanftem Ausblenden
+• Behoben: Wiedergabestatus nach erneutem Öffnen der App
+• Behoben: Display blieb während der Atemführung nicht an
+• Behoben: Kopfzeile überlappte die Frontkamera
+• Behoben: falsche Beschriftung der Teilen-Schaltfläche
