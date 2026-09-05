@@ -177,6 +177,10 @@ die Play-Variante ist bereits die vollständige Premium-Erfahrung. In Play Conso
 bei "Free or Paid" → **Paid** wählen; Preis dort festlegen (Rahmen: 2,99–5,99 €).
 ACHTUNG: "Free → Paid" ist nachträglich NICHT möglich, "Paid → Free" schon.
 
+**Preis gesetzt (2026-09-06):** 3,99 € in Deutschland und Österreich (vorher 2,99 €);
+Sammelpreis 3,35 € netto für alle 176 Länder, Play rundet je Land. Begründung:
+`wunderkammer/docs/PORTFOLIO_ERLOESE_2026-09.md` (Kauf-App ohne Probierphase, Netto 2,85 € je Kauf).
+
 ---
 
 ## Dateien-Übersicht
