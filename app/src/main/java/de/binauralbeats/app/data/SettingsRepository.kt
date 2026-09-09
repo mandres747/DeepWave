@@ -24,6 +24,7 @@ class SettingsRepository(private val context: Context) {
         private val KEY_ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
         private val KEY_COMPLETED_SESSIONS = intPreferencesKey("completed_sessions")
         private val KEY_REVIEW_PROMPT_HANDLED = booleanPreferencesKey("review_prompt_handled")
+        private val KEY_FIRST_SEEN_VERSION_CODE = intPreferencesKey("first_seen_version_code")
     }
 
     val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
@@ -93,5 +94,29 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setReviewPromptHandled() {
         context.settingsDataStore.edit { it[KEY_REVIEW_PROMPT_HANDLED] = true }
+    }
+
+    // --- First-run marker ---
+
+    /**
+     * Version code this install was first seen on, or null before the marker
+     * was ever written. See FirstRunMarker for why this exists.
+     */
+    suspend fun firstSeenVersionCode(): Int? =
+        context.settingsDataStore.data.first()[KEY_FIRST_SEEN_VERSION_CODE]
+
+    /**
+     * Writes the marker once and never again. "Earlier data" is decided from
+     * the store itself: anything already in there means an earlier version of
+     * the app ran on this device before the marker existed.
+     */
+    suspend fun ensureFirstSeenVersionCode(currentVersionCode: Int) {
+        context.settingsDataStore.edit { prefs ->
+            val stored = prefs[KEY_FIRST_SEEN_VERSION_CODE]
+            val hasEarlierData = prefs.asMap().keys.any { it != KEY_FIRST_SEEN_VERSION_CODE }
+            FirstRunMarker.resolve(stored, hasEarlierData, currentVersionCode)?.let {
+                prefs[KEY_FIRST_SEEN_VERSION_CODE] = it
+            }
+        }
     }
 }

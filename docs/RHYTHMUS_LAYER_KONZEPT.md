@@ -175,13 +175,19 @@ Für (2) gibt es ein Problem: Play Billing sagt nicht, *wann* jemand die App
 gekauft hat, und `firstInstallTime` aus dem `PackageManager` ist unzuverlässig
 (Neuinstallation, Gerätewechsel).
 
-> **Konkret jetzt zu tun, damit das später überhaupt geht:** in einem der
-> nächsten 1.2.x-Releases einen Marker `firstSeenVersionCode` in den
-> `SettingsRepository` schreiben — einmalig beim ersten Start, danach nie
-> wieder ändern. Kostet fünf Zeilen und macht die Unterscheidung später exakt,
-> statt sie zu schätzen. Ohne diesen Marker bleibt nur die Heuristik „hat
-> bereits Journal-Einträge oder `onboarding_seen`", und die trifft
-> Neuinstallationen von Bestandskunden nicht.
+> **Erledigt am 09.09.2026 (versionCode 4).** `data/FirstRunMarker.kt` +
+> `SettingsRepository.ensureFirstSeenVersionCode()` schreiben den Marker
+> einmalig beim ersten Start und rühren ihn danach nie wieder an. Aufgerufen
+> im `init` des ViewModels, **vor** allem anderen, was den Settings-Store
+> berührt — der Marker erkennt „Neuinstallation" daran, dass der Store leer
+> ist.
+>
+> Der knifflige Fall ist der Upgrade-Pfad: Wer eine frühe Version installiert
+> hat und erst viel später direkt auf die Add-on-Version springt, kommt dort
+> **ohne** Marker an. Würde man ihm dann den aktuellen versionCode
+> schreiben, wäre ein Bestandskunde als Neukunde einsortiert. Deshalb gilt:
+> kein Marker + vorhandene Einstellungen ⇒ `PRE_MARKER` (= 0), was unter jedem
+> echten versionCode liegt. Festgenagelt in `FirstRunMarkerTest`.
 
 ### 4.5 Play-Console-Folgen
 
@@ -210,17 +216,18 @@ gekauft hat, und `firstInstallTime` aus dem `PackageManager` ist unzuverlässig
 
 ## 6. Reihenfolge
 
-1. **Jetzt (1.2.x):** `firstSeenVersionCode`-Marker setzen. Fünf Zeilen, macht
-   das faire Beschenken der Bestandskäufer später erst möglich.
+1. ~~**Jetzt (1.2.x):** `firstSeenVersionCode`-Marker setzen.~~ **Erledigt**
+   in versionCode 4 — geht mit dem nächsten Release raus.
 2. **Datenlage abwarten:** Wird die Preset-Kategorie „Sport & Training"
    überhaupt benutzt? Wenn sie tot bleibt, baust du das Add-on für niemanden.
 3. **Dann Schritt für Schritt:** `RhythmEngine` + `stepAt` mit Tests →
    `RhythmSheet` ohne Kaufschranke intern testen → Entitlement +
    Billing → Play-Console-Produkt → Content-Rating neu → Release.
 
-Schritt 1 ist der einzige, der zeitkritisch ist: Jeder Nutzer, der DeepWave
-vor dem Marker installiert, ist später nicht mehr sauber als Bestandskäufer
-erkennbar.
+Schritt 1 war der einzige zeitkritische: Jeder Nutzer, der DeepWave vor dem
+Marker installiert, ist später nur noch über die `PRE_MARKER`-Regel als
+Bestandskunde erkennbar — und die greift nur, wenn er den Store bereits
+benutzt hat.
 
 ---
 

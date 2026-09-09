@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.binauralbeats.app.audio.WavExporter
@@ -133,8 +134,16 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     init {
         viewModelScope.launch {
+            // Must run before anything else touches the settings store: the
+            // marker decides "new install" from the store being empty.
+            settingsRepo.ensureFirstSeenVersionCode(currentVersionCode())
             showOnboarding = !settingsRepo.isOnboardingSeen()
         }
+    }
+
+    private fun currentVersionCode(): Int {
+        val info = app.packageManager.getPackageInfo(app.packageName, 0)
+        return PackageInfoCompat.getLongVersionCode(info).toInt()
     }
 
     fun finishOnboarding() {
