@@ -1,0 +1,3 @@
+• Neu: Rhythmus-Spur – hörbarer Takt für Gehmeditation, Atemtaktung oder gleichmäßige Bewegung
+• Drei Modi: festes Tempo, mehrstufiges Programm oder ein Signal je Atemphase
+• Der Sleep-Timer blendet die Rhythmus-Spur mit aus
