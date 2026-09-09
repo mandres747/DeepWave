@@ -109,6 +109,10 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
+    // Play Billing is proprietary; keeping it on premiumImplementation is what
+    // stops it reaching the F-Droid build, which only ever assembles fossRelease.
+    "premiumImplementation"("com.android.billingclient:billing-ktx:7.1.1")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation("junit:junit:4.13.2")

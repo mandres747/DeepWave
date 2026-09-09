@@ -9,6 +9,7 @@ object FeatureFlagsImpl : FeatureFlags {
     override val soundMixerEnabled = false
     override val storeUrl: String? = null
 
-    // F-Droid has no billing, so the layer is simply part of the build.
-    override val rhythmLayerEnabled = true
+    // Paid add-on, and F-Droid has no way to charge for it - so it is not in
+    // this build at all, like the WAV export and the mixer.
+    override val rhythmLayerAvailable = false
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,10 @@ fun RhythmSheet(
     breathPattern: BreathingPattern,
     volume: Float,
     isPlaying: Boolean,
+    isUnlocked: Boolean,
+    price: String?,
+    onPurchase: () -> Unit,
+    onRestore: () -> Unit,
     onModeChange: (RhythmMode) -> Unit,
     onBpmChange: (Int) -> Unit,
     onAccentChange: (Int) -> Unit,
@@ -95,6 +100,13 @@ fun RhythmSheet(
                 color = colors.onSurfaceMuted,
                 lineHeight = 18.sp
             )
+
+            if (!isUnlocked) {
+                Spacer(Modifier.height(20.dp))
+                RhythmLockedCard(price = price, onPurchase = onPurchase, onRestore = onRestore)
+                Spacer(Modifier.height(24.dp))
+                return@Column
+            }
 
             Spacer(Modifier.height(20.dp))
 
@@ -215,6 +227,72 @@ fun RhythmSheet(
             }
 
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+/**
+ * Shown instead of the controls until the add-on is bought. Deliberately
+ * placed where the controls would be, rather than as a dialog on top of them:
+ * the user should see what the feature is before being asked to pay.
+ */
+@Composable
+private fun RhythmLockedCard(
+    price: String?,
+    onPurchase: () -> Unit,
+    onRestore: () -> Unit
+) {
+    val colors = LocalBinauralColors.current
+
+    Surface(
+        color = colors.accentPrimary.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                stringResource(R.string.rhythm_locked_title),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.onSurface
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.rhythm_locked_body),
+                fontSize = 13.sp,
+                color = colors.onSurfaceMuted,
+                lineHeight = 19.sp
+            )
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = onPurchase,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.accentPrimary,
+                    contentColor = colors.onAccent
+                )
+            ) {
+                Text(
+                    if (price != null) stringResource(R.string.rhythm_unlock_price, price)
+                    else stringResource(R.string.rhythm_unlock),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            TextButton(
+                onClick = onRestore,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    stringResource(R.string.rhythm_restore),
+                    fontSize = 12.sp,
+                    color = colors.onSurfaceMuted
+                )
+            }
         }
     }
 }

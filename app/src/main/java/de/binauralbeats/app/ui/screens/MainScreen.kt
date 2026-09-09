@@ -39,10 +39,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import android.app.Activity
 import android.content.Intent
+import android.widget.Toast
 import de.binauralbeats.app.FeatureFlagsImpl
 import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.BinauralGenerator
+import de.binauralbeats.app.billing.PurchaseResult
 import de.binauralbeats.app.data.CustomPreset
 import de.binauralbeats.app.data.PresetCategory
 import de.binauralbeats.app.ui.BinauralViewModel
@@ -93,16 +96,14 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 }
             }
 
-            // Headphones hint + Journal + Settings
+            // Headphones hint, then the tool row. Two rows on purpose: with five
+            // tools the hint had no room left and wrapped to four lines.
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(
                         color = colors.accentPrimary.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -114,10 +115,15 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         }
                     }
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                     Surface(
                         onClick = { viewModel.showJournal = true },
                         color = colors.accentPrimary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -140,7 +146,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { viewModel.showStatistics = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
                                 Icon(Icons.Default.BarChart, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
@@ -152,7 +159,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { viewModel.showMixer = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
                                 Icon(
@@ -166,11 +174,12 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         }
                     }
 
-                    if (viewModel.rhythmLayerEnabled) {
+                    if (viewModel.rhythmLayerAvailable) {
                         Surface(
                             onClick = { viewModel.showRhythm = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
                                 Icon(
@@ -187,11 +196,13 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     Surface(
                         onClick = { viewModel.showSettings = true },
                         color = colors.accentPrimary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Box(modifier = Modifier.padding(12.dp)) {
                             Icon(Icons.Default.Settings, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
                         }
+                    }
                     }
                 }
             }
@@ -561,11 +572,43 @@ fun MainScreen(viewModel: BinauralViewModel) {
         }
 
         if (viewModel.showRhythm) {
+            val rhythmContext = LocalContext.current
+            val rhythmOwned by viewModel.rhythmLayerOwned.collectAsState()
+            val rhythmPrice by viewModel.rhythmLayerPrice.collectAsState()
+
+            val purchaseMessages = mapOf(
+                PurchaseResult.OWNED to stringResource(R.string.rhythm_purchase_thanks),
+                PurchaseResult.CANCELLED to stringResource(R.string.rhythm_purchase_cancelled),
+                PurchaseResult.UNAVAILABLE to stringResource(R.string.rhythm_purchase_unavailable),
+                PurchaseResult.ERROR to stringResource(R.string.rhythm_purchase_error)
+            )
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 RhythmSheet(
+                    isUnlocked = rhythmOwned,
+                    price = rhythmPrice,
+                    onPurchase = {
+                        val activity = rhythmContext as? Activity
+                        if (activity == null) {
+                            Toast.makeText(
+                                rhythmContext,
+                                purchaseMessages[PurchaseResult.UNAVAILABLE],
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.purchaseRhythmLayer(activity) { result ->
+                                Toast.makeText(
+                                    rhythmContext,
+                                    purchaseMessages[result],
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    },
+                    onRestore = { viewModel.refreshEntitlements() },
                     mode = viewModel.rhythmMode,
                     bpm = viewModel.rhythmBpm,
                     accentEvery = viewModel.rhythmAccentEvery,

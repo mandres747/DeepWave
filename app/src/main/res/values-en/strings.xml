@@ -283,4 +283,15 @@
     <string name="rhythm_start">Start rhythm</string>
     <string name="rhythm_stop">Stop rhythm</string>
     <string name="rhythm_breath_hint">One cue per breath phase - in step with the breathing guide below.</string>
+
+    <!-- Rhythm layer: purchase -->
+    <string name="rhythm_locked_title">Unlock the rhythm track</string>
+    <string name="rhythm_locked_body">An audible beat for walking meditation, breath pacing or steady movement. One-time purchase, no subscription, works offline.</string>
+    <string name="rhythm_unlock_price">Unlock – %1$s</string>
+    <string name="rhythm_unlock">Unlock</string>
+    <string name="rhythm_restore">Restore purchase</string>
+    <string name="rhythm_purchase_thanks">Thank you! The rhythm track is unlocked.</string>
+    <string name="rhythm_purchase_cancelled">Purchase cancelled.</string>
+    <string name="rhythm_purchase_unavailable">Purchases are not available on this device.</string>
+    <string name="rhythm_purchase_error">The purchase did not go through. Please try again later.</string>
 </resources>

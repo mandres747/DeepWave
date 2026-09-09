@@ -283,4 +283,15 @@
     <string name="rhythm_start">Rhythmus starten</string>
     <string name="rhythm_stop">Rhythmus stoppen</string>
     <string name="rhythm_breath_hint">Ein Signal je Atemphase - synchron zur Atemführung weiter unten.</string>
+
+    <!-- Rhythmus-Layer: Kauf -->
+    <string name="rhythm_locked_title">Rhythmus-Spur freischalten</string>
+    <string name="rhythm_locked_body">Ein hörbarer Takt für Gehmeditation, Atemtaktung oder gleichmäßige Bewegung. Einmalkauf, keine Abos, funktioniert offline.</string>
+    <string name="rhythm_unlock_price">Freischalten – %1$s</string>
+    <string name="rhythm_unlock">Freischalten</string>
+    <string name="rhythm_restore">Kauf wiederherstellen</string>
+    <string name="rhythm_purchase_thanks">Danke! Die Rhythmus-Spur ist freigeschaltet.</string>
+    <string name="rhythm_purchase_cancelled">Kauf abgebrochen.</string>
+    <string name="rhythm_purchase_unavailable">Käufe sind auf diesem Gerät nicht verfügbar.</string>
+    <string name="rhythm_purchase_error">Der Kauf hat nicht geklappt. Bitte später erneut versuchen.</string>
 </resources>

@@ -13,7 +13,10 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import android.app.Activity
 import de.binauralbeats.app.audio.WavExporter
+import de.binauralbeats.app.billing.EntitlementsImpl
+import de.binauralbeats.app.billing.PurchaseResult
 import de.binauralbeats.app.data.AmbientSound
 import de.binauralbeats.app.data.BackgroundNoise
 import de.binauralbeats.app.data.CustomPreset
@@ -597,7 +600,23 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     // --- Rhythm layer ---
 
-    val rhythmLayerEnabled: Boolean get() = FeatureFlagsImpl.rhythmLayerEnabled
+    /** Whether this build has the layer at all (premium only). */
+    val rhythmLayerAvailable: Boolean get() = FeatureFlagsImpl.rhythmLayerAvailable
+
+    /** Whether the user has bought it. Separate question, separate source. */
+    val rhythmLayerOwned = EntitlementsImpl.rhythmLayerOwned
+
+    val rhythmLayerPrice = EntitlementsImpl.rhythmLayerPrice
+
+    fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit) {
+        EntitlementsImpl.purchaseRhythmLayer(activity, onResult)
+    }
+
+    /**
+     * Play already knows the purchase on every device of the account, so
+     * "restore" is just asking again.
+     */
+    fun refreshEntitlements() = EntitlementsImpl.refresh()
 
     var isRhythmPlaying by mutableStateOf(false)
         private set
@@ -618,6 +637,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         private set
 
     init {
+        EntitlementsImpl.connect(app)
         viewModelScope.launch {
             val saved = settingsRepo.rhythmSettings.first()
             rhythmMode = saved.mode
