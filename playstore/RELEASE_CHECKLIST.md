@@ -183,6 +183,31 @@ Sammelpreis 3,35 € netto für alle 176 Länder, Play rundet je Land. Begründu
 
 ---
 
+## Release 1.2.0 (versionCode 3) - Tester-Feedback umgesetzt
+
+Grundlage: Testers-Community-Feedbackreport vom 29.08.2026 (`~/Downloads/deepwave_feedback.pdf`),
+drei Punkte: App Screenshots, Dynamic Walkthrough, Rate Your App Button. Alle drei sind in 1.2.0
+umgesetzt:
+
+- **Walkthrough**: `ui/screens/OnboardingOverlay.kt`, vier Seiten, von jeder Seite überspringbar.
+  Merker in `SettingsRepository.isOnboardingSeen()`.
+- **App bewerten**: Zeile in `SettingsSheet` unter FEEDBACK, plus einmaliger Prompt nach der
+  dritten abgeschlossenen Session (`ui/ReviewPromptDecision.kt`, Schwelle
+  `SESSIONS_BEFORE_PROMPT`). Der Prompt kommt erst, nachdem der Session-Bewertungsdialog zu ist,
+  und danach nie wieder. Nur im Premium-Flavour: `FeatureFlags.storeUrl` ist im FOSS-Build null,
+  weil `de.binauralbeats.app.foss` keine Play-Seite hat.
+- **Screenshots**: `playstore/make_marketing_screenshots.py` legt die Rohaufnahmen aus
+  `playstore/screenshots/raw/<locale>/` auf den DeepWave-Verlauf, mit Headline und Nutzenzeile.
+  Ausgabe: `playstore/screenshots/<locale>/01..08.png`, 1080x1920.
+
+Rohaufnahmen entstehen im Emulator (`medium_phone`), Dark Mode an, Gerätesprache passend zur
+Locale gesetzt (`adb shell am start -a android.settings.LOCALE_SETTINGS`; `cmd locale
+set-app-locales` reicht NICHT, weil `MainActivity.applyLocale` bei leerem Sprach-Tag die
+per-App-Locale wieder zurücksetzt). Emulator-Image ist ein production build - `adb root` und
+`setprop persist.sys.locale` gehen nicht.
+
+---
+
 ## Dateien-Übersicht
 
 ```

@@ -244,4 +244,25 @@
     <string name="sound_white">Weißes Rauschen</string>
     <string name="sound_pink">Rosa Rauschen</string>
     <string name="sound_brown">Braunes Rauschen</string>
+
+    <!-- Onboarding (Walkthrough beim ersten Start) -->
+    <string name="onboarding_1_title">Willkommen bei DeepWave</string>
+    <string name="onboarding_1_body">DeepWave spielt zwei leicht verschiedene Töne - einen pro Ohr. Dein Gehirn hört die Differenz als Rhythmus und folgt ihm. Mit Kopfhörern funktioniert das am besten.</string>
+    <string name="onboarding_2_title">Sessions nach deinem Verlauf</string>
+    <string name="onboarding_2_body">Wähle ein Preset oder baue deine eigene Session: jede Phase mit eigener Frequenz und Dauer. Die Kurve oben zeigt dir den ganzen Bogen.</string>
+    <string name="onboarding_3_title">Ambient-Sounds und Sleep-Timer</string>
+    <string name="onboarding_3_body">Regen, Meer oder Lagerfeuer laufen unabhängig zur Session. Der Sleep-Timer blendet am Ende alles sanft aus.</string>
+    <string name="onboarding_4_title">Journal und Statistik</string>
+    <string name="onboarding_4_body">Bewerte deine Sessions und sieh im Verlauf, was für dich wirklich funktioniert. Alles bleibt offline auf deinem Gerät.</string>
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_start">Los geht\'s</string>
+
+    <!-- App-Bewertung -->
+    <string name="settings_feedback">FEEDBACK</string>
+    <string name="rate_app">App bewerten</string>
+    <string name="rate_app_desc">Im Play Store eine Bewertung hinterlassen</string>
+    <string name="review_prompt_title">Gefällt dir DeepWave?</string>
+    <string name="review_prompt_body">Wenn dir DeepWave beim Einschlafen, Fokussieren oder Entspannen hilft, freuen wir uns über eine kurze Bewertung. So finden andere die App überhaupt erst.</string>
+    <string name="review_prompt_rate">Jetzt bewerten</string>
+    <string name="review_prompt_dismiss">Nein danke</string>
 </resources>

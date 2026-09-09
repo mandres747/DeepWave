@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -503,8 +504,13 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 SettingsSheet(
                     currentTheme = themeMode,
                     currentLanguage = languageTag,
+                    storeUrl = viewModel.storeUrl,
                     onThemeChange = { viewModel.setThemeMode(it) },
                     onLanguageChange = { viewModel.setLanguage(it) },
+                    onRateApp = {
+                        viewModel.showSettings = false
+                        viewModel.openStorePage()
+                    },
                     onClose = { viewModel.showSettings = false }
                 )
             }
@@ -534,7 +540,64 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 )
             }
         }
+
+        if (viewModel.showReviewPrompt) {
+            ReviewPromptDialog(
+                onRate = { viewModel.openStorePage() },
+                onDismiss = { viewModel.dismissReviewPrompt() }
+            )
+        }
+
+        // Last in the Box so the walkthrough covers everything on first launch.
+        if (viewModel.showOnboarding) {
+            OnboardingOverlay(onFinish = { viewModel.finishOnboarding() })
+        }
     }
+}
+
+/**
+ * Store review prompt, shown once after the user has finished a few sessions
+ * (see ReviewPromptDecision) and only after the session rating dialog closed.
+ */
+@Composable
+private fun ReviewPromptDialog(
+    onRate: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalBinauralColors.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = colors.surfaceVariant,
+        icon = {
+            Icon(Icons.Default.StarRate, contentDescription = null, tint = colors.accentPrimary)
+        },
+        title = {
+            Text(
+                stringResource(R.string.review_prompt_title),
+                color = colors.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Text(
+                stringResource(R.string.review_prompt_body),
+                color = colors.onSurfaceMuted,
+                fontSize = 14.sp,
+                lineHeight = 21.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onRate) {
+                Text(stringResource(R.string.review_prompt_rate), color = colors.accentPrimary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.review_prompt_dismiss), color = colors.onSurfaceMuted)
+            }
+        }
+    )
 }
 
 @Composable

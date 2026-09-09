@@ -7,4 +7,5 @@ object FeatureFlagsImpl : FeatureFlags {
     override val statisticsEnabled = false
     override val premiumPresetsEnabled = false
     override val soundMixerEnabled = false
+    override val storeUrl: String? = null
 }

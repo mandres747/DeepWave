@@ -244,4 +244,25 @@
     <string name="sound_white">White noise</string>
     <string name="sound_pink">Pink noise</string>
     <string name="sound_brown">Brown noise</string>
+
+    <!-- Onboarding (first-launch walkthrough) -->
+    <string name="onboarding_1_title">Welcome to DeepWave</string>
+    <string name="onboarding_1_body">DeepWave plays two slightly different tones - one per ear. Your brain hears the difference as a rhythm and follows it. Headphones are what make it work.</string>
+    <string name="onboarding_2_title">Sessions on your own arc</string>
+    <string name="onboarding_2_body">Pick a preset or build your own session: every phase with its own frequency and length. The curve at the top shows the whole arc.</string>
+    <string name="onboarding_3_title">Ambient sounds and sleep timer</string>
+    <string name="onboarding_3_body">Rain, ocean or campfire run alongside your session. The sleep timer fades everything out gently at the end.</string>
+    <string name="onboarding_4_title">Journal and statistics</string>
+    <string name="onboarding_4_body">Rate your sessions and see over time what actually works for you. Everything stays offline on your device.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+
+    <!-- App rating -->
+    <string name="settings_feedback">FEEDBACK</string>
+    <string name="rate_app">Rate app</string>
+    <string name="rate_app_desc">Leave a review on the Play Store</string>
+    <string name="review_prompt_title">Enjoying DeepWave?</string>
+    <string name="review_prompt_body">If DeepWave helps you fall asleep, focus or unwind, a short review would mean a lot. It is how other people find the app in the first place.</string>
+    <string name="review_prompt_rate">Rate now</string>
+    <string name="review_prompt_dismiss">No thanks</string>
 </resources>

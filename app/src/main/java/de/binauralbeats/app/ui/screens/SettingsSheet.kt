@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +32,10 @@ import de.binauralbeats.app.ui.theme.ThemeMode
 fun SettingsSheet(
     currentTheme: ThemeMode,
     currentLanguage: String,
+    storeUrl: String?,
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (String) -> Unit,
+    onRateApp: () -> Unit,
     onClose: () -> Unit
 ) {
     val colors = LocalBinauralColors.current
@@ -100,6 +103,52 @@ fun SettingsSheet(
                 selected = currentTheme.name,
                 onSelect = { onThemeChange(ThemeMode.valueOf(it)) }
             )
+
+            // Only builds with a store listing can be rated - the FOSS flavour
+            // ships under a different application id and is not on Play.
+            if (storeUrl != null) {
+                Spacer(Modifier.height(20.dp))
+
+                Text(
+                    stringResource(R.string.settings_feedback),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.onSurfaceMuted
+                )
+                Spacer(Modifier.height(8.dp))
+
+                Surface(
+                    onClick = onRateApp,
+                    color = colors.overlay.copy(alpha = 0.06f),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.StarRate,
+                            contentDescription = null,
+                            tint = colors.accentPrimary
+                        )
+                        Column {
+                            Text(
+                                stringResource(R.string.rate_app),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = colors.onSurface
+                            )
+                            Text(
+                                stringResource(R.string.rate_app_desc),
+                                fontSize = 11.sp,
+                                color = colors.onSurfaceMuted
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(Modifier.height(24.dp))
         }

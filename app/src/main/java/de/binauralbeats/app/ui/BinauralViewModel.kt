@@ -1,6 +1,8 @@
 package de.binauralbeats.app.ui
 
 import android.app.Application
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -115,6 +117,69 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var showStatistics by mutableStateOf(false)
     var showMixer by mutableStateOf(false)
 
+    // --- Onboarding & store review prompt ---
+
+    var showOnboarding by mutableStateOf(false)
+        private set
+
+    var showReviewPrompt by mutableStateOf(false)
+        private set
+
+    /**
+     * The store prompt waits for the session rating dialog to close - showing
+     * both at once would stack two dialogs on top of each other.
+     */
+    private var reviewPromptPending = false
+
+    init {
+        viewModelScope.launch {
+            showOnboarding = !settingsRepo.isOnboardingSeen()
+        }
+    }
+
+    fun finishOnboarding() {
+        showOnboarding = false
+        viewModelScope.launch { settingsRepo.setOnboardingSeen() }
+    }
+
+    val storeUrl: String? get() = FeatureFlagsImpl.storeUrl
+
+    /** Opens the store listing; the prompt never appears again once used. */
+    fun openStorePage() {
+        val url = FeatureFlagsImpl.storeUrl ?: return
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            app.startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            // No browser and no store app - nothing sensible left to do.
+        }
+        dismissReviewPrompt()
+    }
+
+    fun dismissReviewPrompt() {
+        showReviewPrompt = false
+        viewModelScope.launch { settingsRepo.setReviewPromptHandled() }
+    }
+
+    private fun recordCompletedSession() {
+        viewModelScope.launch {
+            val total = settingsRepo.incrementCompletedSessions()
+            reviewPromptPending = ReviewPromptDecision.shouldPrompt(
+                completedSessions = total,
+                alreadyHandled = settingsRepo.isReviewPromptHandled(),
+                storeAvailable = FeatureFlagsImpl.storeUrl != null
+            )
+        }
+    }
+
+    private fun showReviewPromptIfPending() {
+        if (reviewPromptPending) {
+            reviewPromptPending = false
+            showReviewPrompt = true
+        }
+    }
+
     // --- Ambient mixer & sleep timer ---
 
     val ambientVolumes = mutableStateMapOf<AmbientSound, Float>().apply {
@@ -194,6 +259,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             isPaused = false
             totalProgress = 1f
             showRatingDialog = true
+            recordCompletedSession()
         }
         svc.onSleepTimerTick = { seconds ->
             sleepTimerRemainingSec = seconds
@@ -418,11 +484,13 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             )
             journalRepo.save(entry)
             showRatingDialog = false
+            showReviewPromptIfPending()
         }
     }
 
     fun dismissRating() {
         showRatingDialog = false
+        showReviewPromptIfPending()
     }
 
     fun deleteJournalEntry(id: String) {

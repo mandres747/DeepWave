@@ -1,0 +1,3 @@
+• New: short walkthrough on first launch – skippable at any time
+• New: “Rate app” entry in the settings
+• New: a single, low-key rating prompt after your third completed session

@@ -7,4 +7,6 @@ object FeatureFlagsImpl : FeatureFlags {
     override val statisticsEnabled = true
     override val premiumPresetsEnabled = true
     override val soundMixerEnabled = true
+    override val storeUrl: String? =
+        "https://play.google.com/store/apps/details?id=de.binauralbeats.app"
 }
