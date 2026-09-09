@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -158,6 +159,24 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                     Icons.Default.Bedtime,
                                     stringResource(R.string.mixer_open),
                                     tint = if (viewModel.isAmbientPlaying) colors.accentPrimary
+                                    else colors.accentPrimary.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (viewModel.rhythmLayerEnabled) {
+                        Surface(
+                            onClick = { viewModel.showRhythm = true },
+                            color = colors.accentPrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(modifier = Modifier.padding(12.dp)) {
+                                Icon(
+                                    Icons.Default.Speed,
+                                    stringResource(R.string.rhythm_open),
+                                    tint = if (viewModel.isRhythmPlaying) colors.accentPrimary
                                     else colors.accentPrimary.copy(alpha = 0.7f),
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -537,6 +556,29 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     onTogglePlay = { viewModel.toggleAmbient() },
                     onSleepTimerSelect = { viewModel.setSleepTimer(it) },
                     onClose = { viewModel.showMixer = false }
+                )
+            }
+        }
+
+        if (viewModel.showRhythm) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                RhythmSheet(
+                    mode = viewModel.rhythmMode,
+                    bpm = viewModel.rhythmBpm,
+                    accentEvery = viewModel.rhythmAccentEvery,
+                    breathPattern = viewModel.rhythmBreathPattern,
+                    volume = viewModel.rhythmVolume,
+                    isPlaying = viewModel.isRhythmPlaying,
+                    onModeChange = { viewModel.updateRhythmMode(it) },
+                    onBpmChange = { viewModel.updateRhythmBpm(it) },
+                    onAccentChange = { viewModel.updateRhythmAccentEvery(it) },
+                    onBreathPatternChange = { viewModel.updateRhythmBreathPattern(it) },
+                    onVolumeChange = { viewModel.updateRhythmVolume(it) },
+                    onTogglePlay = { viewModel.toggleRhythm() },
+                    onClose = { viewModel.showRhythm = false }
                 )
             }
         }

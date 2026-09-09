@@ -265,4 +265,22 @@
     <string name="review_prompt_body">If DeepWave helps you fall asleep, focus or unwind, a short review would mean a lot. It is how other people find the app in the first place.</string>
     <string name="review_prompt_rate">Rate now</string>
     <string name="review_prompt_dismiss">No thanks</string>
+
+    <!-- Rhythm layer -->
+    <string name="notif_rhythm">Rhythm running…</string>
+    <string name="rhythm_header">RHYTHM</string>
+    <string name="rhythm_open">Open the rhythm track</string>
+    <string name="rhythm_hint">An audible beat, independent of the session. For walking meditation, breath pacing or steady movement. The sleep timer fades it out too.</string>
+    <string name="rhythm_mode">Mode</string>
+    <string name="rhythm_mode_tempo">Tempo</string>
+    <string name="rhythm_mode_breath">Breath</string>
+    <string name="rhythm_tempo">Tempo</string>
+    <string name="rhythm_bpm">%1$d BPM</string>
+    <string name="rhythm_accent">Accent</string>
+    <string name="rhythm_accent_off">Off</string>
+    <string name="rhythm_accent_every">every %1$d</string>
+    <string name="rhythm_volume">Volume</string>
+    <string name="rhythm_start">Start rhythm</string>
+    <string name="rhythm_stop">Stop rhythm</string>
+    <string name="rhythm_breath_hint">One cue per breath phase - in step with the breathing guide below.</string>
 </resources>

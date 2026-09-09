@@ -16,6 +16,7 @@ import android.os.SystemClock
 import de.binauralbeats.app.MainActivity
 import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.AmbientEngine
+import de.binauralbeats.app.audio.RhythmEngine
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.Phase
 
@@ -28,6 +29,7 @@ class AudioPlaybackService : Service() {
     private val binder = LocalBinder()
     val generator = BinauralGenerator()
     val ambient = AmbientEngine()
+    val rhythm = RhythmEngine()
 
     // Lets a ViewModel recreated after process death (Activity/service rebind while
     // the foreground service keeps playing) restore what is actually running.
@@ -83,6 +85,16 @@ class AudioPlaybackService : Service() {
         maybeExitForeground()
     }
 
+    fun startRhythm() {
+        ensureForeground(getString(R.string.notif_title), getString(R.string.notif_rhythm))
+        rhythm.start()
+    }
+
+    fun stopRhythm() {
+        rhythm.stop()
+        maybeExitForeground()
+    }
+
     // --- Sleep timer ---
 
     fun setSleepTimer(minutes: Int) {
@@ -98,6 +110,7 @@ class AudioPlaybackService : Service() {
         sleepTimerEndAt = 0L
         generator.fadeScale = 1f
         ambient.fadeScale = 1f
+        rhythm.fadeScale = 1f
     }
 
     private val timerTick = object : Runnable {
@@ -122,11 +135,13 @@ class AudioPlaybackService : Service() {
             val scale = (1f - elapsed.toFloat() / FADE_DURATION_MS).coerceIn(0f, 1f)
             generator.fadeScale = scale
             ambient.fadeScale = scale
+            rhythm.fadeScale = scale
             if (scale > 0f) {
                 handler.postDelayed(this, 250L)
             } else {
                 generator.stop()
                 ambient.stop()
+                rhythm.stop()
                 sleepTimerEndAt = 0L
                 maybeExitForeground()
                 onSleepTimerFinished?.invoke()
@@ -147,7 +162,7 @@ class AudioPlaybackService : Service() {
     }
 
     private fun maybeExitForeground() {
-        if (!generator.isPlaying && !ambient.isPlaying) {
+        if (!generator.isPlaying && !ambient.isPlaying && !rhythm.isPlaying) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
@@ -191,6 +206,7 @@ class AudioPlaybackService : Service() {
         cancelSleepTimer()
         generator.stop()
         ambient.stop()
+        rhythm.stop()
         super.onDestroy()
     }
 

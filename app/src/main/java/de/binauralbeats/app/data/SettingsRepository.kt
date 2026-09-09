@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -25,6 +26,11 @@ class SettingsRepository(private val context: Context) {
         private val KEY_COMPLETED_SESSIONS = intPreferencesKey("completed_sessions")
         private val KEY_REVIEW_PROMPT_HANDLED = booleanPreferencesKey("review_prompt_handled")
         private val KEY_FIRST_SEEN_VERSION_CODE = intPreferencesKey("first_seen_version_code")
+        private val KEY_RHYTHM_MODE = stringPreferencesKey("rhythm_mode")
+        private val KEY_RHYTHM_BPM = intPreferencesKey("rhythm_bpm")
+        private val KEY_RHYTHM_ACCENT = intPreferencesKey("rhythm_accent_every")
+        private val KEY_RHYTHM_VOLUME = floatPreferencesKey("rhythm_volume")
+        private val KEY_RHYTHM_BREATH = stringPreferencesKey("rhythm_breath_pattern")
     }
 
     val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
@@ -117,6 +123,30 @@ class SettingsRepository(private val context: Context) {
             FirstRunMarker.resolve(stored, hasEarlierData, currentVersionCode)?.let {
                 prefs[KEY_FIRST_SEEN_VERSION_CODE] = it
             }
+        }
+    }
+
+    // --- Rhythm layer ---
+
+    val rhythmSettings: Flow<RhythmSettings> = context.settingsDataStore.data.map { prefs ->
+        val defaults = RhythmSettings()
+        RhythmSettings(
+            mode = runCatching { RhythmMode.valueOf(prefs[KEY_RHYTHM_MODE] ?: "") }
+                .getOrDefault(defaults.mode),
+            bpm = prefs[KEY_RHYTHM_BPM] ?: defaults.bpm,
+            accentEvery = prefs[KEY_RHYTHM_ACCENT] ?: defaults.accentEvery,
+            volume = prefs[KEY_RHYTHM_VOLUME] ?: defaults.volume,
+            breathPatternName = prefs[KEY_RHYTHM_BREATH] ?: defaults.breathPatternName
+        )
+    }
+
+    suspend fun setRhythmSettings(settings: RhythmSettings) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[KEY_RHYTHM_MODE] = settings.mode.name
+            prefs[KEY_RHYTHM_BPM] = settings.bpm
+            prefs[KEY_RHYTHM_ACCENT] = settings.accentEvery
+            prefs[KEY_RHYTHM_VOLUME] = settings.volume
+            prefs[KEY_RHYTHM_BREATH] = settings.breathPatternName
         }
     }
 }

@@ -1,0 +1,269 @@
+package de.binauralbeats.app.ui.screens
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import de.binauralbeats.app.R
+import de.binauralbeats.app.data.RhythmMode
+import de.binauralbeats.app.data.RhythmPattern
+import de.binauralbeats.app.ui.components.BreathingPattern
+import de.binauralbeats.app.ui.theme.LocalBinauralColors
+
+/**
+ * Controls for the audible tempo track. Two modes share one engine: a fixed
+ * tempo, or one cue per breath phase so the pulse lines up with the breathing
+ * guide on the main screen.
+ */
+@Composable
+fun RhythmSheet(
+    mode: RhythmMode,
+    bpm: Int,
+    accentEvery: Int,
+    breathPattern: BreathingPattern,
+    volume: Float,
+    isPlaying: Boolean,
+    onModeChange: (RhythmMode) -> Unit,
+    onBpmChange: (Int) -> Unit,
+    onAccentChange: (Int) -> Unit,
+    onBreathPatternChange: (BreathingPattern) -> Unit,
+    onVolumeChange: (Float) -> Unit,
+    onTogglePlay: () -> Unit,
+    onClose: () -> Unit
+) {
+    val colors = LocalBinauralColors.current
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = colors.surfaceDark.copy(alpha = 0.97f),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.rhythm_header),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.accentPrimary,
+                    letterSpacing = 2.sp
+                )
+                IconButton(onClick = onClose) {
+                    Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
+                }
+            }
+
+            HorizontalDivider(color = colors.overlay.copy(0.06f))
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                stringResource(R.string.rhythm_hint),
+                fontSize = 12.sp,
+                color = colors.onSurfaceMuted,
+                lineHeight = 18.sp
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            RhythmLabel(stringResource(R.string.rhythm_mode))
+            RhythmChipRow(
+                options = listOf(
+                    RhythmMode.TEMPO to stringResource(R.string.rhythm_mode_tempo),
+                    RhythmMode.BREATH to stringResource(R.string.rhythm_mode_breath)
+                ),
+                selected = mode,
+                onSelect = onModeChange
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            when (mode) {
+                RhythmMode.TEMPO -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RhythmLabel(stringResource(R.string.rhythm_tempo))
+                        Text(
+                            stringResource(R.string.rhythm_bpm, bpm),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colors.accentPrimary
+                        )
+                    }
+                    Slider(
+                        value = bpm.toFloat(),
+                        onValueChange = { onBpmChange(it.toInt()) },
+                        valueRange = RhythmPattern.MIN_BPM.toFloat()..RhythmPattern.MAX_BPM.toFloat(),
+                        colors = SliderDefaults.colors(
+                            thumbColor = colors.accentPrimary,
+                            activeTrackColor = colors.accentPrimary
+                        )
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    RhythmLabel(stringResource(R.string.rhythm_accent))
+                    RhythmChipRow(
+                        options = listOf(
+                            0 to stringResource(R.string.rhythm_accent_off),
+                            2 to stringResource(R.string.rhythm_accent_every, 2),
+                            3 to stringResource(R.string.rhythm_accent_every, 3),
+                            4 to stringResource(R.string.rhythm_accent_every, 4)
+                        ),
+                        selected = accentEvery,
+                        onSelect = onAccentChange
+                    )
+                }
+
+                RhythmMode.BREATH -> {
+                    RhythmChipRow(
+                        options = BreathingPattern.entries.map { it to stringResource(it.labelRes) },
+                        selected = breathPattern,
+                        onSelect = onBreathPatternChange
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        stringResource(R.string.rhythm_breath_hint),
+                        fontSize = 12.sp,
+                        color = colors.onSurfaceMuted,
+                        lineHeight = 18.sp
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RhythmLabel(stringResource(R.string.rhythm_volume))
+                Text(
+                    "${(volume * 100).toInt()}%",
+                    fontSize = 13.sp,
+                    color = colors.onSurfaceMuted
+                )
+            }
+            Slider(
+                value = volume,
+                onValueChange = onVolumeChange,
+                colors = SliderDefaults.colors(
+                    thumbColor = colors.accentPrimary,
+                    activeTrackColor = colors.accentPrimary
+                )
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = onTogglePlay,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.accentPrimary,
+                    contentColor = colors.onAccent
+                )
+            ) {
+                Icon(
+                    if (isPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
+                    contentDescription = null
+                )
+                Spacer(Modifier.height(0.dp))
+                Text(
+                    "  " + stringResource(if (isPlaying) R.string.rhythm_stop else R.string.rhythm_start),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun RhythmLabel(text: String) {
+    val colors = LocalBinauralColors.current
+    Text(
+        text,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = colors.onSurfaceMuted,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+}
+
+@Composable
+private fun <T> RhythmChipRow(
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelect: (T) -> Unit
+) {
+    val colors = LocalBinauralColors.current
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        options.forEach { (value, label) ->
+            val isSelected = value == selected
+            Surface(
+                onClick = { onSelect(value) },
+                color = if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
+                else colors.overlay.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        label,
+                        fontSize = 12.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (isSelected) colors.accentPrimary else colors.onSurfaceMuted
+                    )
+                }
+            }
+        }
+    }
+}

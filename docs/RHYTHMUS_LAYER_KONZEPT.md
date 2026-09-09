@@ -220,9 +220,22 @@ gekauft hat, und `firstInstallTime` aus dem `PackageManager` ist unzuverlässig
    in versionCode 4 — geht mit dem nächsten Release raus.
 2. **Datenlage abwarten:** Wird die Preset-Kategorie „Sport & Training"
    überhaupt benutzt? Wenn sie tot bleibt, baust du das Add-on für niemanden.
-3. **Dann Schritt für Schritt:** `RhythmEngine` + `stepAt` mit Tests →
-   `RhythmSheet` ohne Kaufschranke intern testen → Entitlement +
-   Billing → Play-Console-Produkt → Content-Rating neu → Release.
+3. **Dann Schritt für Schritt:**
+   - ~~`RhythmEngine` + `stepAt` mit Tests~~ **erledigt 09.09.2026**
+   - ~~`RhythmSheet` ohne Kaufschranke intern testen~~ **erledigt** — im
+     FOSS-Build aktiv (`rhythmLayerEnabled = true`), im Premium-Build aus,
+     bis die Berechtigung steht
+   - **offen:** Entitlement + Billing → Play-Console-Produkt →
+     Content-Rating neu beantworten → Release
+
+### Was von v1 noch fehlt
+
+- **Rhythmus-Programme** (Abschnitt 2, Punkt 2): `RhythmStep`, `RhythmProgram`
+  und `stepAt` liegen samt Tests im Code, es gibt aber noch keine Oberfläche,
+  um mehrstufige Programme zu bauen und ablaufen zu lassen. Aktuell spielt die
+  Spur ein festes Tempo bzw. ein Atemmuster, bis man sie stoppt.
+- **Ansagen** (Abschnitt 2, Punkt 4): `SpokenCues` ist noch nicht angefangen.
+- **WAV-Export** enthält die Puls-Spur nicht (Abschnitt 3.3).
 
 Schritt 1 war der einzige zeitkritische: Jeder Nutzer, der DeepWave vor dem
 Marker installiert, ist später nur noch über die `PRE_MARKER`-Regel als

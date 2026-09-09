@@ -265,4 +265,22 @@
     <string name="review_prompt_body">Wenn dir DeepWave beim Einschlafen, Fokussieren oder Entspannen hilft, freuen wir uns über eine kurze Bewertung. So finden andere die App überhaupt erst.</string>
     <string name="review_prompt_rate">Jetzt bewerten</string>
     <string name="review_prompt_dismiss">Nein danke</string>
+
+    <!-- Rhythmus-Layer -->
+    <string name="notif_rhythm">Rhythmus läuft…</string>
+    <string name="rhythm_header">RHYTHMUS</string>
+    <string name="rhythm_open">Rhythmus-Spur öffnen</string>
+    <string name="rhythm_hint">Ein hörbarer Takt, unabhängig von der Session. Für Gehmeditation, Atemtaktung oder gleichmäßige Bewegung. Der Sleep-Timer blendet ihn mit aus.</string>
+    <string name="rhythm_mode">Modus</string>
+    <string name="rhythm_mode_tempo">Tempo</string>
+    <string name="rhythm_mode_breath">Atem</string>
+    <string name="rhythm_tempo">Tempo</string>
+    <string name="rhythm_bpm">%1$d BPM</string>
+    <string name="rhythm_accent">Betonung</string>
+    <string name="rhythm_accent_off">Aus</string>
+    <string name="rhythm_accent_every">jede %1$d.</string>
+    <string name="rhythm_volume">Lautstärke</string>
+    <string name="rhythm_start">Rhythmus starten</string>
+    <string name="rhythm_stop">Rhythmus stoppen</string>
+    <string name="rhythm_breath_hint">Ein Signal je Atemphase - synchron zur Atemführung weiter unten.</string>
 </resources>

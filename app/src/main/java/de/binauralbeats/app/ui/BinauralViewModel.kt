@@ -22,6 +22,9 @@ import de.binauralbeats.app.data.JournalRepository
 import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.Preset
+import de.binauralbeats.app.data.RhythmMode
+import de.binauralbeats.app.data.RhythmPattern
+import de.binauralbeats.app.data.RhythmSettings
 import de.binauralbeats.app.data.PresetRepository
 import de.binauralbeats.app.data.PremiumPresetProviderImpl
 import de.binauralbeats.app.data.Presets
@@ -30,6 +33,7 @@ import de.binauralbeats.app.data.ToneType
 import de.binauralbeats.app.FeatureFlagsImpl
 import de.binauralbeats.app.R
 import de.binauralbeats.app.service.AudioPlaybackService
+import de.binauralbeats.app.ui.components.BreathingPattern
 import de.binauralbeats.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -117,6 +121,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var showSettings by mutableStateOf(false)
     var showStatistics by mutableStateOf(false)
     var showMixer by mutableStateOf(false)
+    var showRhythm by mutableStateOf(false)
 
     // --- Onboarding & store review prompt ---
 
@@ -277,11 +282,14 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             isPlaying = false
             isPaused = false
             isAmbientPlaying = false
+            isRhythmPlaying = false
             sleepTimerMinutes = 0
             sleepTimerRemainingSec = 0
             currentGuidance = null
         }
         isAmbientPlaying = svc.ambient.isPlaying
+        isRhythmPlaying = svc.rhythm.isPlaying
+        pushRhythmToEngine()
 
         // The service (foreground, own lifecycle) may already be playing when this
         // ViewModel is (re)created - e.g. Activity/process recreated while the tone
@@ -586,4 +594,111 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         service?.stopAmbient()
         super.onCleared()
     }
+
+    // --- Rhythm layer ---
+
+    val rhythmLayerEnabled: Boolean get() = FeatureFlagsImpl.rhythmLayerEnabled
+
+    var isRhythmPlaying by mutableStateOf(false)
+        private set
+
+    var rhythmMode by mutableStateOf(RhythmMode.TEMPO)
+        private set
+
+    var rhythmBpm by mutableIntStateOf(120)
+        private set
+
+    var rhythmAccentEvery by mutableIntStateOf(4)
+        private set
+
+    var rhythmVolume by mutableFloatStateOf(0.6f)
+        private set
+
+    var rhythmBreathPattern by mutableStateOf(BreathingPattern.RELAXING)
+        private set
+
+    init {
+        viewModelScope.launch {
+            val saved = settingsRepo.rhythmSettings.first()
+            rhythmMode = saved.mode
+            rhythmBpm = saved.bpm
+            rhythmAccentEvery = saved.accentEvery
+            rhythmVolume = saved.volume
+            rhythmBreathPattern = runCatching { BreathingPattern.valueOf(saved.breathPatternName) }
+                .getOrDefault(BreathingPattern.RELAXING)
+            pushRhythmToEngine()
+        }
+    }
+
+    fun updateRhythmMode(mode: RhythmMode) {
+        rhythmMode = mode
+        pushRhythmToEngine()
+        persistRhythm()
+    }
+
+    fun updateRhythmBpm(bpm: Int) {
+        rhythmBpm = bpm.coerceIn(RhythmPattern.MIN_BPM, RhythmPattern.MAX_BPM)
+        pushRhythmToEngine()
+        persistRhythm()
+    }
+
+    fun updateRhythmAccentEvery(accentEvery: Int) {
+        rhythmAccentEvery = accentEvery
+        pushRhythmToEngine()
+        persistRhythm()
+    }
+
+    fun updateRhythmBreathPattern(pattern: BreathingPattern) {
+        rhythmBreathPattern = pattern
+        pushRhythmToEngine()
+        persistRhythm()
+    }
+
+    fun updateRhythmVolume(volume: Float) {
+        rhythmVolume = volume.coerceIn(0f, 1f)
+        service?.rhythm?.volume = rhythmVolume
+        persistRhythm()
+    }
+
+    fun toggleRhythm() {
+        val svc = service ?: return
+        if (isRhythmPlaying) {
+            svc.stopRhythm()
+            isRhythmPlaying = false
+        } else {
+            pushRhythmToEngine()
+            svc.startRhythm()
+            isRhythmPlaying = svc.rhythm.isPlaying
+        }
+    }
+
+    /**
+     * The engine only ever sees a list of pulses - which of the two modes
+     * produced it is decided here and nowhere else.
+     */
+    private fun pushRhythmToEngine() {
+        val engine = service?.rhythm ?: return
+        engine.pattern = when (rhythmMode) {
+            RhythmMode.TEMPO -> RhythmPattern.metronome(rhythmBpm, rhythmAccentEvery)
+            RhythmMode.BREATH -> rhythmBreathPattern.let {
+                RhythmPattern.breathing(it.inhale, it.hold1, it.exhale, it.hold2)
+            }
+        }
+        engine.volume = rhythmVolume
+    }
+
+    private fun persistRhythm() {
+        viewModelScope.launch {
+            settingsRepo.setRhythmSettings(
+                RhythmSettings(
+                    mode = rhythmMode,
+                    bpm = rhythmBpm,
+                    accentEvery = rhythmAccentEvery,
+                    volume = rhythmVolume,
+                    breathPatternName = rhythmBreathPattern.name
+                )
+            )
+        }
+    }
+
 }

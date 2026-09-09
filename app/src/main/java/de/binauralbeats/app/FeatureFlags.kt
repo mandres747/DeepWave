@@ -15,4 +15,12 @@ interface FeatureFlags {
      * point at a page that does not exist.
      */
     val storeUrl: String?
+
+    /**
+     * The rhythm layer (audible tempo track). Free in the FOSS build, which
+     * has no billing and never will; switched off in the premium build until
+     * the paid entitlement exists, so it cannot ship for free by accident.
+     * See docs/RHYTHMUS_LAYER_KONZEPT.md.
+     */
+    val rhythmLayerEnabled: Boolean
 }
