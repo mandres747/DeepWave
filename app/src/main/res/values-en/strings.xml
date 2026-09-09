@@ -294,4 +294,18 @@
     <string name="rhythm_purchase_cancelled">Purchase cancelled.</string>
     <string name="rhythm_purchase_unavailable">Purchases are not available on this device.</string>
     <string name="rhythm_purchase_error">The purchase did not go through. Please try again later.</string>
+
+    <!-- Rhythm program -->
+    <string name="rhythm_mode_program">Program</string>
+    <string name="rhythm_program_hint">Tempo over time: warm up, main part, wind down. The program ends by itself.</string>
+    <string name="rhythm_add_step">Add step</string>
+    <string name="rhythm_step_bpm">%1$d BPM</string>
+    <string name="rhythm_step_minutes">%1$d min</string>
+    <string name="rhythm_step_remove">Remove step</string>
+    <string name="rhythm_less">Less</string>
+    <string name="rhythm_more">More</string>
+    <string name="rhythm_program_total">%1$d steps · %2$d min</string>
+    <string name="rhythm_program_running">Running: %1$d BPM · %2$s left</string>
+    <string name="rhythm_start_program">Start program</string>
+    <string name="rhythm_stop_program">Stop program</string>
 </resources>

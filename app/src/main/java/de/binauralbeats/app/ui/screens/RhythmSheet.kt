@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,13 +38,14 @@ import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
 import de.binauralbeats.app.data.RhythmMode
 import de.binauralbeats.app.data.RhythmPattern
+import de.binauralbeats.app.data.RhythmStep
 import de.binauralbeats.app.ui.components.BreathingPattern
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 
 /**
- * Controls for the audible tempo track. Two modes share one engine: a fixed
- * tempo, or one cue per breath phase so the pulse lines up with the breathing
- * guide on the main screen.
+ * Controls for the audible tempo track. Three modes share one engine: a fixed
+ * tempo, a program that changes tempo over time, or one cue per breath phase
+ * so the pulse lines up with the breathing guide on the main screen.
  */
 @Composable
 fun RhythmSheet(
@@ -48,6 +53,9 @@ fun RhythmSheet(
     bpm: Int,
     accentEvery: Int,
     breathPattern: BreathingPattern,
+    steps: List<RhythmStep>,
+    currentStep: RhythmStep?,
+    remainingSeconds: Int,
     volume: Float,
     isPlaying: Boolean,
     isUnlocked: Boolean,
@@ -58,6 +66,9 @@ fun RhythmSheet(
     onBpmChange: (Int) -> Unit,
     onAccentChange: (Int) -> Unit,
     onBreathPatternChange: (BreathingPattern) -> Unit,
+    onStepChange: (Int, RhythmStep) -> Unit,
+    onStepRemove: (Int) -> Unit,
+    onStepAdd: () -> Unit,
     onVolumeChange: (Float) -> Unit,
     onTogglePlay: () -> Unit,
     onClose: () -> Unit
@@ -114,6 +125,7 @@ fun RhythmSheet(
             RhythmChipRow(
                 options = listOf(
                     RhythmMode.TEMPO to stringResource(R.string.rhythm_mode_tempo),
+                    RhythmMode.PROGRAM to stringResource(R.string.rhythm_mode_program),
                     RhythmMode.BREATH to stringResource(R.string.rhythm_mode_breath)
                 ),
                 selected = mode,
@@ -159,6 +171,60 @@ fun RhythmSheet(
                         ),
                         selected = accentEvery,
                         onSelect = onAccentChange
+                    )
+                }
+
+                RhythmMode.PROGRAM -> {
+                    Text(
+                        stringResource(R.string.rhythm_program_hint),
+                        fontSize = 12.sp,
+                        color = colors.onSurfaceMuted,
+                        lineHeight = 18.sp
+                    )
+                    Spacer(Modifier.height(12.dp))
+
+                    steps.forEachIndexed { index, step ->
+                        RhythmStepRow(
+                            step = step,
+                            isCurrent = step === currentStep,
+                            canRemove = steps.size > 1,
+                            onChange = { onStepChange(index, it) },
+                            onRemove = { onStepRemove(index) }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    Surface(
+                        onClick = onStepAdd,
+                        color = colors.overlay.copy(alpha = 0.06f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                stringResource(R.string.rhythm_add_step),
+                                fontSize = 13.sp,
+                                color = colors.accentPrimary
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        if (currentStep != null) stringResource(
+                            R.string.rhythm_program_running,
+                            currentStep.bpm,
+                            formatRemaining(remainingSeconds)
+                        ) else stringResource(
+                            R.string.rhythm_program_total,
+                            steps.size,
+                            steps.sumOf { it.durationMinutes }
+                        ),
+                        fontSize = 12.sp,
+                        color = if (currentStep != null) colors.accentPrimary else colors.onSurfaceMuted
                     )
                 }
 
@@ -218,9 +284,15 @@ fun RhythmSheet(
                     if (isPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
                     contentDescription = null
                 )
-                Spacer(Modifier.height(0.dp))
                 Text(
-                    "  " + stringResource(if (isPlaying) R.string.rhythm_stop else R.string.rhythm_start),
+                    "  " + stringResource(
+                        when {
+                            mode == RhythmMode.PROGRAM && isPlaying -> R.string.rhythm_stop_program
+                            mode == RhythmMode.PROGRAM -> R.string.rhythm_start_program
+                            isPlaying -> R.string.rhythm_stop
+                            else -> R.string.rhythm_start
+                        }
+                    ),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -293,6 +365,90 @@ private fun RhythmLockedCard(
                     color = colors.onSurfaceMuted
                 )
             }
+        }
+    }
+}
+
+/** One program step: tempo and length, each nudged by a pair of buttons. */
+@Composable
+private fun RhythmStepRow(
+    step: RhythmStep,
+    isCurrent: Boolean,
+    canRemove: Boolean,
+    onChange: (RhythmStep) -> Unit,
+    onRemove: () -> Unit
+) {
+    val colors = LocalBinauralColors.current
+
+    Surface(
+        color = if (isCurrent) colors.accentPrimary.copy(alpha = 0.14f)
+        else colors.overlay.copy(alpha = 0.05f),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Stepper(
+                label = stringResource(R.string.rhythm_step_bpm, step.bpm),
+                onLess = { onChange(step.copy(bpm = step.bpm - 5)) },
+                onMore = { onChange(step.copy(bpm = step.bpm + 5)) },
+                modifier = Modifier.weight(1f)
+            )
+            Stepper(
+                label = stringResource(R.string.rhythm_step_minutes, step.durationMinutes),
+                onLess = { onChange(step.copy(durationMinutes = step.durationMinutes - 1)) },
+                onMore = { onChange(step.copy(durationMinutes = step.durationMinutes + 1)) },
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onRemove, enabled = canRemove) {
+                Icon(
+                    Icons.Default.Delete,
+                    stringResource(R.string.rhythm_step_remove),
+                    tint = if (canRemove) colors.onSurfaceMuted
+                    else colors.onSurfaceMuted.copy(alpha = 0.3f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Stepper(
+    label: String,
+    onLess: () -> Unit,
+    onMore: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = LocalBinauralColors.current
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        IconButton(onClick = onLess, modifier = Modifier.size(28.dp)) {
+            Icon(
+                Icons.Default.Remove,
+                stringResource(R.string.rhythm_less),
+                tint = colors.accentPrimary,
+                modifier = Modifier.size(15.dp)
+            )
+        }
+        Text(
+            label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colors.onSurface
+        )
+        IconButton(onClick = onMore, modifier = Modifier.size(28.dp)) {
+            Icon(
+                Icons.Default.Add,
+                stringResource(R.string.rhythm_more),
+                tint = colors.accentPrimary,
+                modifier = Modifier.size(15.dp)
+            )
         }
     }
 }

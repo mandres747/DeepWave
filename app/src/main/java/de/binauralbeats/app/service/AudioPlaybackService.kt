@@ -19,6 +19,8 @@ import de.binauralbeats.app.audio.AmbientEngine
 import de.binauralbeats.app.audio.RhythmEngine
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.Phase
+import de.binauralbeats.app.data.RhythmStep
+import de.binauralbeats.app.data.stepAt
 
 class AudioPlaybackService : Service() {
 
@@ -91,8 +93,57 @@ class AudioPlaybackService : Service() {
     }
 
     fun stopRhythm() {
+        handler.removeCallbacks(rhythmProgramTick)
+        rhythmProgram = emptyList()
         rhythm.stop()
         maybeExitForeground()
+    }
+
+    // --- Rhythm program ---
+    //
+    // Lives here rather than in the ViewModel so a running program survives
+    // screen-off and Activity recreation, the same reason the sleep timer is
+    // here. The engine itself stays dumb: it is handed a new pulse pattern at
+    // each step boundary and never learns what a program is.
+
+    private var rhythmProgram: List<RhythmStep> = emptyList()
+    private var rhythmProgramStartedAt = 0L
+    private var rhythmCurrentStep: RhythmStep? = null
+
+    var onRhythmStepChanged: ((step: RhythmStep?, remainingSeconds: Int) -> Unit)? = null
+
+    fun startRhythmProgram(steps: List<RhythmStep>) {
+        handler.removeCallbacks(rhythmProgramTick)
+        rhythmProgram = steps
+        rhythmProgramStartedAt = SystemClock.elapsedRealtime()
+        rhythmCurrentStep = null
+        ensureForeground(getString(R.string.notif_title), getString(R.string.notif_rhythm))
+        handler.post(rhythmProgramTick)
+    }
+
+    private val rhythmProgramTick = object : Runnable {
+        override fun run() {
+            val elapsedSec =
+                ((SystemClock.elapsedRealtime() - rhythmProgramStartedAt) / 1000L).toInt()
+            val step = stepAt(rhythmProgram, elapsedSec)
+
+            if (step == null) {
+                rhythmCurrentStep = null
+                onRhythmStepChanged?.invoke(null, 0)
+                stopRhythm()
+                return
+            }
+
+            if (step !== rhythmCurrentStep) {
+                rhythmCurrentStep = step
+                rhythm.pattern = step.pulses
+                if (!rhythm.isPlaying) rhythm.start()
+            }
+
+            val totalSec = rhythmProgram.sumOf { it.durationMinutes * 60 }
+            onRhythmStepChanged?.invoke(step, (totalSec - elapsedSec).coerceAtLeast(0))
+            handler.postDelayed(this, 1000L)
+        }
     }
 
     // --- Sleep timer ---
@@ -203,6 +254,7 @@ class AudioPlaybackService : Service() {
     }
 
     override fun onDestroy() {
+        handler.removeCallbacks(rhythmProgramTick)
         cancelSleepTimer()
         generator.stop()
         ambient.stop()

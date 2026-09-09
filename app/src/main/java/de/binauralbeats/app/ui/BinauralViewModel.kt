@@ -28,6 +28,9 @@ import de.binauralbeats.app.data.Preset
 import de.binauralbeats.app.data.RhythmMode
 import de.binauralbeats.app.data.RhythmPattern
 import de.binauralbeats.app.data.RhythmSettings
+import de.binauralbeats.app.data.RhythmStep
+import de.binauralbeats.app.data.defaultRhythmProgram
+import androidx.compose.runtime.mutableStateListOf
 import de.binauralbeats.app.data.PresetRepository
 import de.binauralbeats.app.data.PremiumPresetProviderImpl
 import de.binauralbeats.app.data.Presets
@@ -292,6 +295,11 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         }
         isAmbientPlaying = svc.ambient.isPlaying
         isRhythmPlaying = svc.rhythm.isPlaying
+        svc.onRhythmStepChanged = { step, remaining ->
+            rhythmCurrentStep = step
+            rhythmRemainingSec = remaining
+            if (step == null) isRhythmPlaying = false
+        }
         pushRhythmToEngine()
 
         // The service (foreground, own lifecycle) may already be playing when this
@@ -636,6 +644,42 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var rhythmBreathPattern by mutableStateOf(BreathingPattern.RELAXING)
         private set
 
+    /** Steps of the multi-tempo program, edited in place by the sheet. */
+    val rhythmSteps = mutableStateListOf<RhythmStep>().apply { addAll(defaultRhythmProgram) }
+
+    /** The step the service is currently playing, null when no program runs. */
+    var rhythmCurrentStep by mutableStateOf<RhythmStep?>(null)
+        private set
+
+    var rhythmRemainingSec by mutableIntStateOf(0)
+        private set
+
+    fun addRhythmStep() {
+        rhythmSteps.add(rhythmSteps.lastOrNull() ?: RhythmStep(bpm = 110, durationMinutes = 5))
+        persistRhythmProgram()
+    }
+
+    fun removeRhythmStep(index: Int) {
+        if (index !in rhythmSteps.indices) return
+        // A program with no steps would start and stop in the same tick.
+        if (rhythmSteps.size <= 1) return
+        rhythmSteps.removeAt(index)
+        persistRhythmProgram()
+    }
+
+    fun updateRhythmStep(index: Int, step: RhythmStep) {
+        if (index !in rhythmSteps.indices) return
+        rhythmSteps[index] = step.copy(
+            bpm = step.bpm.coerceIn(RhythmPattern.MIN_BPM, RhythmPattern.MAX_BPM),
+            durationMinutes = step.durationMinutes.coerceIn(1, 180)
+        )
+        persistRhythmProgram()
+    }
+
+    private fun persistRhythmProgram() {
+        viewModelScope.launch { settingsRepo.setRhythmProgram(rhythmSteps.toList()) }
+    }
+
     init {
         EntitlementsImpl.connect(app)
         viewModelScope.launch {
@@ -646,6 +690,9 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             rhythmVolume = saved.volume
             rhythmBreathPattern = runCatching { BreathingPattern.valueOf(saved.breathPatternName) }
                 .getOrDefault(BreathingPattern.RELAXING)
+            val savedProgram = settingsRepo.rhythmProgram.first()
+            rhythmSteps.clear()
+            rhythmSteps.addAll(savedProgram)
             pushRhythmToEngine()
         }
     }
@@ -685,6 +732,14 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         if (isRhythmPlaying) {
             svc.stopRhythm()
             isRhythmPlaying = false
+            rhythmCurrentStep = null
+            rhythmRemainingSec = 0
+        } else if (rhythmMode == RhythmMode.PROGRAM) {
+            // The service drives a program over time; the engine only ever
+            // receives whatever pattern the current step produces.
+            svc.rhythm.volume = rhythmVolume
+            svc.startRhythmProgram(rhythmSteps.toList())
+            isRhythmPlaying = true
         } else {
             pushRhythmToEngine()
             svc.startRhythm()
@@ -698,7 +753,12 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
      */
     private fun pushRhythmToEngine() {
         val engine = service?.rhythm ?: return
+        engine.volume = rhythmVolume
+        // While a program runs, the service owns the pattern - overwriting it
+        // here would freeze the tempo at whatever the sheet last showed.
+        if (rhythmMode == RhythmMode.PROGRAM) return
         engine.pattern = when (rhythmMode) {
+            RhythmMode.PROGRAM -> return
             RhythmMode.TEMPO -> RhythmPattern.metronome(rhythmBpm, rhythmAccentEvery)
             RhythmMode.BREATH -> rhythmBreathPattern.let {
                 RhythmPattern.breathing(it.inhale, it.hold1, it.exhale, it.hold2)

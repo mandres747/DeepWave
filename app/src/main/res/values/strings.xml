@@ -294,4 +294,18 @@
     <string name="rhythm_purchase_cancelled">Kauf abgebrochen.</string>
     <string name="rhythm_purchase_unavailable">Käufe sind auf diesem Gerät nicht verfügbar.</string>
     <string name="rhythm_purchase_error">Der Kauf hat nicht geklappt. Bitte später erneut versuchen.</string>
+
+    <!-- Rhythmus-Programm -->
+    <string name="rhythm_mode_program">Programm</string>
+    <string name="rhythm_program_hint">Tempo über die Zeit: Warmlaufen, Hauptteil, Auslaufen. Das Programm endet von selbst.</string>
+    <string name="rhythm_add_step">Schritt hinzufügen</string>
+    <string name="rhythm_step_bpm">%1$d BPM</string>
+    <string name="rhythm_step_minutes">%1$d min</string>
+    <string name="rhythm_step_remove">Schritt entfernen</string>
+    <string name="rhythm_less">Weniger</string>
+    <string name="rhythm_more">Mehr</string>
+    <string name="rhythm_program_total">%1$d Schritte · %2$d min</string>
+    <string name="rhythm_program_running">Läuft: %1$d BPM · noch %2$s</string>
+    <string name="rhythm_start_program">Programm starten</string>
+    <string name="rhythm_stop_program">Programm stoppen</string>
 </resources>

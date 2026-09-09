@@ -13,10 +13,14 @@ import de.binauralbeats.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(private val context: Context) {
+
+    private val json = Json { ignoreUnknownKeys = true }
 
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme_mode")
@@ -31,6 +35,7 @@ class SettingsRepository(private val context: Context) {
         private val KEY_RHYTHM_ACCENT = intPreferencesKey("rhythm_accent_every")
         private val KEY_RHYTHM_VOLUME = floatPreferencesKey("rhythm_volume")
         private val KEY_RHYTHM_BREATH = stringPreferencesKey("rhythm_breath_pattern")
+        private val KEY_RHYTHM_PROGRAM = stringPreferencesKey("rhythm_program_json")
     }
 
     val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
@@ -147,6 +152,22 @@ class SettingsRepository(private val context: Context) {
             prefs[KEY_RHYTHM_ACCENT] = settings.accentEvery
             prefs[KEY_RHYTHM_VOLUME] = settings.volume
             prefs[KEY_RHYTHM_BREATH] = settings.breathPatternName
+        }
+    }
+
+    /** Falls back to the default program when nothing is stored or it is corrupt. */
+    val rhythmProgram: Flow<List<RhythmStep>> = context.settingsDataStore.data.map { prefs ->
+        val raw = prefs[KEY_RHYTHM_PROGRAM] ?: return@map defaultRhythmProgram
+        try {
+            json.decodeFromString<List<RhythmStep>>(raw).ifEmpty { defaultRhythmProgram }
+        } catch (_: Exception) {
+            defaultRhythmProgram
+        }
+    }
+
+    suspend fun setRhythmProgram(steps: List<RhythmStep>) {
+        context.settingsDataStore.edit {
+            it[KEY_RHYTHM_PROGRAM] = json.encodeToString(steps)
         }
     }
 }

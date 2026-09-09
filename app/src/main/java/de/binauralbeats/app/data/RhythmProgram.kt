@@ -93,8 +93,18 @@ fun stepAt(steps: List<RhythmStep>, elapsedSeconds: Int): RhythmStep? {
     return null
 }
 
-/** Whether the pulse follows a fixed tempo or the breathing guide. */
-enum class RhythmMode { TEMPO, BREATH }
+/**
+ * Where the pulse pattern comes from: one fixed tempo, a program that changes
+ * tempo over time, or the breathing guide.
+ */
+enum class RhythmMode { TEMPO, PROGRAM, BREATH }
+
+/** Starting point for a new program - a short walk, not an empty list. */
+val defaultRhythmProgram = listOf(
+    RhythmStep(bpm = 100, durationMinutes = 3),
+    RhythmStep(bpm = 115, durationMinutes = 10),
+    RhythmStep(bpm = 95, durationMinutes = 3)
+)
 
 /**
  * What the rhythm sheet remembers between launches. The breath pattern is
