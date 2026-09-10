@@ -100,9 +100,12 @@ object EntitlementsImpl : Entitlements {
                 )
             )
             .build()
-        billing.queryProductDetailsAsync(params) { result, details ->
+        // Billing 8 hands back a result object rather than a bare list; the
+        // products it could not fetch are reported separately and ignored here.
+        billing.queryProductDetailsAsync(params) { result, productDetailsResult ->
             if (result.responseCode != BillingClient.BillingResponseCode.OK) return@queryProductDetailsAsync
-            val found = details.firstOrNull { it.productId == Entitlements.PRODUCT_RHYTHM_LAYER }
+            val found = productDetailsResult.productDetailsList
+                .firstOrNull { it.productId == Entitlements.PRODUCT_RHYTHM_LAYER }
             productDetails = found
             price.value = found?.oneTimePurchaseOfferDetails?.formattedPrice
         }

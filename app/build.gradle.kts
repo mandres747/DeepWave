@@ -15,7 +15,7 @@ android {
         applicationId = "de.binauralbeats.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
+        versionCode = 6
         versionName = "1.3.0"
     }
 
@@ -112,7 +112,7 @@ dependencies {
 
     // Play Billing is proprietary; keeping it on premiumImplementation is what
     // stops it reaching the F-Droid build, which only ever assembles fossRelease.
-    "premiumImplementation"("com.android.billingclient:billing-ktx:7.1.1")
+    "premiumImplementation"("com.android.billingclient:billing-ktx:8.0.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
