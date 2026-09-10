@@ -73,7 +73,11 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         colors = listOf(colors.surfaceDark, colors.primaryDark, colors.primaryMid, colors.surfaceVariant)
                     )
                 )
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                // Both edges, not just the top: with the system bars actually
+                // transparent now, bottom content would sit under the gesture bar.
+                // The gradient still fills the screen because it is applied
+                // before this padding.
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)

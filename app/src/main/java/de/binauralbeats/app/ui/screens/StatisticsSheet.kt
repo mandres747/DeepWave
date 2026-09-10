@@ -100,6 +100,7 @@ fun StatisticsOverlay(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(horizontal = 20.dp),
             contentPadding = PaddingValues(vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)

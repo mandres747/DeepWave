@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Bar colours are deliberately absent: enableEdgeToEdge() manages the
+         system bars at runtime, and declaring opaque colours here fights it. -->
     <style name="Theme.BinauralBeats" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:statusBarColor">#FF0F1F3D</item>
-        <item name="android:navigationBarColor">#FF0F1F3D</item>
         <item name="android:windowBackground">#FF0F1F3D</item>
     </style>
 </resources>

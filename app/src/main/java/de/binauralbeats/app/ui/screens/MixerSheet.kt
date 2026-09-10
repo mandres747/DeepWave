@@ -3,6 +3,9 @@ package de.binauralbeats.app.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -56,6 +59,7 @@ fun MixerSheet(
     ) {
         Column(
             modifier = Modifier
+                .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {

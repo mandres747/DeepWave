@@ -10,7 +10,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -123,8 +122,10 @@ fun BinauralBeatsTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = binauralColors.surfaceDark.toArgb()
-            window.navigationBarColor = binauralColors.surfaceDark.toArgb()
+            // No statusBarColor/navigationBarColor here: Android 15 ignores both,
+            // and on older versions they overwrote what enableEdgeToEdge() had
+            // just set, so the app asked for edge-to-edge and then painted over
+            // it. Only the icon contrast still needs saying.
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = !isDark
                 isAppearanceLightNavigationBars = !isDark

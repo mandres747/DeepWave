@@ -153,7 +153,11 @@ fun JournalOverlay(
         modifier = Modifier.fillMaxSize(),
         color = colors.surfaceDark.copy(alpha = 0.97f)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
