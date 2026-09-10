@@ -116,5 +116,6 @@ data class RhythmSettings(
     val bpm: Int = 120,
     val accentEvery: Int = 4,
     val volume: Float = 0.6f,
-    val breathPatternName: String = "RELAXING"
+    val breathPatternName: String = "RELAXING",
+    val cuesEnabled: Boolean = false
 )

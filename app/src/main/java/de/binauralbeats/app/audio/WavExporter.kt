@@ -8,6 +8,7 @@ import de.binauralbeats.app.R
 import de.binauralbeats.app.data.BackgroundNoise
 import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
+import de.binauralbeats.app.data.RhythmPulse
 import de.binauralbeats.app.data.ToneType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,6 +32,13 @@ class WavExporter {
         noiseVolume: Float,
         transitionMs: Int,
         filename: String,
+        /**
+         * Pulses to mix in for a given second of the session, or null for no
+         * rhythm track. A lambda rather than a fixed pattern so a multi-step
+         * program exports the tempo changes it would have played live.
+         */
+        rhythmPulsesAt: ((elapsedSeconds: Int) -> List<RhythmPulse>)? = null,
+        rhythmVolume: Float = 0f,
         onProgress: (Float) -> Unit = {}
     ): ExportResult = withContext(Dispatchers.IO) {
         try {
@@ -44,6 +52,11 @@ class WavExporter {
             var sampleCounter = 0L
             var pinkState = FloatArray(7)
             var lastBrown = 0f
+
+            // Same scheduler and voice the live engine uses, so the file is
+            // the sound that was heard rather than a second implementation of it.
+            val rhythmScheduler = PulseScheduler(sampleRate)
+            val rhythmVoice = ClickVoice(sampleRate)
 
             for (phaseIdx in phases.indices) {
                 val phase = phases[phaseIdx]
@@ -101,8 +114,22 @@ class WavExporter {
                     } else 1f
 
                     val envelope = fadeEnvelope * globalFade * volume
-                    leftSample = (leftSample * envelope).coerceIn(-1f, 1f)
-                    rightSample = (rightSample * envelope).coerceIn(-1f, 1f)
+                    leftSample *= envelope
+                    rightSample *= envelope
+
+                    if (rhythmPulsesAt != null) {
+                        val elapsedSeconds = ((sampleCounter + i) / sampleRate).toInt()
+                        rhythmScheduler.advance(rhythmPulsesAt(elapsedSeconds))
+                            ?.let { rhythmVoice.trigger(it.accented) }
+                        // globalFade only, not the per-phase fade: the pulse is
+                        // its own layer and should not dip at every phase seam.
+                        val click = rhythmVoice.nextSample() * rhythmVolume * globalFade * 0.6f
+                        leftSample += click
+                        rightSample += click
+                    }
+
+                    leftSample = leftSample.coerceIn(-1f, 1f)
+                    rightSample = rightSample.coerceIn(-1f, 1f)
 
                     buffer.putShort((leftSample * Short.MAX_VALUE).toInt().toShort())
                     buffer.putShort((rightSample * Short.MAX_VALUE).toInt().toShort())
@@ -153,16 +180,6 @@ class WavExporter {
         } catch (e: Exception) {
             ExportResult(false, filename, e.message)
         }
-    }
-
-    private fun applyModulation(
-        baseFreq: Float, type: ModulationType, timeInPhase: Double, phaseDuration: Double
-    ): Float = when (type) {
-        ModulationType.STATIC -> baseFreq
-        ModulationType.BREATHING -> baseFreq + (baseFreq * 0.15f * sin(2 * PI * 0.1 * timeInPhase)).toFloat()
-        ModulationType.PULSE -> baseFreq * if (sin(2 * PI * 4 * timeInPhase) > 0) 1f else 0.3f
-        ModulationType.DYNAMIC -> baseFreq * (1f - 0.3f * (timeInPhase / phaseDuration).toFloat())
-        ModulationType.SWEEP -> baseFreq + (baseFreq * 0.25f * sin(2 * PI * 0.05 * timeInPhase)).toFloat()
     }
 
     private fun generatePinkNoise(state: FloatArray): Float {

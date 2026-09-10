@@ -17,6 +17,7 @@ import de.binauralbeats.app.MainActivity
 import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.AmbientEngine
 import de.binauralbeats.app.audio.RhythmEngine
+import de.binauralbeats.app.audio.SpokenCues
 import de.binauralbeats.app.audio.BinauralGenerator
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.RhythmStep
@@ -32,6 +33,7 @@ class AudioPlaybackService : Service() {
     val generator = BinauralGenerator()
     val ambient = AmbientEngine()
     val rhythm = RhythmEngine()
+    private val cues by lazy { SpokenCues(this) }
 
     // Lets a ViewModel recreated after process death (Activity/service rebind while
     // the foreground service keeps playing) restore what is actually running.
@@ -112,8 +114,12 @@ class AudioPlaybackService : Service() {
 
     var onRhythmStepChanged: ((step: RhythmStep?, remainingSeconds: Int) -> Unit)? = null
 
+    /** Set from the ViewModel; announcements are off unless the user asked. */
+    var spokenCuesEnabled = false
+
     fun startRhythmProgram(steps: List<RhythmStep>) {
         handler.removeCallbacks(rhythmProgramTick)
+        if (spokenCuesEnabled) cues.start()
         rhythmProgram = steps
         rhythmProgramStartedAt = SystemClock.elapsedRealtime()
         rhythmCurrentStep = null
@@ -129,6 +135,7 @@ class AudioPlaybackService : Service() {
 
             if (step == null) {
                 rhythmCurrentStep = null
+                if (spokenCuesEnabled) cues.say(getString(R.string.cue_program_done))
                 onRhythmStepChanged?.invoke(null, 0)
                 stopRhythm()
                 return
@@ -138,6 +145,7 @@ class AudioPlaybackService : Service() {
                 rhythmCurrentStep = step
                 rhythm.pattern = step.pulses
                 if (!rhythm.isPlaying) rhythm.start()
+                if (spokenCuesEnabled) cues.say(getString(R.string.cue_tempo, step.bpm))
             }
 
             val totalSec = rhythmProgram.sumOf { it.durationMinutes * 60 }
@@ -259,6 +267,7 @@ class AudioPlaybackService : Service() {
         generator.stop()
         ambient.stop()
         rhythm.stop()
+        cues.shutdown()
         super.onDestroy()
     }
 

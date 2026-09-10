@@ -239,33 +239,6 @@ class BinauralGenerator(
         }
     }
 
-    private fun applyModulation(
-        baseFreq: Float,
-        type: ModulationType,
-        timeInPhase: Double,
-        phaseDuration: Double
-    ): Float {
-        return when (type) {
-            ModulationType.STATIC -> baseFreq
-            ModulationType.BREATHING -> {
-                val breathCycle = sin(2 * PI * 0.1 * timeInPhase)
-                baseFreq + (baseFreq * 0.15f * breathCycle).toFloat()
-            }
-            ModulationType.PULSE -> {
-                val pulse = if (sin(2 * PI * 4 * timeInPhase) > 0) 1f else 0.3f
-                baseFreq * pulse
-            }
-            ModulationType.DYNAMIC -> {
-                val progress = (timeInPhase / phaseDuration).toFloat()
-                baseFreq * (1f - 0.3f * progress)
-            }
-            ModulationType.SWEEP -> {
-                val sweep = sin(2 * PI * 0.05 * timeInPhase)
-                baseFreq + (baseFreq * 0.25f * sweep).toFloat()
-            }
-        }
-    }
-
     private fun generatePinkNoise(state: FloatArray): Float {
         val white = Random.nextFloat() * 2f - 1f
         state[0] = 0.99886f * state[0] + white * 0.0555179f

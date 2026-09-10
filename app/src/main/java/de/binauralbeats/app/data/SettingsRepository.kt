@@ -36,6 +36,7 @@ class SettingsRepository(private val context: Context) {
         private val KEY_RHYTHM_VOLUME = floatPreferencesKey("rhythm_volume")
         private val KEY_RHYTHM_BREATH = stringPreferencesKey("rhythm_breath_pattern")
         private val KEY_RHYTHM_PROGRAM = stringPreferencesKey("rhythm_program_json")
+        private val KEY_RHYTHM_CUES = booleanPreferencesKey("rhythm_cues_enabled")
     }
 
     val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
@@ -141,7 +142,8 @@ class SettingsRepository(private val context: Context) {
             bpm = prefs[KEY_RHYTHM_BPM] ?: defaults.bpm,
             accentEvery = prefs[KEY_RHYTHM_ACCENT] ?: defaults.accentEvery,
             volume = prefs[KEY_RHYTHM_VOLUME] ?: defaults.volume,
-            breathPatternName = prefs[KEY_RHYTHM_BREATH] ?: defaults.breathPatternName
+            breathPatternName = prefs[KEY_RHYTHM_BREATH] ?: defaults.breathPatternName,
+            cuesEnabled = prefs[KEY_RHYTHM_CUES] ?: defaults.cuesEnabled
         )
     }
 
@@ -152,6 +154,7 @@ class SettingsRepository(private val context: Context) {
             prefs[KEY_RHYTHM_ACCENT] = settings.accentEvery
             prefs[KEY_RHYTHM_VOLUME] = settings.volume
             prefs[KEY_RHYTHM_BREATH] = settings.breathPatternName
+            prefs[KEY_RHYTHM_CUES] = settings.cuesEnabled
         }
     }
 

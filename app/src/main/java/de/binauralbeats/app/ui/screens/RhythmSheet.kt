@@ -72,6 +72,8 @@ fun RhythmSheet(
     onStepChange: (Int, RhythmStep) -> Unit,
     onStepRemove: (Int) -> Unit,
     onStepAdd: () -> Unit,
+    cuesEnabled: Boolean,
+    onCuesChange: (Boolean) -> Unit,
     onVolumeChange: (Float) -> Unit,
     onTogglePlay: () -> Unit,
     onClose: () -> Unit
@@ -216,7 +218,26 @@ fun RhythmSheet(
                         }
                     }
 
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(16.dp))
+
+                    RhythmLabel(stringResource(R.string.rhythm_cues))
+                    RhythmChipRow(
+                        options = listOf(
+                            false to stringResource(R.string.rhythm_cues_off),
+                            true to stringResource(R.string.rhythm_cues_on)
+                        ),
+                        selected = cuesEnabled,
+                        onSelect = onCuesChange
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.rhythm_cues_hint),
+                        fontSize = 11.sp,
+                        color = colors.onSurfaceMuted,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(Modifier.height(12.dp))
                     Text(
                         if (currentStep != null) stringResource(
                             R.string.rhythm_program_running,

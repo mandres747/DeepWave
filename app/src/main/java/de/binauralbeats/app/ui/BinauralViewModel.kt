@@ -27,6 +27,8 @@ import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.Preset
 import de.binauralbeats.app.data.RhythmMode
 import de.binauralbeats.app.data.RhythmPattern
+import de.binauralbeats.app.data.RhythmPulse
+import de.binauralbeats.app.data.stepAt
 import de.binauralbeats.app.data.RhythmSettings
 import de.binauralbeats.app.data.RhythmStep
 import de.binauralbeats.app.data.defaultRhythmProgram
@@ -295,6 +297,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         }
         isAmbientPlaying = svc.ambient.isPlaying
         isRhythmPlaying = svc.rhythm.isPlaying
+        svc.spokenCuesEnabled = rhythmCuesEnabled
         svc.onRhythmStepChanged = { step, remaining ->
             rhythmCurrentStep = step
             rhythmRemainingSec = remaining
@@ -546,6 +549,8 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
                 noiseVolume = noiseVolume,
                 transitionMs = transitionTimeMs,
                 filename = filename,
+                rhythmPulsesAt = rhythmPulsesForExport(),
+                rhythmVolume = rhythmVolume,
                 onProgress = { exportProgress = it }
             )
 
@@ -644,6 +649,15 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var rhythmBreathPattern by mutableStateOf(BreathingPattern.RELAXING)
         private set
 
+    var rhythmCuesEnabled by mutableStateOf(false)
+        private set
+
+    fun updateRhythmCues(enabled: Boolean) {
+        rhythmCuesEnabled = enabled
+        service?.spokenCuesEnabled = enabled
+        persistRhythm()
+    }
+
     /** Steps of the multi-tempo program, edited in place by the sheet. */
     val rhythmSteps = mutableStateListOf<RhythmStep>().apply { addAll(defaultRhythmProgram) }
 
@@ -690,6 +704,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             rhythmVolume = saved.volume
             rhythmBreathPattern = runCatching { BreathingPattern.valueOf(saved.breathPatternName) }
                 .getOrDefault(BreathingPattern.RELAXING)
+            rhythmCuesEnabled = saved.cuesEnabled
             val savedProgram = settingsRepo.rhythmProgram.first()
             rhythmSteps.clear()
             rhythmSteps.addAll(savedProgram)
@@ -738,6 +753,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             // The service drives a program over time; the engine only ever
             // receives whatever pattern the current step produces.
             svc.rhythm.volume = rhythmVolume
+            svc.spokenCuesEnabled = rhythmCuesEnabled
             svc.startRhythmProgram(rhythmSteps.toList())
             isRhythmPlaying = true
         } else {
@@ -767,6 +783,32 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         engine.volume = rhythmVolume
     }
 
+    /**
+     * The rhythm track as the exporter needs it, or null when there is nothing
+     * to mix in. Only owned add-ons contribute - an export must not hand out
+     * what was not bought - and only a rhythm the user actually has running,
+     * so a silent sheet does not quietly end up in the file.
+     */
+    private fun rhythmPulsesForExport(): ((Int) -> List<RhythmPulse>)? {
+        if (!FeatureFlagsImpl.rhythmLayerAvailable) return null
+        if (!EntitlementsImpl.rhythmLayerOwned.value) return null
+        if (!isRhythmPlaying) return null
+
+        if (rhythmMode == RhythmMode.PROGRAM) {
+            val steps = rhythmSteps.toList()
+            return { seconds -> stepAt(steps, seconds)?.pulses ?: emptyList() }
+        }
+
+        val fixed = when (rhythmMode) {
+            RhythmMode.TEMPO -> RhythmPattern.metronome(rhythmBpm, rhythmAccentEvery)
+            RhythmMode.BREATH -> rhythmBreathPattern.let {
+                RhythmPattern.breathing(it.inhale, it.hold1, it.exhale, it.hold2)
+            }
+            RhythmMode.PROGRAM -> emptyList()
+        }
+        return { _ -> fixed }
+    }
+
     private fun persistRhythm() {
         viewModelScope.launch {
             settingsRepo.setRhythmSettings(
@@ -775,7 +817,8 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
                     bpm = rhythmBpm,
                     accentEvery = rhythmAccentEvery,
                     volume = rhythmVolume,
-                    breathPatternName = rhythmBreathPattern.name
+                    breathPatternName = rhythmBreathPattern.name,
+                    cuesEnabled = rhythmCuesEnabled
                 )
             )
         }

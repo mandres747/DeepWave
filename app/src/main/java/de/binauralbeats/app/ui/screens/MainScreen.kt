@@ -629,6 +629,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     onStepChange = { index, step -> viewModel.updateRhythmStep(index, step) },
                     onStepRemove = { viewModel.removeRhythmStep(it) },
                     onStepAdd = { viewModel.addRhythmStep() },
+                    cuesEnabled = viewModel.rhythmCuesEnabled,
+                    onCuesChange = { viewModel.updateRhythmCues(it) },
                     onVolumeChange = { viewModel.updateRhythmVolume(it) },
                     onTogglePlay = { viewModel.toggleRhythm() },
                     onClose = { viewModel.showRhythm = false }
