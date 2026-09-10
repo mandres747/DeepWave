@@ -36,6 +36,29 @@ class RhythmEngine(
     @Volatile
     var fadeScale = 1f
 
+    /**
+     * Milliseconds of audio the listener has actually heard since start.
+     *
+     * Deliberately read from the AudioTrack instead of the wall clock: what
+     * has been written to the buffer is not yet what is audible, and the gap
+     * is the output latency - a few hundred milliseconds on many devices. A
+     * visual that follows this counter sits on the beat the user hears, not on
+     * the beat the app has computed.
+     */
+    val playedMillis: Long
+        get() {
+            val track = audioTrack ?: return 0L
+            return try {
+                // A 32-bit frame counter. Masking keeps it climbing past the
+                // sign flip, which at 44.1 kHz arrives after about 13.5 hours.
+                val frames = track.playbackHeadPosition.toLong() and 0xFFFF_FFFFL
+                frames * 1000L / sampleRate
+            } catch (_: Exception) {
+                // The track can be released between the null check and here.
+                0L
+            }
+        }
+
     private val bufferSize = AudioTrack.getMinBufferSize(
         sampleRate,
         AudioFormat.CHANNEL_OUT_STEREO,

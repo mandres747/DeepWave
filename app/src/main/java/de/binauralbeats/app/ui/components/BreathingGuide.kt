@@ -27,11 +27,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
-import kotlinx.coroutines.delay
 
 enum class BreathPhase(@StringRes val labelRes: Int) {
     INHALE(R.string.inhale),
@@ -63,47 +63,99 @@ enum class BreathingPattern(@StringRes val labelRes: Int, val inhale: Int, val h
     val totalSeconds: Int get() = inhale + hold1 + exhale + hold2
 }
 
+/**
+ * The phases that actually run, in order. Zero-length ones are dropped - 4-7-8
+ * has no second hold, ENERGIZE has none at all.
+ *
+ * This must stay in step with RhythmPattern.breathing, which drops the same
+ * phases for the audible pulses. If the two ever disagree, the click and the
+ * circle describe different breaths.
+ */
+internal fun BreathingPattern.phases(): List<Pair<BreathPhase, Int>> = buildList {
+    if (inhale > 0) add(BreathPhase.INHALE to inhale)
+    if (hold1 > 0) add(BreathPhase.HOLD to hold1)
+    if (exhale > 0) add(BreathPhase.EXHALE to exhale)
+    if (hold2 > 0) add(BreathPhase.HOLD to hold2)
+}
+
+/** Where a breath stands: which phase, how far into it, which cycle. */
+data class BreathMoment(
+    val phase: BreathPhase,
+    val progress: Float,
+    val cycle: Int
+)
+
+/**
+ * Which phase is running after [elapsedMillis] and how far it has come.
+ * Counterpart to stepAt for rhythm programs.
+ *
+ * Pure on purpose: the animation used to count its own milliseconds by adding
+ * up delay() steps, which always run a little long and therefore drifted away
+ * from the audible pulse. Deriving the phase from an elapsed time handed in
+ * from outside means whoever owns the clock decides, and the awkward cases -
+ * zero-length phases, the exact boundary, the wrap into the next cycle - are
+ * settled by tests instead of by an animation loop.
+ */
+fun breathMomentAt(pattern: BreathingPattern, elapsedMillis: Long): BreathMoment {
+    val phases = pattern.phases()
+    val cycleMillis = pattern.totalSeconds * 1000L
+    if (phases.isEmpty() || cycleMillis <= 0L) return BreathMoment(BreathPhase.INHALE, 0f, 0)
+
+    val elapsed = elapsedMillis.coerceAtLeast(0L)
+    val cycle = (elapsed / cycleMillis).toInt()
+    var offset = elapsed % cycleMillis
+
+    for ((phase, seconds) in phases) {
+        val durationMillis = seconds * 1000L
+        if (offset < durationMillis) {
+            return BreathMoment(phase, offset.toFloat() / durationMillis, cycle)
+        }
+        offset -= durationMillis
+    }
+
+    // Unreachable while the phases add up to the cycle length. Returning the
+    // end of the last phase beats throwing sixty times a second.
+    return BreathMoment(phases.last().first, 1f, cycle)
+}
+
+/**
+ * The visual half of the breathing guide. Owns no clock and no pattern of its
+ * own - both are handed in, so the circle and the audible rhythm track can be
+ * driven from a single source. Without that, the two ran on separate state and
+ * separate timers and drifted apart within a cycle.
+ */
 @Composable
 fun BreathingGuide(
     isActive: Boolean,
+    pattern: BreathingPattern,
+    isRunning: Boolean,
+    elapsedMillis: () -> Long,
+    onPatternChange: (BreathingPattern) -> Unit,
+    onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = LocalBinauralColors.current
-    var selectedPattern by remember { mutableStateOf(BreathingPattern.RELAXING) }
-    var isRunning by remember { mutableStateOf(false) }
-    var currentPhase by remember { mutableStateOf(BreathPhase.INHALE) }
-    var progress by remember { mutableFloatStateOf(0f) }
-    var cycleCount by remember { mutableIntStateOf(0) }
+    val currentElapsed by rememberUpdatedState(elapsedMillis)
+    val currentToggle by rememberUpdatedState(onToggle)
+    var moment by remember { mutableStateOf(BreathMoment(BreathPhase.INHALE, 0f, 0)) }
 
-    LaunchedEffect(isRunning, selectedPattern) {
-        if (!isRunning) return@LaunchedEffect
-        cycleCount = 0
-        while (isRunning) {
-            val p = selectedPattern
-            val steps = buildList {
-                if (p.inhale > 0) add(BreathPhase.INHALE to p.inhale)
-                if (p.hold1 > 0) add(BreathPhase.HOLD to p.hold1)
-                if (p.exhale > 0) add(BreathPhase.EXHALE to p.exhale)
-                if (p.hold2 > 0) add(BreathPhase.HOLD to p.hold2)
-            }
-
-            for ((phase, duration) in steps) {
-                currentPhase = phase
-                val totalMs = duration * 1000L
-                val stepMs = 50L
-                var elapsed = 0L
-                while (elapsed < totalMs && isRunning) {
-                    progress = elapsed.toFloat() / totalMs
-                    delay(stepMs)
-                    elapsed += stepMs
-                }
-            }
-            if (isRunning) cycleCount++
+    // One update per displayed frame, each asking the shared clock where the
+    // breath stands. Nothing is counted here, so there is nothing to drift.
+    LaunchedEffect(isRunning, pattern) {
+        if (!isRunning) {
+            moment = BreathMoment(BreathPhase.INHALE, 0f, 0)
+            return@LaunchedEffect
+        }
+        while (true) {
+            withFrameNanos { }
+            moment = breathMomentAt(pattern, currentElapsed())
         }
     }
 
+    // A session ending - the sleep timer running out, say - takes the guide
+    // with it, as it did before.
     LaunchedEffect(isActive) {
-        if (!isActive) isRunning = false
+        if (!isActive && isRunning) currentToggle()
     }
 
     val view = LocalView.current
@@ -133,9 +185,9 @@ fun BreathingGuide(
                     color = colors.accentPrimary,
                     letterSpacing = 2.sp
                 )
-                if (cycleCount > 0) {
+                if (moment.cycle > 0) {
                     Text(
-                        stringResource(R.string.breathing_cycles, cycleCount),
+                        pluralStringResource(R.plurals.breathing_cycles, moment.cycle, moment.cycle),
                         fontSize = 11.sp,
                         color = colors.onSurfaceMuted
                     )
@@ -148,21 +200,18 @@ fun BreathingGuide(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                BreathingPattern.entries.forEach { pattern ->
+                BreathingPattern.entries.forEach { entry ->
                     Surface(
-                        onClick = {
-                            selectedPattern = pattern
-                            isRunning = false
-                        },
-                        color = if (pattern == selectedPattern)
+                        onClick = { onPatternChange(entry) },
+                        color = if (entry == pattern)
                             colors.accentPrimary.copy(alpha = 0.15f) else Color.Transparent,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            stringResource(pattern.labelRes),
+                            stringResource(entry.labelRes),
                             fontSize = 10.sp,
-                            color = if (pattern == selectedPattern) colors.accentPrimary
+                            color = if (entry == pattern) colors.accentPrimary
                             else colors.onSurfaceMuted,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp)
@@ -175,15 +224,15 @@ fun BreathingGuide(
 
             BreathingCircle(
                 isRunning = isRunning,
-                currentPhase = currentPhase,
-                progress = progress,
-                pattern = selectedPattern
+                currentPhase = moment.phase,
+                progress = moment.progress,
+                pattern = pattern
             )
 
             Spacer(Modifier.height(12.dp))
 
             Button(
-                onClick = { isRunning = !isRunning },
+                onClick = { onToggle() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isRunning) Color(0x33FF6B6B) else colors.accentPrimary.copy(alpha = 0.15f)
                 ),
@@ -267,20 +316,23 @@ private fun BreathingCircle(
             }
         }
 
+        // The circle reports, it does not offer. It used to read "Start" while
+        // idle, right above a button reading "Starten" - two labels for one
+        // action, and only one of them was actually tappable.
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                if (isRunning) stringResource(currentPhase.labelRes) else stringResource(R.string.start),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = colors.accentPrimary
-            )
             if (isRunning) {
                 Text(
-                    stringResource(pattern.labelRes),
-                    fontSize = 10.sp,
-                    color = colors.onSurfaceMuted
+                    stringResource(currentPhase.labelRes),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.accentPrimary
                 )
             }
+            Text(
+                stringResource(pattern.labelRes),
+                fontSize = 10.sp,
+                color = colors.onSurfaceMuted
+            )
         }
     }
 }

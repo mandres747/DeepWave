@@ -10,7 +10,6 @@
     <string name="reset">Reset</string>
     <string name="delete">Delete</string>
     <string name="skip">Skip</string>
-    <string name="start">Start</string>
     <string name="stop_label">Stop</string>
     <string name="start_label">Start</string>
 
@@ -61,7 +60,10 @@
 
     <!-- Breathing Guide -->
     <string name="breathing_header">BREATHING GUIDE</string>
-    <string name="breathing_cycles">%1$d cycles</string>
+    <plurals name="breathing_cycles">
+        <item quantity="one">%1$d cycle</item>
+        <item quantity="other">%1$d cycles</item>
+    </plurals>
     <string name="inhale">Inhale</string>
     <string name="hold">Hold</string>
     <string name="exhale">Exhale</string>

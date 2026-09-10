@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -646,8 +647,57 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     var rhythmVolume by mutableFloatStateOf(0.6f)
         private set
 
-    var rhythmBreathPattern by mutableStateOf(BreathingPattern.RELAXING)
+    /**
+     * The breath that the guide draws and the rhythm track ticks - one setting,
+     * not two. Guide and sheet used to keep separate pickers, so the circle
+     * could show 4-7-8 while the clicks played Box.
+     */
+    var breathPattern by mutableStateOf(BreathingPattern.RELAXING)
         private set
+
+    var isBreathRunning by mutableStateOf(false)
+        private set
+
+    /** Start of the breath on the wall clock, used when no track is playing. */
+    private var breathStartedAt = 0L
+
+    /**
+     * How far into the breath we are.
+     *
+     * While the audible track runs this comes from the AudioTrack, so the circle
+     * follows what the user hears rather than what the app has computed - the
+     * two are apart by the output latency, which is not small. Otherwise the
+     * wall clock answers, which is what the guide needs on its own and in the
+     * F-Droid build, where there is no rhythm track to ask.
+     */
+    fun breathElapsedMillis(): Long {
+        val engine = service?.rhythm
+        if (isRhythmPlaying && rhythmMode == RhythmMode.BREATH && engine?.isPlaying == true) {
+            return engine.playedMillis
+        }
+        return SystemClock.elapsedRealtime() - breathStartedAt
+    }
+
+    fun toggleBreath() {
+        if (isBreathRunning) isBreathRunning = false else startBreath()
+    }
+
+    /**
+     * Starts the breath at zero. If the audible track is already running it is
+     * restarted as well, so both begin on the same inhale rather than each
+     * carrying on from wherever it happened to stand.
+     */
+    private fun startBreath() {
+        breathStartedAt = SystemClock.elapsedRealtime()
+        isBreathRunning = true
+        if (isRhythmPlaying && rhythmMode == RhythmMode.BREATH) {
+            val svc = service ?: return
+            pushRhythmToEngine()
+            // start() stops first, so the pulse scheduler begins at zero again.
+            svc.startRhythm()
+            isRhythmPlaying = svc.rhythm.isPlaying
+        }
+    }
 
     var rhythmCuesEnabled by mutableStateOf(false)
         private set
@@ -702,7 +752,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             rhythmBpm = saved.bpm
             rhythmAccentEvery = saved.accentEvery
             rhythmVolume = saved.volume
-            rhythmBreathPattern = runCatching { BreathingPattern.valueOf(saved.breathPatternName) }
+            breathPattern = runCatching { BreathingPattern.valueOf(saved.breathPatternName) }
                 .getOrDefault(BreathingPattern.RELAXING)
             rhythmCuesEnabled = saved.cuesEnabled
             val savedProgram = settingsRepo.rhythmProgram.first()
@@ -730,9 +780,13 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         persistRhythm()
     }
 
-    fun updateRhythmBreathPattern(pattern: BreathingPattern) {
-        rhythmBreathPattern = pattern
+    fun updateBreathPattern(pattern: BreathingPattern) {
+        breathPattern = pattern
         pushRhythmToEngine()
+        // A different pattern is a different breath. Restarting puts circle and
+        // clicks back on a shared inhale instead of leaving both mid-phase in a
+        // rhythm that no longer exists.
+        if (isBreathRunning) startBreath()
         persistRhythm()
     }
 
@@ -745,10 +799,15 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     fun toggleRhythm() {
         val svc = service ?: return
         if (isRhythmPlaying) {
+            // Hand the breath back to the wall clock at the exact point the
+            // audio had reached, so the circle does not jump by the output
+            // latency the moment the clicks stop.
+            val heard = breathElapsedMillis()
             svc.stopRhythm()
             isRhythmPlaying = false
             rhythmCurrentStep = null
             rhythmRemainingSec = 0
+            if (isBreathRunning) breathStartedAt = SystemClock.elapsedRealtime() - heard
         } else if (rhythmMode == RhythmMode.PROGRAM) {
             // The service drives a program over time; the engine only ever
             // receives whatever pattern the current step produces.
@@ -760,6 +819,12 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             pushRhythmToEngine()
             svc.startRhythm()
             isRhythmPlaying = svc.rhythm.isPlaying
+            // In breath mode the audible track defines the phase, so the guide
+            // starts with it rather than continuing from where it stood.
+            if (rhythmMode == RhythmMode.BREATH && isRhythmPlaying) {
+                breathStartedAt = SystemClock.elapsedRealtime()
+                isBreathRunning = true
+            }
         }
     }
 
@@ -776,7 +841,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
         engine.pattern = when (rhythmMode) {
             RhythmMode.PROGRAM -> return
             RhythmMode.TEMPO -> RhythmPattern.metronome(rhythmBpm, rhythmAccentEvery)
-            RhythmMode.BREATH -> rhythmBreathPattern.let {
+            RhythmMode.BREATH -> breathPattern.let {
                 RhythmPattern.breathing(it.inhale, it.hold1, it.exhale, it.hold2)
             }
         }
@@ -801,7 +866,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
         val fixed = when (rhythmMode) {
             RhythmMode.TEMPO -> RhythmPattern.metronome(rhythmBpm, rhythmAccentEvery)
-            RhythmMode.BREATH -> rhythmBreathPattern.let {
+            RhythmMode.BREATH -> breathPattern.let {
                 RhythmPattern.breathing(it.inhale, it.hold1, it.exhale, it.hold2)
             }
             RhythmMode.PROGRAM -> emptyList()
@@ -817,7 +882,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
                     bpm = rhythmBpm,
                     accentEvery = rhythmAccentEvery,
                     volume = rhythmVolume,
-                    breathPatternName = rhythmBreathPattern.name,
+                    breathPatternName = breathPattern.name,
                     cuesEnabled = rhythmCuesEnabled
                 )
             )

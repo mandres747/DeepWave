@@ -385,7 +385,14 @@ fun MainScreen(viewModel: BinauralViewModel) {
 
             // Breathing Guide
             item {
-                BreathingGuide(isActive = viewModel.isPlaying)
+                BreathingGuide(
+                    isActive = viewModel.isPlaying,
+                    pattern = viewModel.breathPattern,
+                    isRunning = viewModel.isBreathRunning,
+                    elapsedMillis = viewModel::breathElapsedMillis,
+                    onPatternChange = { viewModel.updateBreathPattern(it) },
+                    onToggle = { viewModel.toggleBreath() }
+                )
             }
 
             // Controls (Carrier + Volume + Noise + Transition)
@@ -616,13 +623,13 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     mode = viewModel.rhythmMode,
                     bpm = viewModel.rhythmBpm,
                     accentEvery = viewModel.rhythmAccentEvery,
-                    breathPattern = viewModel.rhythmBreathPattern,
+                    breathPattern = viewModel.breathPattern,
                     volume = viewModel.rhythmVolume,
                     isPlaying = viewModel.isRhythmPlaying,
                     onModeChange = { viewModel.updateRhythmMode(it) },
                     onBpmChange = { viewModel.updateRhythmBpm(it) },
                     onAccentChange = { viewModel.updateRhythmAccentEvery(it) },
-                    onBreathPatternChange = { viewModel.updateRhythmBreathPattern(it) },
+                    onBreathPatternChange = { viewModel.updateBreathPattern(it) },
                     steps = viewModel.rhythmSteps,
                     currentStep = viewModel.rhythmCurrentStep,
                     remainingSeconds = viewModel.rhythmRemainingSec,
