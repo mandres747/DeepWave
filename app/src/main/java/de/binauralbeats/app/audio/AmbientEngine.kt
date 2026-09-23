@@ -1,6 +1,5 @@
 package de.binauralbeats.app.audio
 
-import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import de.binauralbeats.app.data.AmbientSound
@@ -45,18 +44,13 @@ class AmbientEngine(
 
     fun hasActiveLayer(): Boolean = volumes.any { it > 0.001f }
 
-    fun start() {
+    fun start(usage: PlaybackUsage = PlaybackUsage.MEDIA, initialFade: Float = 1f) {
         stop()
         isPlaying = true
-        fadeScale = 1f
+        fadeScale = initialFade
 
         val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
+            .setAudioAttributes(usage.attributes)
             .setAudioFormat(
                 AudioFormat.Builder()
                     .setSampleRate(sampleRate)

@@ -1,6 +1,5 @@
 package de.binauralbeats.app.audio
 
-import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import androidx.annotation.StringRes
@@ -57,23 +56,20 @@ class BinauralGenerator(
         carrier: Float = 200f,
         vol: Float = 0.7f,
         noiseVol: Float = 0.15f,
-        transitionMs: Int = 500
+        transitionMs: Int = 500,
+        usage: PlaybackUsage = PlaybackUsage.MEDIA,
+        initialFade: Float = 1f
     ) {
         stop()
         isPlaying = true
         isPaused = false
-        fadeScale = 1f
+        fadeScale = initialFade
         currentPhaseIndex = 0
         elapsedSeconds = 0.0
         totalElapsedSeconds = 0.0
 
         val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
+            .setAudioAttributes(usage.attributes)
             .setAudioFormat(
                 AudioFormat.Builder()
                     .setSampleRate(sampleRate)
