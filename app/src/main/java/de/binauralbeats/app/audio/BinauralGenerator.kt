@@ -88,8 +88,10 @@ class BinauralGenerator(
         audioTrack = track
         track.play()
 
+        // The thread gets its own track instead of reading the field: after a
+        // restart the field already points at the next session's track.
         generatorThread = Thread {
-            generateAudio(phases, carrier, vol, noiseVol, transitionMs)
+            generateAudio(track, phases, carrier, vol, noiseVol, transitionMs)
         }.apply {
             priority = Thread.MAX_PRIORITY
             isDaemon = true
@@ -110,11 +112,15 @@ class BinauralGenerator(
     fun stop() {
         isPlaying = false
         isPaused = false
-        generatorThread?.interrupt()
+        val thread = generatorThread
         generatorThread = null
+        thread?.interrupt()
         audioTrack?.let {
             try {
+                // stop() unblocks a pending write(); let the thread leave before
+                // the native track is released underneath it.
                 it.stop()
+                if (thread !== Thread.currentThread()) thread?.join(200)
                 it.release()
             } catch (_: Exception) {}
         }
@@ -122,6 +128,7 @@ class BinauralGenerator(
     }
 
     private fun generateAudio(
+        track: AudioTrack,
         phases: List<Phase>,
         carrier: Float,
         vol: Float,
@@ -137,8 +144,14 @@ class BinauralGenerator(
         var pinkState = FloatArray(7)
         var lastBrown = 0f
 
+        // isPlaying alone is not enough: start() sets it back to true right
+        // after stopping, so an old thread would keep running. The interrupt
+        // flag belongs to this thread only.
+        val thread = Thread.currentThread()
+        fun active() = isPlaying && !thread.isInterrupted
+
         for (phaseIdx in phases.indices) {
-            if (!isPlaying) return
+            if (!active()) return
             currentPhaseIndex = phaseIdx
             onPhaseChanged?.invoke(phaseIdx)
 
@@ -148,9 +161,15 @@ class BinauralGenerator(
             var phaseSampleCount = 0L
             elapsedSeconds = 0.0
 
-            while (phaseSampleCount < phaseSamples && isPlaying) {
+            while (phaseSampleCount < phaseSamples && active()) {
                 if (isPaused) {
-                    Thread.sleep(50)
+                    // stop() while paused interrupts this sleep; uncaught, the
+                    // exception killed the whole app (Play Vitals, 1.3.0).
+                    try {
+                        Thread.sleep(50)
+                    } catch (_: InterruptedException) {
+                        return
+                    }
                     continue
                 }
 
@@ -221,7 +240,7 @@ class BinauralGenerator(
                     buffer[i * 2 + 1] = (rightSample * Short.MAX_VALUE).toInt().toShort()
                 }
 
-                audioTrack?.write(buffer, 0, samplesToGenerate * 2)
+                track.write(buffer, 0, samplesToGenerate * 2)
                 sampleCounter += samplesToGenerate
                 phaseSampleCount += samplesToGenerate
                 elapsedSeconds = phaseSampleCount.toDouble() / sampleRate
@@ -233,7 +252,7 @@ class BinauralGenerator(
             }
         }
 
-        if (isPlaying) {
+        if (active()) {
             isPlaying = false
             onCompleted?.invoke()
         }
