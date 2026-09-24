@@ -24,4 +24,11 @@ interface FeatureFlags {
      * see Entitlements. See docs/RHYTHMUS_LAYER_KONZEPT.md.
      */
     val rhythmLayerAvailable: Boolean
+
+    /**
+     * Whether this build contains the wake alarm. Off in the FOSS build, like
+     * the rhythm layer; its permissions and receivers are declared only in the
+     * premium manifest. See docs/KLANGWECKER_KONZEPT.md.
+     */
+    val wakeAlarmAvailable: Boolean
 }

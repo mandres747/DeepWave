@@ -13,4 +13,7 @@ object FeatureFlagsImpl : FeatureFlags {
     // Present in this build; whether the user may use it is decided by
     // Entitlements at runtime.
     override val rhythmLayerAvailable = true
+
+    // Present in this build; ownership is checked at runtime (Entitlements).
+    override val wakeAlarmAvailable = true
 }

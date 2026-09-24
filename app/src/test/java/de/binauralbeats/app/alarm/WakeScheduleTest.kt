@@ -110,6 +110,36 @@ class WakeScheduleTest {
     }
 
     @Test
+    fun `plenty of time keeps the full ramp`() {
+        val plan = WakeSchedule.plan(alarm(6, 30), at(2026, 9, 23, 22, 0))!!
+        assertEquals(20, plan.rampMinutes)
+        assertEquals(at(2026, 9, 24, 6, 10).toInstant(), plan.rampStart)
+    }
+
+    @Test
+    fun `wake time closer than the ramp squeezes the ramp and starts now`() {
+        // Set at 06:20 for 06:30 with a 20-minute ramp.
+        val plan = WakeSchedule.plan(alarm(6, 30), at(2026, 9, 23, 6, 20))!!
+        assertEquals(at(2026, 9, 23, 6, 30), plan.wakeAt)
+        assertEquals(10, plan.rampMinutes)
+        assertEquals(at(2026, 9, 23, 6, 20).toInstant(), plan.rampStart)
+    }
+
+    @Test
+    fun `less than three minutes left means no ramp, only the wake sound`() {
+        val plan = WakeSchedule.plan(alarm(6, 30), at(2026, 9, 23, 6, 28))!!
+        assertEquals(0, plan.rampMinutes)
+        assertEquals(plan.wakeAt.toInstant(), plan.rampStart)
+    }
+
+    @Test
+    fun `a receiver firing late shortens the ramp instead of overrunning`() {
+        val wake = at(2026, 9, 24, 6, 30).toInstant()
+        val lateStart = at(2026, 9, 24, 6, 13).toInstant()
+        assertEquals(17, WakeSchedule.effectiveRampMinutes(20, wake, lateStart))
+    }
+
+    @Test
     fun `ramp start crosses midnight`() {
         val wake = at(2026, 9, 24, 0, 10)
         assertEquals(

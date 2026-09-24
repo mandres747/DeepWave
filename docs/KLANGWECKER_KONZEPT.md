@@ -16,6 +16,9 @@ Entscheidungen des Nutzers (23.09.):
 | Preis außerhalb DE | wie `rhythm_layer`: DE 1,99 € Endpreis, übrige Länder per Play-Umrechnung |
 | Zeitumstellung | Lücke (Frühjahr) → eine Stunde später; doppelte Stunde (Herbst) → nur das erste Mal |
 | Schlummern / Ende | 9 Min. ohne neue Rampe; Auto-Ende 15 Min. nach der Weckzeit |
+| Exakte-Alarme-Berechtigung | erst beim ersten Einschalten eines Weckers: Erklärung → Systemeinstellung → Wecker wird danach aktiv |
+| Weckzeit näher als Rampe | Rampe startet sofort, auf die Restzeit gestaucht; unter 3 Min. nur Weckklang |
+| Vollbild entzogen | Wecker klingelt trotzdem, Aus/Schlummern über Benachrichtigung; Hinweis im Wecker-Sheet |
 
 ---
 
@@ -91,10 +94,30 @@ exakten Uhrzeit wieder starten.
 | Benachrichtigungskanal `wake_alarm` | `IMPORTANCE_HIGH`, eigener Kanal | Der bestehende Kanal ist `IMPORTANCE_LOW` und dafür ungeeignet |
 | **`AudioAttributes.USAGE_ALARM`** | Alarm-Lautstärke, wird bei „Nicht stören“ durchgelassen | **Alle drei Engines setzen heute fest `USAGE_MEDIA`**, siehe 5.2 |
 
+**Zwei Alarme je Termin (Stand 24.09., umgesetzt):** `AlarmClockInfo` hat
+nur *eine* Zeit, die zugleich Auslöse- und Anzeigezeit ist. Deshalb:
+`setAlarmClock` auf die **Weckzeit** (Statusleiste zeigt 06:30) und
+`setExactAndAllowWhileIdle` auf den **Rampenstart**. Im Emulator belegt
+(Android 16): Beide geben 10 s FGS-Freigabe
+(`Background started FGS: Allowed … ALARM_MANAGER_WHILE_IDLE`). Fällt der
+Rampen-Alarm aus, klingelt der Wecker trotzdem pünktlich, nur ohne Rampe.
+
+**Risiko Android 16 „Audio Hardening“:** Beim Start aus dem Hintergrund
+protokolliert das System `AudioHardening background playback would be muted …
+level: full`. Aktuell ist das nur ein Probelauf (`mutedState:none`, Ton ist
+zu hören). Wird die Durchsetzung scharf geschaltet, könnte eine Rampe bei
+dunklem Bildschirm stumm bleiben. Absicherung: die Vollbild-`WakeActivity`
+(sichtbares Fenster) zur Weckzeit. Bei jeder neuen Android-Version prüfen.
+
 **Ohne `SCHEDULE_EXACT_ALARM`** lässt sich kein Wecker aktivieren. Der
 Schalter führt dann in die Systemeinstellung. Einen „ungefähren“ Wecker mit
 `setAndAllowWhileIdle` (kann mehrere Minuten daneben liegen) bieten wir nicht
 an. Ein Wecker, der zu spät klingelt, ist schlimmer als keiner.
+
+**Bekannte Grenze v1:** Startet das Telefon nachts neu und wird nicht
+entsperrt, bleibt der Wecker stumm, weil die Wecker im verschlüsselten
+DataStore erst nach dem ersten Entsperren lesbar sind. Kein `directBootAware`
+in v1.
 
 **Zu prüfen auf echten Geräten:** Samsung (Galaxy A54 des Nutzers) hat eine
 eigene Energiesparverwaltung („Apps im Tiefschlaf“). `setAlarmClock` ist dort

@@ -12,4 +12,7 @@ object FeatureFlagsImpl : FeatureFlags {
     // Paid add-on, and F-Droid has no way to charge for it - so it is not in
     // this build at all, like the WAV export and the mixer.
     override val rhythmLayerAvailable = false
+
+    // Paid add-on like the rhythm layer; not in the F-Droid build at all.
+    override val wakeAlarmAvailable = false
 }

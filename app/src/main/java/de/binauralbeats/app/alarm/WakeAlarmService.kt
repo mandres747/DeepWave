@@ -1,0 +1,296 @@
+package de.binauralbeats.app.alarm
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.PowerManager
+import android.os.SystemClock
+import de.binauralbeats.app.MainActivity
+import de.binauralbeats.app.R
+import de.binauralbeats.app.audio.AmbientEngine
+import de.binauralbeats.app.audio.BinauralGenerator
+import de.binauralbeats.app.audio.PlaybackUsage
+import de.binauralbeats.app.data.Phase
+import de.binauralbeats.app.data.WakeAlarm
+import de.binauralbeats.app.data.WakeAlarmRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.util.Date
+import android.text.format.DateFormat
+
+/**
+ * Plays a wake alarm: the ramp before the wake time, then the alarm itself
+ * until it is dismissed, snoozed or runs out.
+ *
+ * A service of its own rather than more state in AudioPlaybackService: that
+ * one belongs to the ViewModel, whose UI reads its generator - an alarm there
+ * would show up in the morning as a session nobody started. Its own engine
+ * instances also play on the alarm stream (PlaybackUsage.ALARM), so the alarm
+ * follows the alarm volume and gets through Do Not Disturb.
+ */
+class WakeAlarmService : Service() {
+
+    private val generator = BinauralGenerator()
+    private val ambient = AmbientEngine()
+    private val handler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    private var alarmId: String? = null
+    private var wakeAtMillis = 0L
+
+    // Fade-in: from silence at fadeStartedAt to full at fadeStartedAt + fadeTotalMs.
+    private var fadeStartedAt = 0L
+    private var fadeTotalMs = 0L
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        createChannels()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_RAMP -> onRamp(intent)
+            ACTION_WAKE -> onWake(intent)
+            ACTION_SNOOZE -> snooze()
+            ACTION_DISMISS -> finish()
+            else -> finish()
+        }
+        // An alarm that was killed must not replay by itself hours later.
+        return START_NOT_STICKY
+    }
+
+    // --- Stages ---
+
+    private fun onRamp(intent: Intent) {
+        wakeAtMillis = intent.getLongExtra(AlarmScheduler.EXTRA_WAKE_AT, 0L)
+        alarmId = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_ID)
+        // startForeground within the few seconds Android allows, before any I/O.
+        goForeground(rampNotification(), keepAwakeUntil = wakeAtMillis + AFTER_WAKE_MS, id = NOTIFICATION_ID_RAMP)
+        val requested = intent.getIntExtra(AlarmScheduler.EXTRA_RAMP_MINUTES, 0)
+        val id = alarmId ?: return finish()
+
+        scope.launch {
+            val alarm = loadAlarm(id) ?: return@launch finish()
+            val now = Instant.now()
+            val minutes = WakeSchedule.effectiveRampMinutes(requested, Instant.ofEpochMilli(wakeAtMillis), now)
+            // Too late for a ramp (receiver ran very late): the wake stage will
+            // still fire on time and play the alarm on its own.
+            if (minutes == 0) return@launch
+            startSound(alarm, WakeRamps.ramp(alarm.rampKey, minutes), fadeMs = wakeAtMillis - now.toEpochMilli())
+        }
+    }
+
+    private fun onWake(intent: Intent) {
+        wakeAtMillis = intent.getLongExtra(AlarmScheduler.EXTRA_WAKE_AT, System.currentTimeMillis())
+        val id = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_ID) ?: return finish()
+        alarmId = id
+        // A new notification id, not an update of the ramp's: Android does not
+        // pop up a heads-up for an update, so replacing the quiet ramp notice
+        // under the same id left the alarm without a banner (emulator, 24.09.).
+        goForeground(alarmNotification(), keepAwakeUntil = wakeAtMillis + AFTER_WAKE_MS, id = NOTIFICATION_ID_ALARM)
+        getSystemService(NotificationManager::class.java).cancel(NOTIFICATION_ID_RAMP)
+        handler.removeCallbacks(autoStop)
+        handler.postDelayed(autoStop, AFTER_WAKE_MS)
+
+        if (generator.isPlaying) {
+            // Ramp is running and ends in the long final phase: just make sure
+            // it is at full level from here on.
+            fadeTotalMs = 0L
+            generator.fadeScale = 1f
+            ambient.fadeScale = 1f
+            return
+        }
+        // No ramp ran (snooze, short notice, or the ramp alarm was lost):
+        // play the ramp's last band with a short fade-in.
+        scope.launch {
+            val alarm = loadAlarm(id) ?: WakeAlarm(id = id, hour = 0, minute = 0)
+            startSound(alarm, emptyList(), fadeMs = NO_RAMP_FADE_MS)
+        }
+    }
+
+    private fun snooze() {
+        val id = alarmId
+        stopSound()
+        if (id != null) {
+            AlarmScheduler.scheduleSnooze(
+                this, id, System.currentTimeMillis() + WakeSchedule.SNOOZE_MINUTES * 60_000L
+            )
+        }
+        finish()
+    }
+
+    private val autoStop = Runnable { finish() }
+
+    // --- Sound ---
+
+    private fun startSound(alarm: WakeAlarm, ramp: List<Phase>, fadeMs: Long) {
+        // After the ramp the last band keeps playing until the alarm is
+        // stopped; the phase is simply long enough to outlast the auto-stop.
+        val finalBand = (ramp.lastOrNull() ?: WakeRamps.ramp(alarm.rampKey, WakeSchedule.MIN_RAMP_MINUTES).last())
+            .copy(durationMinutes = (AFTER_WAKE_MS / 60_000L).toInt() + 1)
+        generator.start(
+            ramp + finalBand,
+            vol = alarm.volume,
+            noiseVol = 0f,
+            usage = PlaybackUsage.ALARM,
+            initialFade = 0f
+        )
+        alarm.ambient?.let { sound ->
+            ambient.setVolume(sound, alarm.ambientVolume)
+            ambient.start(usage = PlaybackUsage.ALARM, initialFade = 0f)
+        }
+        fadeStartedAt = SystemClock.elapsedRealtime()
+        fadeTotalMs = fadeMs.coerceAtLeast(1L)
+        handler.removeCallbacks(fadeTick)
+        handler.post(fadeTick)
+    }
+
+    private val fadeTick = object : Runnable {
+        override fun run() {
+            if (fadeTotalMs <= 0L) return
+            val elapsed = SystemClock.elapsedRealtime() - fadeStartedAt
+            val scale = WakeRamps.volumeAt(elapsed, fadeTotalMs, 1f)
+            generator.fadeScale = scale
+            ambient.fadeScale = scale
+            if (elapsed < fadeTotalMs) handler.postDelayed(this, FADE_TICK_MS)
+        }
+    }
+
+    private fun stopSound() {
+        handler.removeCallbacks(fadeTick)
+        handler.removeCallbacks(autoStop)
+        generator.stop()
+        ambient.stop()
+    }
+
+    private fun finish() {
+        stopSound()
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
+    private suspend fun loadAlarm(id: String): WakeAlarm? =
+        withContext(Dispatchers.IO) { WakeAlarmRepository(this@WakeAlarmService).get(id) }
+
+    // --- Foreground, notifications ---
+
+    private fun goForeground(notification: Notification, keepAwakeUntil: Long, id: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(id, notification)
+        }
+        // The fade and auto-stop run on Handler timers, which stall while the
+        // CPU sleeps; hold it awake until the alarm is certainly over.
+        val timeout = (keepAwakeUntil - System.currentTimeMillis()).coerceIn(60_000L, MAX_WAKE_LOCK_MS)
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = getSystemService(PowerManager::class.java)
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DeepWave:WakeAlarm")
+            .apply { acquire(timeout) }
+    }
+
+    private fun wakeTimeText(): String =
+        // Follows the system 12/24-hour setting, which DateFormat.getTimeInstance ignores.
+        DateFormat.getTimeFormat(this).format(Date(wakeAtMillis))
+
+    private fun rampNotification(): Notification =
+        Notification.Builder(this, CHANNEL_RAMP)
+            .setSmallIcon(R.drawable.ic_headphones)
+            .setContentTitle(getString(R.string.wake_channel_alarm))
+            .setContentText(getString(R.string.wake_notif_ramp, wakeTimeText()))
+            .setContentIntent(openApp())
+            .addAction(action(ACTION_DISMISS, R.string.wake_action_dismiss))
+            .setOngoing(true)
+            .build()
+
+    private fun alarmNotification(): Notification =
+        Notification.Builder(this, CHANNEL_ALARM)
+            .setSmallIcon(R.drawable.ic_headphones)
+            .setContentTitle(getString(R.string.wake_notif_title))
+            .setContentText(getString(R.string.wake_notif_text, wakeTimeText()))
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setContentIntent(openApp())
+            // Full-screen WakeActivity follows in step 4; until then the alarm
+            // is handled from the heads-up notification - the same path that
+            // remains as fallback when the full-screen permission is revoked.
+            .addAction(action(ACTION_SNOOZE, R.string.wake_action_snooze, WakeSchedule.SNOOZE_MINUTES))
+            .addAction(action(ACTION_DISMISS, R.string.wake_action_dismiss))
+            .setOngoing(true)
+            .build()
+
+    private fun openApp(): PendingIntent = PendingIntent.getActivity(
+        this, 0, Intent(this, MainActivity::class.java),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    private fun action(what: String, label: Int, vararg args: Any): Notification.Action {
+        val pi = PendingIntent.getService(
+            this, what.hashCode(),
+            Intent(this, WakeAlarmService::class.java).setAction(what),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return Notification.Action.Builder(null, getString(label, *args), pi).build()
+    }
+
+    private fun createChannels() {
+        val nm = getSystemService(NotificationManager::class.java)
+        // The ramp must not make a sound of its own or pop up - it plays while
+        // the user is still meant to be asleep.
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_RAMP, getString(R.string.wake_channel_ramp), NotificationManager.IMPORTANCE_LOW)
+                .apply { description = getString(R.string.wake_channel_ramp_desc); setShowBadge(false) }
+        )
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_ALARM, getString(R.string.wake_channel_alarm), NotificationManager.IMPORTANCE_HIGH)
+                .apply {
+                    description = getString(R.string.wake_channel_alarm_desc)
+                    // The service plays the alarm itself; a channel sound would clash.
+                    setSound(null, null)
+                    setShowBadge(false)
+                }
+        )
+    }
+
+    override fun onDestroy() {
+        stopSound()
+        wakeLock?.let { if (it.isHeld) it.release() }
+        scope.cancel()
+        super.onDestroy()
+    }
+
+    companion object {
+        const val ACTION_RAMP = "de.binauralbeats.app.alarm.action.RAMP"
+        const val ACTION_WAKE = "de.binauralbeats.app.alarm.action.WAKE"
+        const val ACTION_SNOOZE = "de.binauralbeats.app.alarm.action.SNOOZE"
+        const val ACTION_DISMISS = "de.binauralbeats.app.alarm.action.DISMISS"
+
+        const val CHANNEL_RAMP = "wake_ramp"
+        const val CHANNEL_ALARM = "wake_alarm"
+        // 1 is AudioPlaybackService's.
+        private const val NOTIFICATION_ID_RAMP = 2
+        private const val NOTIFICATION_ID_ALARM = 3
+
+        private const val AFTER_WAKE_MS = WakeSchedule.AUTO_STOP_MINUTES * 60_000L
+        private const val NO_RAMP_FADE_MS = 60_000L
+        private const val FADE_TICK_MS = 250L
+        private const val MAX_WAKE_LOCK_MS = 60 * 60_000L
+    }
+}

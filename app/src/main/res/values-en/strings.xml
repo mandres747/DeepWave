@@ -318,4 +318,15 @@
     <string name="rhythm_cues_hint">Says the new tempo at every step change. Needs a text-to-speech voice installed.</string>
     <string name="cue_tempo">Tempo %1$d</string>
     <string name="cue_program_done">Program finished</string>
+
+    <!-- Sound alarm -->
+    <string name="wake_channel_ramp">Wake-up ramp</string>
+    <string name="wake_channel_ramp_desc">Quiet notice while the ramp plays before the wake time</string>
+    <string name="wake_channel_alarm">Sound alarm</string>
+    <string name="wake_channel_alarm_desc">Wakes you at the set time, also over the lock screen</string>
+    <string name="wake_notif_ramp">Wake-up ramp playing – alarm at %1$s</string>
+    <string name="wake_notif_title">Good morning</string>
+    <string name="wake_notif_text">Sound alarm %1$s</string>
+    <string name="wake_action_dismiss">Stop</string>
+    <string name="wake_action_snooze">Snooze %1$d min</string>
 </resources>

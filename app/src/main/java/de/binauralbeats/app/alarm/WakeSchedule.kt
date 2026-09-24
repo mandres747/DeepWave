@@ -66,4 +66,29 @@ object WakeSchedule {
 
     fun nextTrigger(alarm: WakeAlarm, now: Instant, zone: ZoneId): ZonedDateTime? =
         nextTrigger(alarm, now.atZone(zone))
+
+    /** A ramp shorter than this has no room for its phases; only the wake sound plays. */
+    const val MIN_RAMP_MINUTES = 3
+
+    /**
+     * How long the ramp can actually be when there are only [wakeAt] - [now]
+     * left. Decided 23.09.: a wake time closer than the ramp is long does not
+     * move to tomorrow - the ramp starts at once, squeezed into the time left,
+     * and below [MIN_RAMP_MINUTES] there is no ramp at all. Also used by the
+     * service, because the receiver may fire a little late.
+     */
+    fun effectiveRampMinutes(requested: Int, wakeAt: Instant, now: Instant): Int {
+        val left = ((wakeAt.toEpochMilli() - now.toEpochMilli()) / 60_000L).toInt()
+        val minutes = minOf(requested, left)
+        return if (minutes >= MIN_RAMP_MINUTES) minutes else 0
+    }
+
+    /** What AlarmManager is told: fire at [rampStart], show [wakeAt]. */
+    data class Plan(val wakeAt: ZonedDateTime, val rampStart: Instant, val rampMinutes: Int)
+
+    fun plan(alarm: WakeAlarm, now: ZonedDateTime): Plan? {
+        val wakeAt = nextTrigger(alarm, now) ?: return null
+        val minutes = effectiveRampMinutes(alarm.rampMinutes, wakeAt.toInstant(), now.toInstant())
+        return Plan(wakeAt, rampStart(wakeAt, minutes), minutes)
+    }
 }
