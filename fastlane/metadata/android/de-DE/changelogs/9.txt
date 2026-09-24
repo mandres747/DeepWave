@@ -1,0 +1,4 @@
+• Neu: Klangwecker (Kauf-Add-on) – weckt mit einer Frequenzrampe, die leise beginnt und langsam lauter wird, zur Weckzeit mit Klangschale. Mehrere Wecker mit Wochentagen, Vollbild über dem Sperrbildschirm, funktioniert ohne Kopfhörer
+• Sleep-Timer: „Morgen mit Weckrampe wecken“ direkt beim Einstellen
+• Klang: isochrone Pulse ohne Knacken, modulierte Presets laufen jetzt mit der richtigen Frequenz
+• Versionsnummer in den Einstellungen

@@ -1,0 +1,4 @@
+• New: Sound alarm (paid add-on) – wakes you with a frequency ramp that starts quietly and slowly gets louder, with a singing bowl at the wake time. Multiple alarms with weekdays, full screen over the lock screen, works without headphones
+• Sleep timer: "Wake me tomorrow with the ramp" right where you set it
+• Sound: isochronic pulses without clicks, modulated presets now play at the right frequency
+• Version number in the settings
