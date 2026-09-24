@@ -329,4 +329,5 @@
     <string name="wake_notif_text">Sound alarm %1$s</string>
     <string name="wake_action_dismiss">Stop</string>
     <string name="wake_action_snooze">Snooze %1$d min</string>
+    <string name="wake_swipe_to_stop">Swipe to stop</string>
 </resources>

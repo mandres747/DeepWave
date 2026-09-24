@@ -24,6 +24,8 @@ data class WakeAlarm(
     val volume: Float = 0.7f,
     val ambient: AmbientSound? = null,
     val ambientVolume: Float = 0.4f,
+    /** Off by default: the point is to wake gently (decided 23.09.). */
+    val vibrate: Boolean = false,
     val enabled: Boolean = true
 ) {
     val isOneOff: Boolean get() = days.isEmpty()

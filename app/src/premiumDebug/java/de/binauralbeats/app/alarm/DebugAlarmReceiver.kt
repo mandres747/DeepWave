@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
  * can be tried on the emulator.
  *
  *   adb -s emulator-5554 shell am broadcast -a de.binauralbeats.app.DEBUG_ALARM \
- *       -n de.binauralbeats.app/.alarm.DebugAlarmReceiver --ei minutes 5 --ei ramp 4
+ *       -n de.binauralbeats.app/.alarm.DebugAlarmReceiver --ei minutes 5 --ei ramp 4 [--es ambient STREAM] [--ez vibrate true]
  */
 class DebugAlarmReceiver : BroadcastReceiver() {
 
@@ -29,7 +29,8 @@ class DebugAlarmReceiver : BroadcastReceiver() {
         val at = ZonedDateTime.now().plusMinutes(minutes.toLong())
         val alarm = WakeAlarm(
             id = "debug", hour = at.hour, minute = at.minute,
-            rampMinutes = ramp, ambient = ambient
+            rampMinutes = ramp, ambient = ambient,
+            vibrate = intent.getBooleanExtra("vibrate", false)
         )
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

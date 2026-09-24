@@ -18,6 +18,10 @@ Entscheidungen des Nutzers (23.09.):
 | Schlummern / Ende | 9 Min. ohne neue Rampe; Auto-Ende 15 Min. nach der Weckzeit |
 | Exakte-Alarme-Berechtigung | erst beim ersten Einschalten eines Weckers: Erklärung → Systemeinstellung → Wecker wird danach aktiv |
 | Weckzeit näher als Rampe | Rampe startet sofort, auf die Restzeit gestaucht; unter 3 Min. nur Weckklang |
+| Aus-Geste (Vollbild) | Wischen zum Ausschalten; Schlummern als großer Knopf darüber |
+| Weckklang | synthetisierte Klangschale, alle ~20 s, langes Ausklingen |
+| Vibration | pro Wecker schaltbar, Standard aus |
+| Vollbild-Inhalt | Uhrzeit + langsam pulsierender Atemkreis (vorhandener BreathingGuide) |
 | Vollbild entzogen | Wecker klingelt trotzdem, Aus/Schlummern über Benachrichtigung; Hinweis im Wecker-Sheet |
 
 ---

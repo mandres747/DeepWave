@@ -13,10 +13,15 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
+import android.os.VibrationAttributes
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import de.binauralbeats.app.MainActivity
 import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.AmbientEngine
 import de.binauralbeats.app.audio.BinauralGenerator
+import de.binauralbeats.app.audio.ChimeEngine
 import de.binauralbeats.app.audio.PlaybackUsage
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.WakeAlarm
@@ -25,6 +30,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -45,6 +53,7 @@ class WakeAlarmService : Service() {
 
     private val generator = BinauralGenerator()
     private val ambient = AmbientEngine()
+    private val chime = ChimeEngine()
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var wakeLock: PowerManager.WakeLock? = null
@@ -107,6 +116,14 @@ class WakeAlarmService : Service() {
         getSystemService(NotificationManager::class.java).cancel(NOTIFICATION_ID_RAMP)
         handler.removeCallbacks(autoStop)
         handler.postDelayed(autoStop, AFTER_WAKE_MS)
+        _ringing.value = true
+        chime.start()
+
+        scope.launch {
+            val alarm = loadAlarm(id) ?: return@launch
+            chime.volume = alarm.volume
+            if (alarm.vibrate) startVibration()
+        }
 
         if (generator.isPlaying) {
             // Ramp is running and ends in the long final phase: just make sure
@@ -177,10 +194,39 @@ class WakeAlarmService : Service() {
         handler.removeCallbacks(autoStop)
         generator.stop()
         ambient.stop()
+        chime.stop()
+        vibrator()?.cancel()
+    }
+
+    // --- Vibration (per alarm, off by default) ---
+
+    private fun vibrator(): Vibrator? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VibratorManager::class.java)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Vibrator::class.java)
+        }
+
+    private fun startVibration() {
+        val v = vibrator()?.takeIf { it.hasVibrator() } ?: return
+        // Two soft pulses, a long pause, repeat - a nudge rather than a buzz.
+        val effect = VibrationEffect.createWaveform(
+            longArrayOf(0, 400, 300, 400, 2400),
+            intArrayOf(0, 120, 0, 120, 0),
+            0
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            v.vibrate(effect, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ALARM))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(effect, PlaybackUsage.ALARM.attributes)
+        }
     }
 
     private fun finish() {
         stopSound()
+        _ringing.value = false
         wakeLock?.let { if (it.isHeld) it.release() }
         wakeLock = null
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -227,14 +273,23 @@ class WakeAlarmService : Service() {
             .setContentTitle(getString(R.string.wake_notif_title))
             .setContentText(getString(R.string.wake_notif_text, wakeTimeText()))
             .setCategory(Notification.CATEGORY_ALARM)
-            .setContentIntent(openApp())
-            // Full-screen WakeActivity follows in step 4; until then the alarm
-            // is handled from the heads-up notification - the same path that
-            // remains as fallback when the full-screen permission is revoked.
+            .setContentIntent(wakeScreen())
+            // Shows WakeActivity over the lock screen. If the user revoked the
+            // full-screen permission (Android 14+), Android falls back to a
+            // heads-up notification, and the two actions below still work.
+            .setFullScreenIntent(wakeScreen(), true)
             .addAction(action(ACTION_SNOOZE, R.string.wake_action_snooze, WakeSchedule.SNOOZE_MINUTES))
             .addAction(action(ACTION_DISMISS, R.string.wake_action_dismiss))
             .setOngoing(true)
             .build()
+
+    private fun wakeScreen(): PendingIntent = PendingIntent.getActivity(
+        this, 1,
+        Intent(this, WakeActivity::class.java)
+            .putExtra(AlarmScheduler.EXTRA_WAKE_AT, wakeAtMillis)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
 
     private fun openApp(): PendingIntent = PendingIntent.getActivity(
         this, 0, Intent(this, MainActivity::class.java),
@@ -271,12 +326,18 @@ class WakeAlarmService : Service() {
 
     override fun onDestroy() {
         stopSound()
+        _ringing.value = false
         wakeLock?.let { if (it.isHeld) it.release() }
         scope.cancel()
         super.onDestroy()
     }
 
     companion object {
+        // Same process as WakeActivity, so a flow is enough to let the screen
+        // close itself when the alarm ends by snooze, stop or auto-stop.
+        private val _ringing = MutableStateFlow(false)
+        val ringing: StateFlow<Boolean> = _ringing.asStateFlow()
+
         const val ACTION_RAMP = "de.binauralbeats.app.alarm.action.RAMP"
         const val ACTION_WAKE = "de.binauralbeats.app.alarm.action.WAKE"
         const val ACTION_SNOOZE = "de.binauralbeats.app.alarm.action.SNOOZE"
