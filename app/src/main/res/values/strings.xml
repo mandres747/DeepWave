@@ -370,4 +370,7 @@
     <string name="wake_exact_missing">Berechtigung „Wecker und Erinnerungen“ fehlt – deine Wecker klingeln erst, wenn sie erteilt ist.</string>
     <string name="wake_fullscreen_missing">Vollbild-Wecker ist ausgeschaltet. Der Wecker klingelt trotzdem, erscheint aber nur als Benachrichtigung.</string>
     <string name="wake_fix">Einstellen</string>
+    <string name="sleep_wake_row">Morgen mit Weckrampe wecken</string>
+    <string name="sleep_wake_existing">Wecker %1$s ist gestellt – Weckrampe inklusive.</string>
+    <string name="sleep_wake_teaser">Morgen sanft geweckt werden → Klangwecker</string>
 </resources>

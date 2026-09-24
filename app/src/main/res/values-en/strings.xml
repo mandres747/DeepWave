@@ -370,4 +370,7 @@
     <string name="wake_exact_missing">“Alarms &amp; reminders” permission is missing – your alarms will only ring once it is granted.</string>
     <string name="wake_fullscreen_missing">Full-screen alarm is turned off. The alarm still rings, but only as a notification.</string>
     <string name="wake_fix">Fix</string>
+    <string name="sleep_wake_row">Wake me tomorrow with the ramp</string>
+    <string name="sleep_wake_existing">Alarm at %1$s is set – wake-up ramp included.</string>
+    <string name="sleep_wake_teaser">Wake gently tomorrow → Sound alarm</string>
 </resources>

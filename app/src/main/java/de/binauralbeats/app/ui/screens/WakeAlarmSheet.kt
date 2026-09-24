@@ -644,3 +644,96 @@ private fun rampName(key: String): String = stringResource(
         else -> R.string.wake_ramp_fresh
     }
 )
+
+/**
+ * The line under the sleep timer (decided 2026-09-24): shows an alarm that
+ * already rings by tomorrow morning, or switches a one-off one at the last
+ * used time; non-buyers get a quiet pointer to the add-on instead.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SleepTimerWakeRow(vm: WakeAlarmViewModel, onOpenWakeSheet: () -> Unit) {
+    val colors = LocalBinauralColors.current
+    val context = LocalContext.current
+    val owned by vm.owned.collectAsState()
+    val alarms by vm.alarms.collectAsState()
+    val lastMinute by vm.lastWakeMinuteOfDay.collectAsState()
+    val ringsIn = rememberRingsInToast()
+
+    if (!owned) {
+        Text(
+            stringResource(R.string.sleep_wake_teaser),
+            fontSize = 12.sp,
+            color = colors.accentPrimary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onOpenWakeSheet)
+                .padding(vertical = 8.dp)
+        )
+        return
+    }
+
+    val covering = vm.coveringAlarm(alarms)
+    if (covering != null) {
+        val (_, at) = covering
+        Text(
+            stringResource(R.string.sleep_wake_existing, formatTime(at.hour, at.minute)),
+            fontSize = 12.sp,
+            color = colors.onSurfaceMuted,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onOpenWakeSheet)
+                .padding(vertical = 8.dp)
+        )
+        return
+    }
+
+    val own = vm.sleepTimerAlarm(alarms)
+    val hour = own?.hour ?: (lastMinute / 60)
+    val minute = own?.minute ?: (lastMinute % 60)
+    var picking by remember { mutableStateOf(false) }
+
+    Surface(
+        color = colors.accentPrimary.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 12.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.sleep_wake_row),
+                fontSize = 13.sp,
+                color = colors.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = { picking = true }) {
+                Text(formatTime(hour, minute), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.accentPrimary)
+            }
+            Switch(
+                checked = own != null,
+                onCheckedChange = { on -> vm.setSleepTimerWake(on, hour, minute) { ringsIn(it) } },
+                colors = SwitchDefaults.colors(checkedTrackColor = colors.accentPrimary)
+            )
+        }
+    }
+
+    if (picking) {
+        val state = rememberTimePickerState(hour, minute, DateFormat.is24HourFormat(context))
+        AlertDialog(
+            onDismissRequest = { picking = false },
+            text = { TimePicker(state = state) },
+            confirmButton = {
+                TextButton(onClick = {
+                    picking = false
+                    // Picking a time means "wake me then": switch it on.
+                    vm.setSleepTimerWake(true, state.hour, state.minute) { ringsIn(it) }
+                }) { Text(stringResource(R.string.save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { picking = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
+}

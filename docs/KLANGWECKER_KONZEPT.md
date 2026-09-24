@@ -30,6 +30,7 @@ Entscheidungen des Nutzers (23.09.):
 | Tonhöhen | Träger G4 392 Hz, Klangschale C5 523 Hz (reine Quarte) |
 | Mischung zur Weckzeit | Pulsspur in 10 s auf 30 % zurück, Klangschale + Ambient tragen, Summe ≤ 0,9 |
 | Rauigkeit | Pulstiefe 50 %, Bänder gleiten statt zu springen |
+| Sleep-Timer-Zeile | unter den Timer-Chips; vorhandenen Wecker anzeigen, sonst einmalig; Nicht-Käufer: dezenter Hinweis |
 | Vollbild entzogen | Wecker klingelt trotzdem, Aus/Schlummern über Benachrichtigung; Hinweis im Wecker-Sheet |
 
 ---
@@ -51,9 +52,14 @@ Klangwecker ergänzt den Morgen.
 ### 1.1 Zwei Einstiege, ein Mechanismus
 
 1. **Eigenständig:** Weckzeit + Wochentage + Rampe wählen, App schließen.
-2. **Aus dem Sleep-Timer:** Wenn der Sleep-Timer abläuft, bietet er an:
-   „Morgen um 06:30 mit Weckrampe wecken?“ Das setzt **denselben** Alarm
-   wie Einstieg 1.
+2. **Aus dem Sleep-Timer:** Beim **Stellen** des Sleep-Timers erscheint
+   darunter die Zeile „Morgen mit Weckrampe wecken 07:00 [Schalter]“.
+   (Korrigiert 24.09.: der erste Entwurf fragte beim *Ablaufen* des Timers
+   – dann schläft man und sieht die Frage nie.) Klingelt innerhalb von 18 h
+   schon ein Wecker, zeigt die Zeile nur ihn an; sonst schaltet sie einen
+   einmaligen Wecker (eigene Id `sleep_timer`, Einstellungen vom zuletzt
+   angelegten Wecker, Uhrzeit = zuletzt verwendete). Nicht-Käufer sehen
+   einen dezenten Hinweis aufs Klangwecker-Sheet.
 
 **Über Nacht läuft nichts.** Die Einschlaf-Session endet wie bisher mit dem
 Sleep-Timer, der Dienst beendet sich. Erst `AlarmManager` startet morgens

@@ -628,7 +628,18 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     onVolumeChange = { sound, volume -> viewModel.setAmbientVolume(sound, volume) },
                     onTogglePlay = { viewModel.toggleAmbient() },
                     onSleepTimerSelect = { viewModel.setSleepTimer(it) },
-                    onClose = { viewModel.showMixer = false }
+                    onClose = { viewModel.showMixer = false },
+                    belowSleepTimer = {
+                        if (wakeVm.available) {
+                            SleepTimerWakeRow(
+                                vm = wakeVm,
+                                onOpenWakeSheet = {
+                                    viewModel.showMixer = false
+                                    wakeVm.showSheet = true
+                                }
+                            )
+                        }
+                    }
                 )
             }
         }

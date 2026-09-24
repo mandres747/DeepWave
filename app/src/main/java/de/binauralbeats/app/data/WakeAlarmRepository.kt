@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -22,10 +23,18 @@ class WakeAlarmRepository(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true }
     private val key = stringPreferencesKey("alarms_json")
+    private val lastTimeKey = intPreferencesKey("last_wake_minute_of_day")
 
     val alarms: Flow<List<WakeAlarm>> = context.wakeAlarmStore.data.map { prefs ->
         prefs[key]?.let { runCatching { json.decodeFromString<List<WakeAlarm>>(it) }.getOrNull() }
             ?: emptyList()
+    }
+
+    /** Wake time last saved, as minutes since midnight; 07:00 before any. */
+    val lastWakeMinuteOfDay: Flow<Int> = context.wakeAlarmStore.data.map { it[lastTimeKey] ?: DEFAULT_WAKE_MINUTE }
+
+    suspend fun rememberWakeTime(hour: Int, minute: Int) {
+        context.wakeAlarmStore.edit { it[lastTimeKey] = hour * 60 + minute }
     }
 
     suspend fun all(): List<WakeAlarm> = alarms.first()
@@ -46,5 +55,9 @@ class WakeAlarmRepository(private val context: Context) {
                 ?: emptyList()
             prefs[key] = json.encodeToString(change(current))
         }
+    }
+
+    companion object {
+        const val DEFAULT_WAKE_MINUTE = 7 * 60
     }
 }

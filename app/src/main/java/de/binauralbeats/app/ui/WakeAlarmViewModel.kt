@@ -14,6 +14,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.binauralbeats.app.FeatureFlagsImpl
 import de.binauralbeats.app.alarm.AlarmScheduler
+import de.binauralbeats.app.alarm.SleepTimerWake
 import de.binauralbeats.app.alarm.WakeRamps
 import de.binauralbeats.app.alarm.WakeSchedule
 import de.binauralbeats.app.audio.WakePreview
@@ -47,6 +48,9 @@ class WakeAlarmViewModel(application: Application) : AndroidViewModel(applicatio
 
     val alarms: StateFlow<List<WakeAlarm>> =
         repo.alarms.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val lastWakeMinuteOfDay: StateFlow<Int> =
+        repo.lastWakeMinuteOfDay.stateIn(viewModelScope, SharingStarted.Eagerly, WakeAlarmRepository.DEFAULT_WAKE_MINUTE)
 
     var showSheet by mutableStateOf(false)
 
@@ -97,6 +101,7 @@ class WakeAlarmViewModel(application: Application) : AndroidViewModel(applicatio
         preview.stop()
         viewModelScope.launch {
             repo.upsert(alarm)
+            if (alarm.enabled) repo.rememberWakeTime(alarm.hour, alarm.minute)
             onScheduled(apply(alarm))
         }
         editing = null
@@ -130,6 +135,32 @@ class WakeAlarmViewModel(application: Application) : AndroidViewModel(applicatio
         if (!canScheduleExact) return null
         val now = ZonedDateTime.now()
         return list.mapNotNull { WakeSchedule.nextTrigger(it, now) }.minOrNull()
+    }
+
+    // --- Sleep timer line ---
+
+    /** A regular alarm that already rings by tomorrow morning, with its time. */
+    fun coveringAlarm(list: List<WakeAlarm>) = SleepTimerWake.covering(list, ZonedDateTime.now())
+
+    /** The one-off alarm the sleep-timer line manages, if it is on. */
+    fun sleepTimerAlarm(list: List<WakeAlarm>): WakeAlarm? =
+        list.firstOrNull { it.id == SleepTimerWake.ALARM_ID && it.enabled }
+
+    /**
+     * Switches the sleep-timer one-off alarm. It takes the settings of the
+     * user's most recently listed alarm, so ramp, volume and ambient match
+     * what they chose elsewhere; switching off removes it again.
+     */
+    fun setSleepTimerWake(on: Boolean, hour: Int, minute: Int, onScheduled: (Duration?) -> Unit = {}) {
+        if (!on) {
+            alarms.value.firstOrNull { it.id == SleepTimerWake.ALARM_ID }?.let { delete(it) }
+            return
+        }
+        val template = alarms.value.lastOrNull { it.id != SleepTimerWake.ALARM_ID } ?: newAlarm()
+        save(
+            template.copy(id = SleepTimerWake.ALARM_ID, hour = hour, minute = minute, days = emptySet(), enabled = true),
+            onScheduled
+        )
     }
 
     fun playPreview(alarm: WakeAlarm) =

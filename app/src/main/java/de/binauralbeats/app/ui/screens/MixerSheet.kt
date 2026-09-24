@@ -48,7 +48,9 @@ fun MixerSheet(
     onVolumeChange: (AmbientSound, Float) -> Unit,
     onTogglePlay: () -> Unit,
     onSleepTimerSelect: (Int) -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    /** Shown under the timer while one is set; the wake-alarm line lives here. */
+    belowSleepTimer: @Composable () -> Unit = {}
 ) {
     val colors = LocalBinauralColors.current
 
@@ -152,6 +154,10 @@ fun MixerSheet(
                 selected = sleepTimerMinutes,
                 onSelect = onSleepTimerSelect
             )
+            if (sleepTimerMinutes > 0) {
+                Spacer(Modifier.height(12.dp))
+                belowSleepTimer()
+            }
 
             Spacer(Modifier.height(16.dp))
 
