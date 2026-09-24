@@ -1,5 +1,6 @@
 package de.binauralbeats.app.ui.screens
 
+import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +22,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.pm.PackageInfoCompat
 import de.binauralbeats.app.R
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import de.binauralbeats.app.ui.theme.ThemeMode
@@ -157,8 +162,32 @@ fun SettingsSheet(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
+            Text(
+                versionLabel(),
+                fontSize = 11.sp,
+                color = colors.onSurfaceMuted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
         }
+    }
+}
+
+/**
+ * "Version 1.3.1 (8)", read from the installed package at runtime -
+ * BuildConfig is not enabled in this project. Debug builds say so, because
+ * they install next to the Play version under the same name.
+ */
+@Composable
+private fun versionLabel(): String {
+    val context = LocalContext.current
+    return remember(context) {
+        val info = context.packageManager.getPackageInfo(context.packageName, 0)
+        val code = PackageInfoCompat.getLongVersionCode(info)
+        val debug = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+        context.getString(R.string.settings_version, info.versionName, code) + if (debug) " · Debug" else ""
     }
 }
 
