@@ -15,10 +15,12 @@ import java.time.ZonedDateTime
 /**
  * Debug builds only (src/premiumDebug): sets a one-off alarm a few minutes
  * ahead without any UI, so the whole AlarmManager -> receiver -> service path
- * can be tried on the emulator.
+ * can be tried on an emulator or a phone (debug builds use the package id
+ * de.binauralbeats.app.debug, so they sit next to the Play version).
  *
- *   adb -s emulator-5554 shell am broadcast -a de.binauralbeats.app.DEBUG_ALARM \
- *       -n de.binauralbeats.app/.alarm.DebugAlarmReceiver --ei minutes 5 --ei ramp 4 [--es ambient STREAM] [--ez vibrate true]
+ *   adb -s <device> shell am broadcast -a de.binauralbeats.app.DEBUG_ALARM \
+ *       -n de.binauralbeats.app.debug/de.binauralbeats.app.alarm.DebugAlarmReceiver \
+ *       --ei minutes 5 --ei ramp 4 [--es ambient STREAM] [--ez vibrate true]
  */
 class DebugAlarmReceiver : BroadcastReceiver() {
 

@@ -22,6 +22,10 @@ Entscheidungen des Nutzers (23.09.):
 | Weckklang | synthetisierte Klangschale, alle ~20 s, langes Ausklingen |
 | Vibration | pro Wecker schaltbar, Standard aus |
 | Vollbild-Inhalt | Uhrzeit + langsam pulsierender Atemkreis (vorhandener BreathingGuide) |
+| Nicht-Käufer | Icon sichtbar; Sheet zeigt Beschreibung, Hörprobe der Klangschale, „Freischalten – 1,99 €“ |
+| Wecker-Sheet | Liste + Editor-Dialog (Uhrzeit, Tage, Rampe, Dauer, Lautstärke, Ambient, Vibration) |
+| Neuer Wecker | 07:00 Mo–Fr, Rampe Frisch, 20 Min., 70 %, Ambient Bach 40 %, Vibration aus |
+| Probehören | 10-s-Zeitraffer der Rampe + ein Klangschalen-Schlag, Medien-Kanal |
 | Vollbild entzogen | Wecker klingelt trotzdem, Aus/Schlummern über Benachrichtigung; Hinweis im Wecker-Sheet |
 
 ---

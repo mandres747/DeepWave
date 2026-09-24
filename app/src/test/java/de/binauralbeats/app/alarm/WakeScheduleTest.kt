@@ -133,6 +133,15 @@ class WakeScheduleTest {
     }
 
     @Test
+    fun `a receiver firing milliseconds after the ramp start keeps the whole ramp`() {
+        // Seen on the Galaxy A54: fired at +59 ms, left 2 min 59.94 s.
+        val wake = at(2026, 9, 24, 18, 34).toInstant()
+        val fired = at(2026, 9, 24, 18, 31).toInstant().plusMillis(59)
+        assertEquals(3, WakeSchedule.effectiveRampMinutes(3, wake, fired))
+        assertEquals(20, WakeSchedule.effectiveRampMinutes(20, wake, wake.minusSeconds(20 * 60).plusMillis(59)))
+    }
+
+    @Test
     fun `a receiver firing late shortens the ramp instead of overrunning`() {
         val wake = at(2026, 9, 24, 6, 30).toInstant()
         val lateStart = at(2026, 9, 24, 6, 13).toInstant()

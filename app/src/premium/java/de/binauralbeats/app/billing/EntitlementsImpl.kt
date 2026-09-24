@@ -21,30 +21,40 @@ import kotlinx.coroutines.flow.asStateFlow
  * Play Billing for the premium build. Lives in the premium source set only -
  * the library is proprietary and would get the F-Droid build rejected.
  *
- * One-time, non-consumable product: bought once, owned forever, on every
- * device of the same Play account. There is no server to check against and no
- * account in the app, so "does this user own it" is answered by asking Play
- * on every launch and caching the answer in memory only. A user offline at
- * launch keeps whatever the last successful query said for that process; the
- * next successful query corrects it.
+ * One-time, non-consumable products (rhythm_layer, wake_alarm): bought once,
+ * owned forever, on every device of the same Play account. There is no server
+ * to check against and no account in the app, so "does this user own it" is
+ * answered by asking Play on every launch and caching the answer in memory
+ * only. A user offline at launch keeps whatever the last successful query said
+ * for that process; the next successful query corrects it.
+ *
+ * State is kept per product id, so a further add-on is one more entry in
+ * [products] plus its two properties and purchase function.
  */
 object EntitlementsImpl : Entitlements {
 
-    private val owned = MutableStateFlow(false)
-    override val rhythmLayerOwned: StateFlow<Boolean> = owned.asStateFlow()
+    /** Every paid add-on this build sells. Queried and restored together. */
+    private val products = listOf(Entitlements.PRODUCT_RHYTHM_LAYER, Entitlements.PRODUCT_WAKE_ALARM)
 
-    private val price = MutableStateFlow<String?>(null)
-    override val rhythmLayerPrice: StateFlow<String?> = price.asStateFlow()
+    private val owned = products.associateWith { MutableStateFlow(false) }
+    private val prices = products.associateWith { MutableStateFlow<String?>(null) }
+    private val details = mutableMapOf<String, ProductDetails>()
+
+    override val rhythmLayerOwned: StateFlow<Boolean> = owned.getValue(Entitlements.PRODUCT_RHYTHM_LAYER).asStateFlow()
+    override val rhythmLayerPrice: StateFlow<String?> = prices.getValue(Entitlements.PRODUCT_RHYTHM_LAYER).asStateFlow()
+    override val wakeAlarmOwned: StateFlow<Boolean> = owned.getValue(Entitlements.PRODUCT_WAKE_ALARM).asStateFlow()
+    override val wakeAlarmPrice: StateFlow<String?> = prices.getValue(Entitlements.PRODUCT_WAKE_ALARM).asStateFlow()
 
     private var client: BillingClient? = null
-    private var productDetails: ProductDetails? = null
     private var pendingResult: ((PurchaseResult) -> Unit)? = null
+    private var pendingProduct: String? = null
 
     private val purchasesUpdated = PurchasesUpdatedListener { result, purchases ->
         when (result.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
                 purchases?.forEach { handlePurchase(it) }
-                deliver(if (owned.value) PurchaseResult.OWNED else PurchaseResult.ERROR)
+                val bought = pendingProduct?.let { owned[it]?.value } == true
+                deliver(if (bought) PurchaseResult.OWNED else PurchaseResult.ERROR)
             }
             BillingClient.BillingResponseCode.USER_CANCELED ->
                 deliver(PurchaseResult.CANCELLED)
@@ -76,7 +86,7 @@ object EntitlementsImpl : Entitlements {
         billing.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    queryProduct()
+                    queryProducts()
                     refresh()
                 }
             }
@@ -88,26 +98,27 @@ object EntitlementsImpl : Entitlements {
         })
     }
 
-    private fun queryProduct() {
+    private fun queryProducts() {
         val billing = client ?: return
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
-                listOf(
+                products.map {
                     QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(Entitlements.PRODUCT_RHYTHM_LAYER)
+                        .setProductId(it)
                         .setProductType(BillingClient.ProductType.INAPP)
                         .build()
-                )
+                }
             )
             .build()
         // Billing 8 hands back a result object rather than a bare list; the
         // products it could not fetch are reported separately and ignored here.
         billing.queryProductDetailsAsync(params) { result, productDetailsResult ->
             if (result.responseCode != BillingClient.BillingResponseCode.OK) return@queryProductDetailsAsync
-            val found = productDetailsResult.productDetailsList
-                .firstOrNull { it.productId == Entitlements.PRODUCT_RHYTHM_LAYER }
-            productDetails = found
-            price.value = found?.oneTimePurchaseOfferDetails?.formattedPrice
+            for (found in productDetailsResult.productDetailsList) {
+                if (found.productId !in products) continue
+                details[found.productId] = found
+                prices[found.productId]?.value = found.oneTimePurchaseOfferDetails?.formattedPrice
+            }
         }
     }
 
@@ -118,28 +129,35 @@ object EntitlementsImpl : Entitlements {
             .build()
         billing.queryPurchasesAsync(params) { result, purchases ->
             if (result.responseCode != BillingClient.BillingResponseCode.OK) return@queryPurchasesAsync
-            val hasIt = purchases.any {
-                it.products.contains(Entitlements.PRODUCT_RHYTHM_LAYER) &&
-                    it.purchaseState == Purchase.PurchaseState.PURCHASED
+            for (product in products) {
+                owned.getValue(product).value = purchases.any {
+                    it.products.contains(product) && it.purchaseState == Purchase.PurchaseState.PURCHASED
+                }
             }
-            owned.value = hasIt
             purchases.forEach { handlePurchase(it) }
         }
     }
 
-    override fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit) {
+    override fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit) =
+        purchase(activity, Entitlements.PRODUCT_RHYTHM_LAYER, onResult)
+
+    override fun purchaseWakeAlarm(activity: Activity, onResult: (PurchaseResult) -> Unit) =
+        purchase(activity, Entitlements.PRODUCT_WAKE_ALARM, onResult)
+
+    private fun purchase(activity: Activity, product: String, onResult: (PurchaseResult) -> Unit) {
         val billing = client
-        val details = productDetails
-        if (billing == null || !billing.isReady || details == null) {
+        val productDetails = details[product]
+        if (billing == null || !billing.isReady || productDetails == null) {
             onResult(PurchaseResult.UNAVAILABLE)
             return
         }
         pendingResult = onResult
+        pendingProduct = product
         val params = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(details)
+                        .setProductDetails(productDetails)
                         .build()
                 )
             )
@@ -157,8 +175,9 @@ object EntitlementsImpl : Entitlements {
      */
     private fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) return
-        if (!purchase.products.contains(Entitlements.PRODUCT_RHYTHM_LAYER)) return
-        owned.value = true
+        val ours = purchase.products.filter { it in products }
+        if (ours.isEmpty()) return
+        ours.forEach { owned.getValue(it).value = true }
         if (purchase.isAcknowledged) return
         val billing = client ?: return
         val params = AcknowledgePurchaseParams.newBuilder()
@@ -170,11 +189,12 @@ object EntitlementsImpl : Entitlements {
     private fun deliver(result: PurchaseResult) {
         pendingResult?.invoke(result)
         pendingResult = null
+        pendingProduct = null
     }
 
     override fun release() {
         client?.endConnection()
         client = null
-        productDetails = null
+        details.clear()
     }
 }

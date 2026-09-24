@@ -60,6 +60,12 @@ android {
     }
 
     buildTypes {
+        // Own package id, so a debug build installs next to the Play version on
+        // a real phone instead of requiring it to be uninstalled (and its data
+        // and purchases with it). Release and the F-Droid build are unaffected.
+        debug {
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

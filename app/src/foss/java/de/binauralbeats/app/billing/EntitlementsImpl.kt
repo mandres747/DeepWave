@@ -23,6 +23,14 @@ object EntitlementsImpl : Entitlements {
         onResult(PurchaseResult.UNAVAILABLE)
     }
 
+    override val wakeAlarmOwned: StateFlow<Boolean> = MutableStateFlow(false)
+
+    override val wakeAlarmPrice: StateFlow<String?> = MutableStateFlow(null)
+
+    override fun purchaseWakeAlarm(activity: Activity, onResult: (PurchaseResult) -> Unit) {
+        onResult(PurchaseResult.UNAVAILABLE)
+    }
+
     override fun refresh() = Unit
 
     override fun release() = Unit

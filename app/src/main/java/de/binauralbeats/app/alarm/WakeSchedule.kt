@@ -78,7 +78,10 @@ object WakeSchedule {
      * service, because the receiver may fire a little late.
      */
     fun effectiveRampMinutes(requested: Int, wakeAt: Instant, now: Instant): Int {
-        val left = ((wakeAt.toEpochMilli() - now.toEpochMilli()) / 60_000L).toInt()
+        // Rounded, not truncated: the alarm fires a few milliseconds after the
+        // ramp start, and 2 min 59.94 s truncated to 2 dropped a 3-minute ramp
+        // entirely and shortened every other ramp by a minute (A54, 24.09.).
+        val left = ((wakeAt.toEpochMilli() - now.toEpochMilli() + 30_000L) / 60_000L).toInt()
         val minutes = minOf(requested, left)
         return if (minutes >= MIN_RAMP_MINUTES) minutes else 0
     }

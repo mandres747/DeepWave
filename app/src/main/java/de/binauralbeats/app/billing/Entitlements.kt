@@ -41,6 +41,13 @@ interface Entitlements {
 
     fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit)
 
+    /** True once the wake-alarm add-on is owned. See docs/KLANGWECKER_KONZEPT.md. */
+    val wakeAlarmOwned: StateFlow<Boolean>
+
+    val wakeAlarmPrice: StateFlow<String?>
+
+    fun purchaseWakeAlarm(activity: Activity, onResult: (PurchaseResult) -> Unit)
+
     /**
      * Re-reads what the account owns. This is also what "restore purchases"
      * does - Play already knows about the purchase on every device, there is
@@ -53,5 +60,8 @@ interface Entitlements {
     companion object {
         /** In-app product id; must match the product created in Play Console. */
         const val PRODUCT_RHYTHM_LAYER = "rhythm_layer"
+
+        /** Created and activated in Play Console on 2026-09-23. */
+        const val PRODUCT_WAKE_ALARM = "wake_alarm"
     }
 }

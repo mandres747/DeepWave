@@ -1,5 +1,9 @@
 package de.binauralbeats.app.ui.screens
 
+import de.binauralbeats.app.ui.WakeAlarmViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,6 +61,14 @@ import de.binauralbeats.app.ui.theme.LocalBinauralColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: BinauralViewModel) {
+    val wakeVm: WakeAlarmViewModel = viewModel()
+    // Both alarm permissions live in system settings; re-read them whenever
+    // the user comes back from there.
+    LifecycleResumeEffect(Unit) {
+        wakeVm.onResume()
+        onPauseOrDispose { }
+    }
+
     val colors = LocalBinauralColors.current
     val generator = remember { BinauralGenerator() }
     val customPresets by viewModel.customPresets.collectAsState()
@@ -174,6 +186,45 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                     else colors.accentPrimary.copy(alpha = 0.7f),
                                     modifier = Modifier.size(20.dp)
                                 )
+                            }
+                        }
+                    }
+
+                    if (wakeVm.available) {
+                        val wakeAlarms by wakeVm.alarms.collectAsState()
+                        val nextWake = wakeVm.nextWake(wakeAlarms)
+                        Surface(
+                            onClick = { wakeVm.showSheet = true },
+                            color = colors.accentPrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp),
+                            // Wider than its neighbours while it shows a time, with less
+                            // side padding: at 115 % font size "07:00" was cut to "07:0"
+                            // on a 360 dp phone (Galaxy A54, 24.09.).
+                            modifier = Modifier.weight(if (nextWake != null) 2.5f else 1f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = if (nextWake != null) 8.dp else 12.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Alarm,
+                                    stringResource(R.string.wake_open),
+                                    tint = if (nextWake != null) colors.accentPrimary
+                                    else colors.accentPrimary.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                if (nextWake != null) {
+                                    Text(
+                                        android.text.format.DateFormat.getTimeFormat(LocalContext.current)
+                                            .format(java.util.Date(nextWake.toInstant().toEpochMilli())),
+                                        fontSize = 12.sp,
+                                        color = colors.accentPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                }
                             }
                         }
                     }
@@ -642,6 +693,15 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     onTogglePlay = { viewModel.toggleRhythm() },
                     onClose = { viewModel.showRhythm = false }
                 )
+            }
+        }
+
+        if (wakeVm.showSheet) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                WakeAlarmSheet(vm = wakeVm, onClose = { wakeVm.stopPreview(); wakeVm.showSheet = false })
             }
         }
 
