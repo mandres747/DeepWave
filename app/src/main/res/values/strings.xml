@@ -374,4 +374,25 @@
     <string name="sleep_wake_existing">Wecker %1$s ist gestellt – Weckrampe inklusive.</string>
     <string name="sleep_wake_teaser">Morgen sanft geweckt werden → Klangwecker</string>
     <string name="settings_version">Version %1$s (%2$d)</string>
+    <!-- Premium (Freemium seit 1.4.0) -->
+    <string name="premium_header">DEEPWAVE PREMIUM</string>
+    <string name="premium_intro">Einmal freischalten, für immer behalten – kein Abo, keine Werbung, kein Konto.</string>
+    <string name="premium_feature_presets">Premium-Presets für Schlaf, Fokus und Entspannung</string>
+    <string name="premium_feature_mixer">Ambient-Mixer mit 8 Klängen und Sleep-Timer</string>
+    <string name="premium_feature_export">Sessions als WAV-Datei exportieren</string>
+    <string name="premium_feature_stats">Statistik zu deinen Sessions</string>
+    <string name="premium_feature_custom">Unbegrenzt eigene Presets</string>
+    <string name="premium_unlock">Premium freischalten</string>
+    <string name="premium_unlock_price">Premium freischalten – %1$s</string>
+    <string name="premium_thanks">Danke! Freigeschaltet.</string>
+    <string name="premium_active">Premium ist freigeschaltet.</string>
+    <string name="premium_promise">Einmalkauf über Google Play, gilt auf allen deinen Geräten mit demselben Konto.</string>
+    <string name="premium_locked">Premium</string>
+    <string name="bundle_title">Komplettpaket</string>
+    <string name="bundle_body">Premium, Rhythmus-Spur und Klangwecker zusammen – günstiger als einzeln.</string>
+    <string name="bundle_buy">Alles freischalten</string>
+    <string name="bundle_buy_price">Alles freischalten – %1$s</string>
+    <string name="settings_premium">Premium</string>
+    <string name="settings_premium_active">Freigeschaltet</string>
+    <string name="settings_premium_unlock">Freischalten</string>
 </resources>

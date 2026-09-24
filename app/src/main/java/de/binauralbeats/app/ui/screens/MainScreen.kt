@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Headphones
@@ -62,6 +63,7 @@ import de.binauralbeats.app.ui.theme.LocalBinauralColors
 @Composable
 fun MainScreen(viewModel: BinauralViewModel) {
     val wakeVm: WakeAlarmViewModel = viewModel()
+    val access by viewModel.access.collectAsState()
     // Both alarm permissions live in system settings; re-read them whenever
     // the user comes back from there.
     LifecycleResumeEffect(Unit) {
@@ -160,20 +162,21 @@ fun MainScreen(viewModel: BinauralViewModel) {
 
                     if (FeatureFlagsImpl.statisticsEnabled) {
                         Surface(
-                            onClick = { viewModel.showStatistics = true },
+                            onClick = { if (viewModel.requirePremium()) viewModel.showStatistics = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
                                 Icon(Icons.Default.BarChart, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
+                                if (!access.premium) Box(Modifier.align(Alignment.BottomEnd)) { LockBadge() }
                             }
                         }
                     }
 
                     if (FeatureFlagsImpl.soundMixerEnabled) {
                         Surface(
-                            onClick = { viewModel.showMixer = true },
+                            onClick = { if (viewModel.requirePremium()) viewModel.showMixer = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f)
@@ -186,6 +189,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                                     else colors.accentPrimary.copy(alpha = 0.7f),
                                     modifier = Modifier.size(20.dp)
                                 )
+                                if (!access.premium) Box(Modifier.align(Alignment.BottomEnd)) { LockBadge() }
                             }
                         }
                     }
@@ -499,7 +503,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                stringResource(R.string.preset_limit_reached, viewModel.features.maxCustomPresets),
+                                stringResource(R.string.preset_limit_reached, viewModel.customPresetLimit()),
                                 fontSize = 12.sp,
                                 color = Color(0xFFFF8A8A),
                                 modifier = Modifier.weight(1f)
@@ -524,22 +528,29 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     presets = presets,
                     selectedKey = viewModel.selectedPreset?.key,
                     onSelect = { preset ->
-                        viewModel.selectPreset(preset)
-                        if (!viewModel.isPlaying) viewModel.play()
+                        if (viewModel.selectPreset(preset) && !viewModel.isPlaying) viewModel.play()
                     }
                 )
             }
 
             if (premiumCategories.isNotEmpty()) {
                 item {
-                    Text(
-                        stringResource(R.string.premium_presets_header),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colors.accentPrimary,
-                        letterSpacing = 2.sp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .clickable(enabled = !access.premium) { viewModel.showPremium = true }
+                    ) {
+                        Text(
+                            stringResource(R.string.premium_presets_header),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.accentPrimary,
+                            letterSpacing = 2.sp
+                        )
+                        if (!access.premium) LockBadge(size = 14.dp, tint = colors.accentPrimary)
+                    }
                 }
                 items(premiumCategories.toList(), key = { it.key }) { (category, presets) ->
                     PresetCategoryCard(
@@ -547,8 +558,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         presets = presets,
                         selectedKey = viewModel.selectedPreset?.key,
                         onSelect = { preset ->
-                            viewModel.selectPreset(preset)
-                            if (!viewModel.isPlaying) viewModel.play()
+                            if (viewModel.selectPreset(preset) && !viewModel.isPlaying) viewModel.play()
                         }
                     )
                 }
@@ -594,6 +604,9 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 contentAlignment = Alignment.BottomCenter
             ) {
                 SettingsSheet(
+                    premiumAvailable = viewModel.features.isPremium,
+                    premiumActive = access.premium,
+                    onPremium = { viewModel.showPremium = true },
                     currentTheme = themeMode,
                     currentLanguage = languageTag,
                     storeUrl = viewModel.storeUrl,
@@ -713,6 +726,22 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 contentAlignment = Alignment.BottomCenter
             ) {
                 WakeAlarmSheet(vm = wakeVm, onClose = { wakeVm.stopPreview(); wakeVm.showSheet = false })
+            }
+        }
+
+        if (viewModel.showPremium) {
+            val prices by viewModel.prices.collectAsState()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                PremiumSheet(
+                    access = access,
+                    prices = prices,
+                    onPurchase = { activity, product, onResult -> viewModel.purchase(activity, product, onResult) },
+                    onRestore = { viewModel.refreshEntitlements() },
+                    onClose = { viewModel.showPremium = false }
+                )
             }
         }
 
@@ -885,6 +914,7 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 @Composable
 private fun WavExportSection(viewModel: BinauralViewModel) {
     val colors = LocalBinauralColors.current
+    val access by viewModel.access.collectAsState()
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
@@ -958,7 +988,7 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
                                 )
                             ) {
                                 Icon(
-                                    Icons.Default.FileDownload,
+                                    if (access.premium) Icons.Default.FileDownload else Icons.Default.Lock,
                                     contentDescription = stringResource(R.string.export),
                                     tint = colors.accentPrimary,
                                     modifier = Modifier.size(20.dp)

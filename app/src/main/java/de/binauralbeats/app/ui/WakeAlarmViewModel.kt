@@ -18,6 +18,8 @@ import de.binauralbeats.app.alarm.SleepTimerWake
 import de.binauralbeats.app.alarm.WakeRamps
 import de.binauralbeats.app.alarm.WakeSchedule
 import de.binauralbeats.app.audio.WakePreview
+import de.binauralbeats.app.billing.AccessState
+import de.binauralbeats.app.billing.Entitlements
 import de.binauralbeats.app.billing.EntitlementsImpl
 import de.binauralbeats.app.billing.PurchaseResult
 import de.binauralbeats.app.data.AmbientSound
@@ -25,6 +27,7 @@ import de.binauralbeats.app.data.WakeAlarm
 import de.binauralbeats.app.data.WakeAlarmRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -43,8 +46,11 @@ class WakeAlarmViewModel(application: Application) : AndroidViewModel(applicatio
     private val preview = WakePreview()
 
     val available: Boolean get() = FeatureFlagsImpl.wakeAlarmAvailable
-    val owned = EntitlementsImpl.wakeAlarmOwned
-    val price = EntitlementsImpl.wakeAlarmPrice
+    /** Bought on its own or with the bundle. */
+    val owned: StateFlow<Boolean> = AccessState.access.map { it.wake }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, AccessState.access.value.wake)
+    val price: StateFlow<String?> = EntitlementsImpl.prices.map { it[Entitlements.PRODUCT_WAKE_ALARM] }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val alarms: StateFlow<List<WakeAlarm>> =
         repo.alarms.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -169,7 +175,7 @@ class WakeAlarmViewModel(application: Application) : AndroidViewModel(applicatio
     fun stopPreview() = preview.stop()
 
     fun purchase(activity: Activity, onResult: (PurchaseResult) -> Unit) =
-        EntitlementsImpl.purchaseWakeAlarm(activity, onResult)
+        EntitlementsImpl.purchase(activity, Entitlements.PRODUCT_WAKE_ALARM, onResult)
 
     fun restore() = EntitlementsImpl.refresh()
 

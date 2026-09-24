@@ -38,6 +38,9 @@ import de.binauralbeats.app.ui.theme.ThemeMode
 
 @Composable
 fun SettingsSheet(
+    premiumAvailable: Boolean,
+    premiumActive: Boolean,
+    onPremium: () -> Unit,
     currentTheme: ThemeMode,
     currentLanguage: String,
     storeUrl: String?,
@@ -77,6 +80,36 @@ fun SettingsSheet(
 
             HorizontalDivider(color = colors.overlay.copy(0.06f))
             Spacer(Modifier.height(16.dp))
+
+            // Not in the FOSS build: there is nothing to unlock there.
+            if (premiumAvailable) {
+                Surface(
+                    onClick = onPremium,
+                    color = colors.accentPrimary.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.settings_premium),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            stringResource(if (premiumActive) R.string.settings_premium_active else R.string.settings_premium_unlock),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.accentPrimary
+                        )
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
+            }
 
             Text(
                 stringResource(R.string.settings_language),

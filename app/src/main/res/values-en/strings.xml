@@ -374,4 +374,25 @@
     <string name="sleep_wake_existing">Alarm at %1$s is set – wake-up ramp included.</string>
     <string name="sleep_wake_teaser">Wake gently tomorrow → Sound alarm</string>
     <string name="settings_version">Version %1$s (%2$d)</string>
+    <!-- Premium (free download since 1.4.0) -->
+    <string name="premium_header">DEEPWAVE PREMIUM</string>
+    <string name="premium_intro">Unlock once, keep it forever – no subscription, no ads, no account.</string>
+    <string name="premium_feature_presets">Premium presets for sleep, focus and relaxation</string>
+    <string name="premium_feature_mixer">Ambient mixer with 8 sounds and sleep timer</string>
+    <string name="premium_feature_export">Export sessions as WAV files</string>
+    <string name="premium_feature_stats">Statistics on your sessions</string>
+    <string name="premium_feature_custom">Unlimited custom presets</string>
+    <string name="premium_unlock">Unlock Premium</string>
+    <string name="premium_unlock_price">Unlock Premium – %1$s</string>
+    <string name="premium_thanks">Thank you! Unlocked.</string>
+    <string name="premium_active">Premium is unlocked.</string>
+    <string name="premium_promise">One-time purchase through Google Play, valid on all your devices with the same account.</string>
+    <string name="premium_locked">Premium</string>
+    <string name="bundle_title">Complete bundle</string>
+    <string name="bundle_body">Premium, rhythm track and sound alarm together – cheaper than separately.</string>
+    <string name="bundle_buy">Unlock everything</string>
+    <string name="bundle_buy_price">Unlock everything – %1$s</string>
+    <string name="settings_premium">Premium</string>
+    <string name="settings_premium_active">Unlocked</string>
+    <string name="settings_premium_unlock">Unlock</string>
 </resources>

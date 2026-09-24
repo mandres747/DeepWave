@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /** What came back from a purchase attempt, so the UI can say the right thing. */
 enum class PurchaseResult {
-    /** The add-on is now owned - either just bought or already on the account. */
+    /** The product is now owned - either just bought or already on the account. */
     OWNED,
 
     /** The user backed out. Not an error, and must not be reported as one. */
@@ -19,34 +19,27 @@ enum class PurchaseResult {
 }
 
 /**
- * Runtime ownership of paid add-ons, kept apart from FeatureFlags on purpose:
- * FeatureFlags answers "does this build contain the feature", Entitlements
- * answers "may this user use it". The FOSS build answers no to the first
- * question and therefore never asks the second.
+ * Which paid products the Play account owns, kept apart from FeatureFlags on
+ * purpose: FeatureFlags answers "does this build contain the feature",
+ * Entitlements answers "has this account bought it", and Access combines
+ * the two with the rule for people who bought the former paid app.
  *
  * The premium implementation talks to Play Billing; the FOSS one is a stub
  * with no dependency on it, which is what keeps the proprietary library out
- * of the F-Droid build. See docs/RHYTHMUS_LAYER_KONZEPT.md.
+ * of the F-Droid build. See docs/FREEMIUM_KONZEPT.md.
  */
 interface Entitlements {
 
-    /** True once the rhythm add-on is owned on this Play account. */
-    val rhythmLayerOwned: StateFlow<Boolean>
+    /** Product ids this Play account owns. */
+    val owned: StateFlow<Set<String>>
 
-    /** Localised price as Play reports it, or null while it is unknown. */
-    val rhythmLayerPrice: StateFlow<String?>
+    /** Localised price per product id, as Play reports it; missing while unknown. */
+    val prices: StateFlow<Map<String, String>>
 
     /** Opens the billing connection and picks up purchases made elsewhere. */
     fun connect(context: Context)
 
-    fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit)
-
-    /** True once the wake-alarm add-on is owned. See docs/KLANGWECKER_KONZEPT.md. */
-    val wakeAlarmOwned: StateFlow<Boolean>
-
-    val wakeAlarmPrice: StateFlow<String?>
-
-    fun purchaseWakeAlarm(activity: Activity, onResult: (PurchaseResult) -> Unit)
+    fun purchase(activity: Activity, productId: String, onResult: (PurchaseResult) -> Unit)
 
     /**
      * Re-reads what the account owns. This is also what "restore purchases"
@@ -58,10 +51,18 @@ interface Entitlements {
     fun release()
 
     companion object {
-        /** In-app product id; must match the product created in Play Console. */
+        // In-app product ids; each must match a product in Play Console.
         const val PRODUCT_RHYTHM_LAYER = "rhythm_layer"
 
         /** Created and activated in Play Console on 2026-09-23. */
         const val PRODUCT_WAKE_ALARM = "wake_alarm"
+
+        /** Premium unlock of the free download, 3.99 EUR. */
+        const val PRODUCT_PREMIUM = "premium"
+
+        /** Premium plus both add-ons, 5.99 EUR. */
+        const val PRODUCT_COMPLETE = "complete"
+
+        val ALL_PRODUCTS = listOf(PRODUCT_PREMIUM, PRODUCT_COMPLETE, PRODUCT_RHYTHM_LAYER, PRODUCT_WAKE_ALARM)
     }
 }

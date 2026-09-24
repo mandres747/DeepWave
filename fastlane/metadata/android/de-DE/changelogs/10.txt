@@ -1,0 +1,5 @@
+• DeepWave ist jetzt kostenlos. Wer die App gekauft hat, behält Premium automatisch
+• Neu: Klangwecker (Kauf-Add-on) – weckt mit einer Frequenzrampe, die leise beginnt, zur Weckzeit mit Klangschale. Mehrere Wecker, Vollbild über dem Sperrbildschirm, auch ohne Kopfhörer
+• Sleep-Timer: „Morgen mit Weckrampe wecken“
+• Klang: isochrone Pulse ohne Knacken, modulierte Presets mit korrekter Frequenz
+• Versionsnummer in den Einstellungen

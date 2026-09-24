@@ -1,5 +1,6 @@
 package de.binauralbeats.app.ui
 
+import android.app.Activity
 import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -8,14 +9,19 @@ import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import android.app.Activity
+import de.binauralbeats.app.FeatureFlagsImpl
+import de.binauralbeats.app.R
 import de.binauralbeats.app.audio.WavExporter
+import de.binauralbeats.app.billing.Access
+import de.binauralbeats.app.billing.AccessState
+import de.binauralbeats.app.billing.Entitlements
 import de.binauralbeats.app.billing.EntitlementsImpl
 import de.binauralbeats.app.billing.PurchaseResult
 import de.binauralbeats.app.data.AmbientSound
@@ -25,34 +31,56 @@ import de.binauralbeats.app.data.JournalEntry
 import de.binauralbeats.app.data.JournalRepository
 import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
+import de.binauralbeats.app.data.PremiumPresetProviderImpl
 import de.binauralbeats.app.data.Preset
+import de.binauralbeats.app.data.PresetRepository
+import de.binauralbeats.app.data.Presets
 import de.binauralbeats.app.data.RhythmMode
 import de.binauralbeats.app.data.RhythmPattern
 import de.binauralbeats.app.data.RhythmPulse
-import de.binauralbeats.app.data.stepAt
 import de.binauralbeats.app.data.RhythmSettings
 import de.binauralbeats.app.data.RhythmStep
-import de.binauralbeats.app.data.defaultRhythmProgram
-import androidx.compose.runtime.mutableStateListOf
-import de.binauralbeats.app.data.PresetRepository
-import de.binauralbeats.app.data.PremiumPresetProviderImpl
-import de.binauralbeats.app.data.Presets
 import de.binauralbeats.app.data.SettingsRepository
 import de.binauralbeats.app.data.ToneType
-import de.binauralbeats.app.FeatureFlagsImpl
-import de.binauralbeats.app.R
+import de.binauralbeats.app.data.defaultRhythmProgram
+import de.binauralbeats.app.data.stepAt
 import de.binauralbeats.app.service.AudioPlaybackService
 import de.binauralbeats.app.ui.components.BreathingPattern
 import de.binauralbeats.app.ui.theme.ThemeMode
+import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class BinauralViewModel(application: Application) : AndroidViewModel(application) {
 
     val features = FeatureFlagsImpl
+
+    // --- Premium (free download since 1.4.0, see docs/FREEMIUM_KONZEPT.md) ---
+
+    /** What this user may use; combines purchases with the former-buyer rule. */
+    val access: StateFlow<Access> = AccessState.access
+
+    /** The Premium unlock sheet, opened by every locked element. */
+    var showPremium by mutableStateOf(false)
+
+    /** True when Premium is unlocked; otherwise opens the unlock sheet. */
+    fun requirePremium(): Boolean {
+        if (access.value.premium) return true
+        showPremium = true
+        return false
+    }
+
+    fun customPresetLimit(): Int =
+        if (access.value.premium) features.maxCustomPresets else Access.FREE_CUSTOM_PRESETS
+
+    fun purchase(activity: Activity, productId: String, onResult: (PurchaseResult) -> Unit) =
+        EntitlementsImpl.purchase(activity, productId, onResult)
+
+    val prices: StateFlow<Map<String, String>> get() = EntitlementsImpl.prices
 
     private val presetRepo = PresetRepository(application)
     private val journalRepo = JournalRepository(application)
@@ -151,6 +179,8 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             // Must run before anything else touches the settings store: the
             // marker decides "new install" from the store being empty.
             settingsRepo.ensureFirstSeenVersionCode(currentVersionCode())
+            // Access needs it to recognise people who bought the former paid app.
+            AccessState.firstSeenVersionCode.value = settingsRepo.firstSeenVersionCode()
             showOnboarding = !settingsRepo.isOnboardingSeen()
         }
     }
@@ -367,12 +397,15 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     // --- Preset selection ---
 
-    fun selectPreset(preset: Preset) {
+    /** False when the preset is Premium and locked; the unlock sheet opens instead. */
+    fun selectPreset(preset: Preset): Boolean {
+        if (preset.category.isPremium && !requirePremium()) return false
         selectedPreset = preset
         selectedCustomPresetId = null
         editablePhases = preset.phases.toList()
         preset.carrierOverride?.let { carrierFrequency = it }
         isEditing = false
+        return true
     }
 
     fun selectCustomPreset(custom: CustomPreset) {
@@ -432,8 +465,10 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
             val isUpdate = selectedCustomPresetId != null
             if (!isUpdate) {
                 val current = presetRepo.currentCount()
-                if (current >= features.maxCustomPresets) {
+                if (current >= customPresetLimit()) {
                     customPresetLimitReached = true
+                    // Free users are pointed at what lifts the limit.
+                    if (!access.value.premium && features.isPremium) showPremium = true
                     showSaveDialog = false
                     return@launch
                 }
@@ -533,6 +568,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
 
     fun exportWav() {
         if (isExporting || !features.wavExportEnabled) return
+        if (!requirePremium()) return
         isExporting = true
         exportProgress = 0f
         exportResult = null
@@ -617,13 +653,15 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
     /** Whether this build has the layer at all (premium only). */
     val rhythmLayerAvailable: Boolean get() = FeatureFlagsImpl.rhythmLayerAvailable
 
-    /** Whether the user has bought it. Separate question, separate source. */
-    val rhythmLayerOwned = EntitlementsImpl.rhythmLayerOwned
+    /** Whether the user may use it: bought on its own or with the bundle. */
+    val rhythmLayerOwned: StateFlow<Boolean> = access.map { it.rhythm }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, access.value.rhythm)
 
-    val rhythmLayerPrice = EntitlementsImpl.rhythmLayerPrice
+    val rhythmLayerPrice: StateFlow<String?> = EntitlementsImpl.prices.map { it[Entitlements.PRODUCT_RHYTHM_LAYER] }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit) {
-        EntitlementsImpl.purchaseRhythmLayer(activity, onResult)
+        EntitlementsImpl.purchase(activity, Entitlements.PRODUCT_RHYTHM_LAYER, onResult)
     }
 
     /**
@@ -856,7 +894,7 @@ class BinauralViewModel(application: Application) : AndroidViewModel(application
      */
     private fun rhythmPulsesForExport(): ((Int) -> List<RhythmPulse>)? {
         if (!FeatureFlagsImpl.rhythmLayerAvailable) return null
-        if (!EntitlementsImpl.rhythmLayerOwned.value) return null
+        if (!access.value.rhythm) return null
         if (!isRhythmPlaying) return null
 
         if (rhythmMode == RhythmMode.PROGRAM) {

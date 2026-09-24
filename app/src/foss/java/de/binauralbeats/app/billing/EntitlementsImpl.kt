@@ -6,28 +6,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * F-Droid build: no Play Billing, and no paid add-ons either - the rhythm
- * layer is not part of this build at all (FeatureFlags.rhythmLayerAvailable
- * is false), so nothing here is ever reached. It exists so the shared code
- * compiles without the proprietary billing library.
+ * F-Droid build: no Play Billing, and nothing to buy - Premium, the rhythm
+ * layer and the wake alarm are not part of this build at all (their
+ * FeatureFlags are false), so nothing here is ever reached. It exists so the
+ * shared code compiles without the proprietary billing library.
  */
 object EntitlementsImpl : Entitlements {
 
-    override val rhythmLayerOwned: StateFlow<Boolean> = MutableStateFlow(false)
+    override val owned: StateFlow<Set<String>> = MutableStateFlow(emptySet())
 
-    override val rhythmLayerPrice: StateFlow<String?> = MutableStateFlow(null)
+    override val prices: StateFlow<Map<String, String>> = MutableStateFlow(emptyMap())
 
     override fun connect(context: Context) = Unit
 
-    override fun purchaseRhythmLayer(activity: Activity, onResult: (PurchaseResult) -> Unit) {
-        onResult(PurchaseResult.UNAVAILABLE)
-    }
-
-    override val wakeAlarmOwned: StateFlow<Boolean> = MutableStateFlow(false)
-
-    override val wakeAlarmPrice: StateFlow<String?> = MutableStateFlow(null)
-
-    override fun purchaseWakeAlarm(activity: Activity, onResult: (PurchaseResult) -> Unit) {
+    override fun purchase(activity: Activity, productId: String, onResult: (PurchaseResult) -> Unit) {
         onResult(PurchaseResult.UNAVAILABLE)
     }
 
