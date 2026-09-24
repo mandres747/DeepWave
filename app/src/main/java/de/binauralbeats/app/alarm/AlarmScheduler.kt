@@ -43,8 +43,12 @@ object AlarmScheduler {
      */
     fun schedule(context: Context, alarm: WakeAlarm, now: ZonedDateTime = ZonedDateTime.now()): WakeSchedule.Plan? {
         cancel(context, alarm.id)
-        if (!canScheduleExact(context)) return null
+        if (!canScheduleExact(context)) {
+            WakeLog.event(context, "not scheduled id=${alarm.id}: no exact-alarm permission")
+            return null
+        }
         val plan = WakeSchedule.plan(alarm, now) ?: return null
+        WakeLog.event(context, "scheduled id=${alarm.id}: ramp ${plan.rampStart} (${plan.rampMinutes} min), wake ${plan.wakeAt}")
         setAlarms(context, alarm.id, plan.wakeAt.toInstant().toEpochMilli(), plan.rampStart.toEpochMilli(), plan.rampMinutes)
         return plan
     }

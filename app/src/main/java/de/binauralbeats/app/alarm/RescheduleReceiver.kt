@@ -24,6 +24,7 @@ class RescheduleReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in HANDLED) return
+        WakeLog.event(context, "reschedule after ${intent.action?.substringAfterLast('.')}")
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {

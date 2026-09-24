@@ -77,7 +77,10 @@ class WakeAlarmService : Service() {
             ACTION_RAMP -> onRamp(intent)
             ACTION_WAKE -> onWake(intent)
             ACTION_SNOOZE -> snooze()
-            ACTION_DISMISS -> finish()
+            ACTION_DISMISS -> {
+                WakeLog.event(this, "dismissed")
+                finish()
+            }
             else -> finish()
         }
         // An alarm that was killed must not replay by itself hours later.
@@ -100,6 +103,7 @@ class WakeAlarmService : Service() {
             val minutes = WakeSchedule.effectiveRampMinutes(requested, Instant.ofEpochMilli(wakeAtMillis), now)
             // Too late for a ramp (receiver ran very late): the wake stage will
             // still fire on time and play the alarm on its own.
+            WakeLog.event(this@WakeAlarmService, "ramp start: $minutes of $requested min")
             if (minutes == 0) return@launch
             startSound(alarm, WakeRamps.ramp(alarm.rampKey, minutes), fadeMs = wakeAtMillis - now.toEpochMilli(), ringing = false)
         }
@@ -117,6 +121,7 @@ class WakeAlarmService : Service() {
         handler.removeCallbacks(autoStop)
         handler.postDelayed(autoStop, AFTER_WAKE_MS)
         _ringing.value = true
+        WakeLog.event(this, "wake: ramp was ${if (generator.isPlaying) "playing" else "not playing"}")
 
         // Settings first, sound second: the bowl used to strike once at the
         // engine's default level before the alarm's own volume had loaded.
@@ -171,6 +176,7 @@ class WakeAlarmService : Service() {
     }
 
     private fun snooze() {
+        WakeLog.event(this, "snoozed")
         val id = alarmId
         stopSound()
         if (id != null) {
@@ -181,7 +187,10 @@ class WakeAlarmService : Service() {
         finish()
     }
 
-    private val autoStop = Runnable { finish() }
+    private val autoStop = Runnable {
+        WakeLog.event(this, "auto-stop")
+        finish()
+    }
 
     // --- Sound ---
 

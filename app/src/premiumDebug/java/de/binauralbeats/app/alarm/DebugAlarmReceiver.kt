@@ -21,6 +21,7 @@ import java.time.ZonedDateTime
  *   adb -s <device> shell am broadcast -a de.binauralbeats.app.DEBUG_ALARM \
  *       -n de.binauralbeats.app.debug/de.binauralbeats.app.alarm.DebugAlarmReceiver \
  *       --ei minutes 5 --ei ramp 4 [--es ambient STREAM] [--ez vibrate true]
+ *   or a fixed time: --ei hour 6 --ei minute 30 --ei ramp 20
  */
 class DebugAlarmReceiver : BroadcastReceiver() {
 
@@ -29,8 +30,11 @@ class DebugAlarmReceiver : BroadcastReceiver() {
         val ramp = intent.getIntExtra("ramp", 4)
         val ambient = intent.getStringExtra("ambient")?.let { runCatching { AmbientSound.valueOf(it) }.getOrNull() }
         val at = ZonedDateTime.now().plusMinutes(minutes.toLong())
+        // --ei hour/--ei minute set a fixed time instead, for overnight tests.
+        val hour = intent.getIntExtra("hour", at.hour)
+        val minuteOfHour = intent.getIntExtra("minute", if (intent.hasExtra("hour")) 0 else at.minute)
         val alarm = WakeAlarm(
-            id = "debug", hour = at.hour, minute = at.minute,
+            id = "debug", hour = hour, minute = minuteOfHour,
             rampMinutes = ramp, ambient = ambient,
             vibrate = intent.getBooleanExtra("vibrate", false)
         )

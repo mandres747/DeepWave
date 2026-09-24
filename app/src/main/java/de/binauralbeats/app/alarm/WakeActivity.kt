@@ -85,6 +85,7 @@ class WakeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         showOverLockScreen()
+        WakeLog.event(this, "wake screen shown")
         enableEdgeToEdge()
 
         // Back must not silently leave a ringing alarm behind the lock screen.

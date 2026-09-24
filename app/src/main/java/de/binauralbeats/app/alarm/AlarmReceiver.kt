@@ -21,6 +21,12 @@ class AlarmReceiver : BroadcastReceiver() {
         if (stage != STAGE_RAMP && stage != STAGE_WAKE) return
         val requestId = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_ID) ?: return
         val alarmId = AlarmScheduler.baseId(requestId)
+        val wakeAt = intent.getLongExtra(AlarmScheduler.EXTRA_WAKE_AT, 0L)
+        WakeLog.event(
+            context,
+            "fired ${stage.substringAfterLast('.')} id=$requestId, " +
+                "${(System.currentTimeMillis() - wakeAt) / 1000}s relative to wake time"
+        )
 
         context.startForegroundService(
             Intent(context, WakeAlarmService::class.java)
