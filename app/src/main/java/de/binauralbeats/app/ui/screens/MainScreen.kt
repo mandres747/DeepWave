@@ -695,6 +695,9 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         }
                     },
                     onRestore = { viewModel.refreshEntitlements() },
+                    onShowBundle = if (access.offerBundle) {
+                        { viewModel.showRhythm = false; viewModel.showPremium = true }
+                    } else null,
                     mode = viewModel.rhythmMode,
                     bpm = viewModel.rhythmBpm,
                     accentEvery = viewModel.rhythmAccentEvery,
@@ -725,7 +728,13 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                WakeAlarmSheet(vm = wakeVm, onClose = { wakeVm.stopPreview(); wakeVm.showSheet = false })
+                WakeAlarmSheet(
+                    vm = wakeVm,
+                    onClose = { wakeVm.stopPreview(); wakeVm.showSheet = false },
+                    onShowBundle = if (access.offerBundle) {
+                        { wakeVm.stopPreview(); wakeVm.showSheet = false; viewModel.showPremium = true }
+                    } else null
+                )
             }
         }
 

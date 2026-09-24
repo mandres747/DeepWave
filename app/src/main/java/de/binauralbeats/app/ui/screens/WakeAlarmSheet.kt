@@ -84,7 +84,12 @@ import java.util.Locale
  * follows RhythmSheet so the two add-ons look like one family.
  */
 @Composable
-fun WakeAlarmSheet(vm: WakeAlarmViewModel, onClose: () -> Unit) {
+fun WakeAlarmSheet(
+    vm: WakeAlarmViewModel,
+    onClose: () -> Unit,
+    /** Opens the bundle offer; null while the bundle is not on offer. */
+    onShowBundle: (() -> Unit)? = null
+) {
     val colors = LocalBinauralColors.current
     val context = LocalContext.current
     val owned by vm.owned.collectAsState()
@@ -151,7 +156,8 @@ fun WakeAlarmSheet(vm: WakeAlarmViewModel, onClose: () -> Unit) {
                             }
                         }
                     },
-                    onRestore = { vm.restore() }
+                    onRestore = { vm.restore() },
+                    onShowBundle = onShowBundle
                 )
                 Spacer(Modifier.height(24.dp))
                 return@Column
@@ -252,7 +258,8 @@ private fun WakeLockedCard(
     price: String?,
     onListen: () -> Unit,
     onPurchase: () -> Unit,
-    onRestore: () -> Unit
+    onRestore: () -> Unit,
+    onShowBundle: (() -> Unit)?
 ) {
     val colors = LocalBinauralColors.current
     Surface(
@@ -301,6 +308,7 @@ private fun WakeLockedCard(
             TextButton(onClick = onRestore, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.wake_restore), fontSize = 12.sp, color = colors.onSurfaceMuted)
             }
+            onShowBundle?.let { BundleHint(it) }
         }
     }
 }

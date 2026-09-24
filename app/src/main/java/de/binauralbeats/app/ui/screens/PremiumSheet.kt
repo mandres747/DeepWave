@@ -209,3 +209,15 @@ private fun FeatureLine(text: String) {
 fun LockBadge(size: Dp = 12.dp, tint: Color = LocalBinauralColors.current.onSurfaceMuted) {
     Icon(Icons.Default.Lock, contentDescription = null, tint = tint, modifier = Modifier.size(size))
 }
+
+/**
+ * Pointer from an add-on's locked card to the bundle, shown only while the
+ * bundle is on offer (nothing of it owned yet).
+ */
+@Composable
+fun BundleHint(onClick: () -> Unit) {
+    val colors = LocalBinauralColors.current
+    TextButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.bundle_hint), fontSize = 12.sp, color = colors.accentPrimary)
+    }
+}

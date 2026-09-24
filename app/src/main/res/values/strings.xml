@@ -395,4 +395,5 @@
     <string name="settings_premium">Premium</string>
     <string name="settings_premium_active">Freigeschaltet</string>
     <string name="settings_premium_unlock">Freischalten</string>
+    <string name="bundle_hint">Oder alles zusammen im Komplettpaket →</string>
 </resources>

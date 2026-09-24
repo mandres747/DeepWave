@@ -395,4 +395,5 @@
     <string name="settings_premium">Premium</string>
     <string name="settings_premium_active">Unlocked</string>
     <string name="settings_premium_unlock">Unlock</string>
+    <string name="bundle_hint">Or get everything in the complete bundle →</string>
 </resources>

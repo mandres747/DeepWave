@@ -65,6 +65,8 @@ fun RhythmSheet(
     price: String?,
     onPurchase: () -> Unit,
     onRestore: () -> Unit,
+    /** Opens the bundle offer; null while the bundle is not on offer. */
+    onShowBundle: (() -> Unit)? = null,
     onModeChange: (RhythmMode) -> Unit,
     onBpmChange: (Int) -> Unit,
     onAccentChange: (Int) -> Unit,
@@ -120,7 +122,7 @@ fun RhythmSheet(
 
             if (!isUnlocked) {
                 Spacer(Modifier.height(20.dp))
-                RhythmLockedCard(price = price, onPurchase = onPurchase, onRestore = onRestore)
+                RhythmLockedCard(price = price, onPurchase = onPurchase, onRestore = onRestore, onShowBundle = onShowBundle)
                 Spacer(Modifier.height(24.dp))
                 return@Column
             }
@@ -337,7 +339,8 @@ fun RhythmSheet(
 private fun RhythmLockedCard(
     price: String?,
     onPurchase: () -> Unit,
-    onRestore: () -> Unit
+    onRestore: () -> Unit,
+    onShowBundle: (() -> Unit)?
 ) {
     val colors = LocalBinauralColors.current
 
@@ -390,6 +393,7 @@ private fun RhythmLockedCard(
                     color = colors.onSurfaceMuted
                 )
             }
+            onShowBundle?.let { BundleHint(it) }
         }
     }
 }
