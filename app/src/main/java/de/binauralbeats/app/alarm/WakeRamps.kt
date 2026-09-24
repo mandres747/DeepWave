@@ -17,6 +17,27 @@ object WakeRamps {
 
     const val DEFAULT_KEY = "fresh"
 
+    /**
+     * Carrier of the ramp tone: G4. A phone speaker gives off little below
+     * 300-500 Hz, so the app's usual 200 Hz carrier came out of it as a buzz
+     * of distortion products. G4 sits a pure fourth under the bowl's C5
+     * (ChimeVoice.FUNDAMENTAL_HZ); 200 Hz against the old 262 Hz bowl was
+     * 467 cents, between a major third and a fourth, and sounded off.
+     * Decided 2026-09-24.
+     */
+    const val CARRIER_HZ = 392f
+
+    /**
+     * Pulses drop to half rather than to silence. The upper bands (14-18 Hz)
+     * sit where fully modulated tones start to sound rough (roughness sets in
+     * around 15 Hz, Zwicker); half depth keeps the pulse audible without the
+     * rasp. Decided 2026-09-24.
+     */
+    const val PULSE_DEPTH = 0.5f
+
+    /** Share of each phase spent gliding into the next band's frequency. */
+    private const val GLIDE_SHARE = 0.3
+
     /** Ramp lengths offered in the UI. The definitions below are written for 20. */
     val DURATIONS = listOf(10, 20, 30)
 
@@ -64,6 +85,54 @@ object WakeRamps {
             missing++
         }
         return phases.mapIndexed { idx, p -> p.copy(durationMinutes = minutes[idx]) }
+    }
+
+    /**
+     * Beat frequency [seconds] into [ramp]: each band holds, then glides
+     * linearly into the next during the last [GLIDE_SHARE] of its phase, so
+     * the pulse speeds up smoothly instead of jumping at every phase seam.
+     * After the ramp the last band holds. Needs ToneVoice's phase
+     * accumulation - with sin(2π·f·t) a moving f was not heard as f.
+     */
+    fun frequencyAt(ramp: List<Phase>, seconds: Double): Double {
+        if (ramp.isEmpty()) return 0.0
+        var start = 0.0
+        for ((i, p) in ramp.withIndex()) {
+            val length = p.durationMinutes * 60.0
+            val end = start + length
+            if (seconds < end) {
+                val next = ramp.getOrNull(i + 1) ?: return p.frequency.toDouble()
+                val glideFrom = end - length * GLIDE_SHARE
+                if (seconds < glideFrom) return p.frequency.toDouble()
+                val x = (seconds - glideFrom) / (end - glideFrom)
+                return p.frequency + (next.frequency - p.frequency) * x
+            }
+            start = end
+        }
+        return ramp.last().frequency.toDouble()
+    }
+
+    /**
+     * Levels of the three layers, as engine volumes. Kept below [HEADROOM] in
+     * sum: three full layers added up to 1.69 of full scale and the system
+     * limiter distorted them. At the wake time the pulse steps back to 30 %
+     * so the bowl stands clear (decided 2026-09-24).
+     */
+    data class Levels(val pulse: Float, val ambient: Float, val chime: Float)
+
+    const val HEADROOM = 0.9f
+    private const val PULSE_AT_WAKE = 0.3f
+    private const val CHIME_SHARE = 0.8f
+
+    fun levels(volume: Float, ambientVolume: Float, hasAmbient: Boolean, ringing: Boolean): Levels {
+        val amb = if (hasAmbient) ambientVolume.coerceIn(0f, 1f) else 0f
+        val v = volume.coerceIn(0f, 1f)
+        val raw = if (ringing) Levels(v * PULSE_AT_WAKE, amb * 0.6f, v * CHIME_SHARE)
+        else Levels(v, amb, 0f)
+        val sum = raw.pulse + raw.ambient + raw.chime
+        if (sum <= HEADROOM) return raw
+        val k = HEADROOM / sum
+        return Levels(raw.pulse * k, raw.ambient * k, raw.chime * k)
     }
 
     /**

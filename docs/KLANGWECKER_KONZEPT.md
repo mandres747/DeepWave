@@ -26,6 +26,10 @@ Entscheidungen des Nutzers (23.09.):
 | Wecker-Sheet | Liste + Editor-Dialog (Uhrzeit, Tage, Rampe, Dauer, Lautstärke, Ambient, Vibration) |
 | Neuer Wecker | 07:00 Mo–Fr, Rampe Frisch, 20 Min., 70 %, Ambient Bach 40 %, Vibration aus |
 | Probehören | 10-s-Zeitraffer der Rampe + ein Klangschalen-Schlag, Medien-Kanal |
+| Pulsform (ganze App) | Rechteckpuls mit 10-ms-Kosinusflanken statt hartem Schalten |
+| Tonhöhen | Träger G4 392 Hz, Klangschale C5 523 Hz (reine Quarte) |
+| Mischung zur Weckzeit | Pulsspur in 10 s auf 30 % zurück, Klangschale + Ambient tragen, Summe ≤ 0,9 |
+| Rauigkeit | Pulstiefe 50 %, Bänder gleiten statt zu springen |
 | Vollbild entzogen | Wecker klingelt trotzdem, Aus/Schlummern über Benachrichtigung; Hinweis im Wecker-Sheet |
 
 ---
@@ -155,6 +159,24 @@ Bei 10 oder 30 Minuten werden die Phasen anteilig gestreckt. Die Rampen sind
 normale `List<Phase>` und laufen durch den vorhandenen `BinauralGenerator`.
 **`Phase` wird nicht erweitert**, aus demselben Grund wie beim Rhythmus
 (geteilte Links, `CustomPreset`).
+
+### 4.2a Klangdesign-Prüfung (24.09.)
+
+Nach dem ersten Hören auf dem Galaxy A54 („klingt nicht schön“) gemessen:
+
+| Befund | vorher | nachher |
+|---|---|---|
+| Klick-Energie der Pulsflanken (weit außerhalb des Tons) | −23 dB | −71 dB (App), −80 dB (Wecker) |
+| Träger / Schale | 200 / 262 Hz, 467 Cent, unter dem Lautsprecher-Arbeitsbereich | 392 / 523 Hz, 500 Cent (Quarte) |
+| Schwebung der Schale | zwei gleich laute Sinus, Auslöschung bis 0 | Partner 30 %, ~5 dB Schimmern |
+| Summe der Spuren | bis 1,69 (Begrenzer verzerrt) | ≤ 0,9 (`WakeRamps.levels`) |
+
+**App-weiter Physikfehler dabei gefunden:** Generator und WAV-Export rechneten
+`sin(2π·f(t)·t)`. Die gehörte Frequenz ist aber die Ableitung der Phase,
+`f + t·f′`; bei jeder Modulation (BREATHING, SWEEP, PULSE, DYNAMIC) lief die
+Schwebung mit der Session-Zeit davon (10-Hz-SWEEP nach 20 Min.: ±950 Hz).
+Behoben durch Phasen-Akkumulatoren in `audio/ToneVoice.kt`, die Generator,
+Export und Hörprobe gemeinsam nutzen.
 
 ### 4.3 Lautstärkekurve
 

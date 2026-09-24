@@ -101,7 +101,7 @@ class WakeAlarmService : Service() {
             // Too late for a ramp (receiver ran very late): the wake stage will
             // still fire on time and play the alarm on its own.
             if (minutes == 0) return@launch
-            startSound(alarm, WakeRamps.ramp(alarm.rampKey, minutes), fadeMs = wakeAtMillis - now.toEpochMilli())
+            startSound(alarm, WakeRamps.ramp(alarm.rampKey, minutes), fadeMs = wakeAtMillis - now.toEpochMilli(), ringing = false)
         }
     }
 
@@ -117,27 +117,56 @@ class WakeAlarmService : Service() {
         handler.removeCallbacks(autoStop)
         handler.postDelayed(autoStop, AFTER_WAKE_MS)
         _ringing.value = true
-        chime.start()
 
-        scope.launch {
-            val alarm = loadAlarm(id) ?: return@launch
-            chime.volume = alarm.volume
-            if (alarm.vibrate) startVibration()
-        }
-
-        if (generator.isPlaying) {
-            // Ramp is running and ends in the long final phase: just make sure
-            // it is at full level from here on.
-            fadeTotalMs = 0L
-            generator.fadeScale = 1f
-            ambient.fadeScale = 1f
-            return
-        }
-        // No ramp ran (snooze, short notice, or the ramp alarm was lost):
-        // play the ramp's last band with a short fade-in.
+        // Settings first, sound second: the bowl used to strike once at the
+        // engine's default level before the alarm's own volume had loaded.
         scope.launch {
             val alarm = loadAlarm(id) ?: WakeAlarm(id = id, hour = 0, minute = 0)
-            startSound(alarm, emptyList(), fadeMs = NO_RAMP_FADE_MS)
+            val atWake = WakeRamps.levels(alarm.volume, alarm.ambientVolume, alarm.ambient != null, ringing = true)
+            if (generator.isPlaying) {
+                // The ramp ran and is at full ramp level: take the pulse and the
+                // ambient back to their wake levels so the bowl stands clear.
+                val ramp = WakeRamps.levels(alarm.volume, alarm.ambientVolume, alarm.ambient != null, ringing = false)
+                fadeTotalMs = 0L
+                duckTo(
+                    pulse = if (ramp.pulse > 0f) atWake.pulse / ramp.pulse else 0f,
+                    ambient = if (ramp.ambient > 0f) atWake.ambient / ramp.ambient else 0f
+                )
+            } else {
+                // No ramp ran (snooze, short notice, or the ramp alarm was lost):
+                // the last band at wake level, faded in over a minute.
+                startSound(alarm, emptyList(), fadeMs = NO_RAMP_FADE_MS, ringing = true)
+            }
+            chime.volume = atWake.chime
+            chime.start()
+            if (alarm.vibrate) startVibration()
+        }
+    }
+
+    // --- Stepping the ramp back at the wake time ---
+
+    private var duckStartedAt = 0L
+    private var duckFromPulse = 1f
+    private var duckFromAmbient = 1f
+    private var duckToPulse = 1f
+    private var duckToAmbient = 1f
+
+    private fun duckTo(pulse: Float, ambient: Float) {
+        duckFromPulse = generator.fadeScale
+        duckFromAmbient = this.ambient.fadeScale
+        duckToPulse = pulse
+        duckToAmbient = ambient
+        duckStartedAt = SystemClock.elapsedRealtime()
+        handler.removeCallbacks(duckTick)
+        handler.post(duckTick)
+    }
+
+    private val duckTick = object : Runnable {
+        override fun run() {
+            val x = ((SystemClock.elapsedRealtime() - duckStartedAt).toFloat() / DUCK_MS).coerceIn(0f, 1f)
+            generator.fadeScale = duckFromPulse + (duckToPulse - duckFromPulse) * x
+            ambient.fadeScale = duckFromAmbient + (duckToAmbient - duckFromAmbient) * x
+            if (x < 1f) handler.postDelayed(this, FADE_TICK_MS)
         }
     }
 
@@ -156,20 +185,27 @@ class WakeAlarmService : Service() {
 
     // --- Sound ---
 
-    private fun startSound(alarm: WakeAlarm, ramp: List<Phase>, fadeMs: Long) {
+    private fun startSound(alarm: WakeAlarm, ramp: List<Phase>, fadeMs: Long, ringing: Boolean) {
+        val levels = WakeRamps.levels(alarm.volume, alarm.ambientVolume, alarm.ambient != null, ringing)
         // After the ramp the last band keeps playing until the alarm is
         // stopped; the phase is simply long enough to outlast the auto-stop.
         val finalBand = (ramp.lastOrNull() ?: WakeRamps.ramp(alarm.rampKey, WakeSchedule.MIN_RAMP_MINUTES).last())
             .copy(durationMinutes = (AFTER_WAKE_MS / 60_000L).toInt() + 1)
+        val phases = ramp + finalBand
         generator.start(
-            ramp + finalBand,
-            vol = alarm.volume,
+            phases,
+            carrier = WakeRamps.CARRIER_HZ,
+            vol = levels.pulse,
             noiseVol = 0f,
+            // No dips at the phase seams: the bands glide into each other.
+            transitionMs = 0,
             usage = PlaybackUsage.ALARM,
-            initialFade = 0f
+            initialFade = 0f,
+            pulseDepth = WakeRamps.PULSE_DEPTH,
+            beatFrequencyAt = { seconds -> WakeRamps.frequencyAt(phases, seconds) }
         )
         alarm.ambient?.let { sound ->
-            ambient.setVolume(sound, alarm.ambientVolume)
+            ambient.setVolume(sound, levels.ambient)
             ambient.start(usage = PlaybackUsage.ALARM, initialFade = 0f)
         }
         fadeStartedAt = SystemClock.elapsedRealtime()
@@ -191,6 +227,7 @@ class WakeAlarmService : Service() {
 
     private fun stopSound() {
         handler.removeCallbacks(fadeTick)
+        handler.removeCallbacks(duckTick)
         handler.removeCallbacks(autoStop)
         generator.stop()
         ambient.stop()
@@ -352,6 +389,7 @@ class WakeAlarmService : Service() {
         private const val AFTER_WAKE_MS = WakeSchedule.AUTO_STOP_MINUTES * 60_000L
         private const val NO_RAMP_FADE_MS = 60_000L
         private const val FADE_TICK_MS = 250L
+        private const val DUCK_MS = 10_000L
         private const val MAX_WAKE_LOCK_MS = 60 * 60_000L
     }
 }

@@ -9,15 +9,12 @@ import de.binauralbeats.app.data.BackgroundNoise
 import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.RhythmPulse
-import de.binauralbeats.app.data.ToneType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.math.PI
-import kotlin.math.sin
 import kotlin.random.Random
 
 class WavExporter {
@@ -57,6 +54,8 @@ class WavExporter {
             // the sound that was heard rather than a second implementation of it.
             val rhythmScheduler = PulseScheduler(sampleRate)
             val rhythmVoice = ClickVoice(sampleRate)
+            val toneVoice = ToneVoice(sampleRate)
+            val tone = FloatArray(2)
 
             for (phaseIdx in phases.indices) {
                 val phase = phases[phaseIdx]
@@ -64,26 +63,13 @@ class WavExporter {
                 val phaseSamples = (phaseDurationSec * sampleRate).toLong()
 
                 for (i in 0 until phaseSamples) {
-                    val t = (sampleCounter + i).toDouble() / sampleRate
                     val phaseT = i.toDouble() / sampleRate
 
                     val beatFreq = applyModulation(phase.frequency, phase.modulation, phaseT, phaseDurationSec)
 
-                    var leftSample: Float
-                    var rightSample: Float
-
-                    when (phase.toneType) {
-                        ToneType.BINAURAL -> {
-                            leftSample = sin(2 * PI * carrier * t).toFloat()
-                            rightSample = sin(2 * PI * (carrier + beatFreq) * t).toFloat()
-                        }
-                        ToneType.ISOCHRONIC -> {
-                            val tone = sin(2 * PI * carrier * t).toFloat()
-                            val pulse = if (sin(2 * PI * beatFreq * t) > 0) 1f else 0f
-                            leftSample = tone * pulse
-                            rightSample = leftSample
-                        }
-                    }
+                    toneVoice.next(carrier.toDouble(), beatFreq.toDouble(), phase.toneType, 1.0, tone)
+                    var leftSample = tone[0]
+                    var rightSample = tone[1]
 
                     when (phase.background) {
                         BackgroundNoise.PINK -> {

@@ -7,10 +7,7 @@ import de.binauralbeats.app.R
 import de.binauralbeats.app.data.BackgroundNoise
 import de.binauralbeats.app.data.ModulationType
 import de.binauralbeats.app.data.Phase
-import de.binauralbeats.app.data.ToneType
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.sin
 import kotlin.random.Random
 
 class BinauralGenerator(
@@ -58,7 +55,15 @@ class BinauralGenerator(
         noiseVol: Float = 0.15f,
         transitionMs: Int = 500,
         usage: PlaybackUsage = PlaybackUsage.MEDIA,
-        initialFade: Float = 1f
+        initialFade: Float = 1f,
+        /** How far isochronic pulses drop between beats; 1 = fully off. */
+        pulseDepth: Float = 1f,
+        /**
+         * Beat frequency by seconds since start, overriding the phases' own
+         * frequency and modulation. The wake ramp uses it to glide between
+         * bands instead of stepping.
+         */
+        beatFrequencyAt: ((Double) -> Double)? = null
     ) {
         stop()
         isPlaying = true
@@ -87,7 +92,7 @@ class BinauralGenerator(
         // The thread gets its own track instead of reading the field: after a
         // restart the field already points at the next session's track.
         generatorThread = Thread {
-            generateAudio(track, phases, carrier, vol, noiseVol, transitionMs)
+            generateAudio(track, phases, carrier, vol, noiseVol, transitionMs, pulseDepth, beatFrequencyAt)
         }.apply {
             priority = Thread.MAX_PRIORITY
             isDaemon = true
@@ -129,8 +134,12 @@ class BinauralGenerator(
         carrier: Float,
         vol: Float,
         noiseVol: Float,
-        transitionMs: Int
+        transitionMs: Int,
+        pulseDepth: Float,
+        beatFrequencyAt: ((Double) -> Double)?
     ) {
+        val voice = ToneVoice(sampleRate)
+        val tone = FloatArray(2)
         val totalDurationSec = phases.sumOf { it.durationMinutes } * 60.0
         val samplesPerBuffer = bufferSize / 4
         val buffer = ShortArray(samplesPerBuffer * 2)
@@ -175,26 +184,14 @@ class BinauralGenerator(
                 ).toInt()
 
                 for (i in 0 until samplesToGenerate) {
-                    val t = (sampleCounter + i).toDouble() / sampleRate
                     val phaseT = (phaseSampleCount + i).toDouble() / sampleRate
 
-                    val beatFreq = applyModulation(phase.frequency, phase.modulation, phaseT, phaseDurationSec)
+                    val beatFreq = beatFrequencyAt?.invoke((sampleCounter + i).toDouble() / sampleRate)
+                        ?: applyModulation(phase.frequency, phase.modulation, phaseT, phaseDurationSec).toDouble()
 
-                    var leftSample: Float
-                    var rightSample: Float
-
-                    when (phase.toneType) {
-                        ToneType.BINAURAL -> {
-                            leftSample = sin(2 * PI * carrier * t).toFloat()
-                            rightSample = sin(2 * PI * (carrier + beatFreq) * t).toFloat()
-                        }
-                        ToneType.ISOCHRONIC -> {
-                            val tone = sin(2 * PI * carrier * t).toFloat()
-                            val pulse = if (sin(2 * PI * beatFreq * t) > 0) 1f else 0f
-                            leftSample = tone * pulse
-                            rightSample = leftSample
-                        }
-                    }
+                    voice.next(carrier.toDouble(), beatFreq, phase.toneType, pulseDepth.toDouble(), tone)
+                    var leftSample = tone[0]
+                    var rightSample = tone[1]
 
                     when (phase.background) {
                         BackgroundNoise.PINK -> {

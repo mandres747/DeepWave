@@ -13,19 +13,22 @@ import kotlin.math.sin
  *   Tibetan-style bowls) instead of the 1 : 2 : 3 of a string or a pipe;
  * - the higher a partial, the sooner it dies, so the strike starts bright
  *   and settles into a low hum;
- * - each partial is two sines a fraction of a hertz apart, which gives the
- *   slow wobble ("beating") a real bowl has because it is never perfectly
- *   round.
+ * - each partial carries a quieter second sine a fraction of a hertz
+ *   away, which gives the slow shimmer ("beating") a real bowl has because
+ *   it is never perfectly round.
  */
 class ChimeVoice(private val sampleRate: Int, private val fundamental: Double = FUNDAMENTAL_HZ) {
 
     private class Partial(val ratio: Double, val gain: Double, val decayPerSecond: Double, val beatHz: Double)
 
+    // Upper partials are quieter than on a real bowl: at C5 they land at
+    // 1.4, 2.7 and 4.3 kHz, where a phone speaker is most efficient, and at
+    // the old gains the strike sounded thin and metallic.
     private val partials = listOf(
         Partial(1.00, 1.00, 0.22, 0.35),
-        Partial(2.71, 0.55, 0.45, 0.80),
-        Partial(5.12, 0.28, 0.95, 1.30),
-        Partial(8.18, 0.12, 1.90, 2.10)
+        Partial(2.71, 0.45, 0.45, 0.80),
+        Partial(5.12, 0.20, 0.95, 1.30),
+        Partial(8.18, 0.08, 1.90, 2.10)
     )
 
     // Sum of the partial gains; dividing by it keeps a fresh strike within ±1.
@@ -56,7 +59,10 @@ class ChimeVoice(private val sampleRate: Int, private val fundamental: Double = 
             val env = p.gain * exp(-t * p.decayPerSecond)
             loudest = maxOf(loudest, env)
             val f = fundamental * p.ratio
-            sum += env * 0.5 * (sin(2 * PI * f * t) + sin(2 * PI * (f + p.beatHz) * t))
+            // The beating partner is at 30 %: two equal sines cancel to silence
+            // on every beat, an on/off tremolo; at 30 % the level swings by
+            // about 5 dB, the slow shimmer of a real bowl.
+            sum += env * (sin(2 * PI * f * t) + BEAT_PARTNER * sin(2 * PI * (f + p.beatHz) * t)) / (1 + BEAT_PARTNER)
         }
         if (loudest < SILENCE) {
             age = -1
@@ -67,8 +73,13 @@ class ChimeVoice(private val sampleRate: Int, private val fundamental: Double = 
     }
 
     companion object {
-        /** Low enough to sound warm, high enough for a phone speaker to carry. */
-        const val FUNDAMENTAL_HZ = 262.0
+        /**
+         * C5. The first choice, 262 Hz, is below what a phone speaker gives
+         * off; only the thin upper partials came through. C5 carries and sits
+         * a pure fourth above the ramp's G4 carrier (WakeRamps.CARRIER_HZ).
+         */
+        const val FUNDAMENTAL_HZ = 523.25
+        private const val BEAT_PARTNER = 0.3
         private const val ATTACK_SECONDS = 0.004
         private const val SILENCE = 0.001
     }
