@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.BinauralBeats.V31" parent="Base.Theme.BinauralBeats.V30">
+        <!-- System splash (Android 12+): plum ground behind the wave icon instead of black. -->
+        <item name="android:windowSplashScreenBackground">#FF1D0E1D</item>
+    </style>
+
+    <style name="Theme.BinauralBeats" parent="Base.Theme.BinauralBeats.V31" />
+</resources>

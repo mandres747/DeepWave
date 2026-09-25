@@ -77,6 +77,7 @@ import java.time.Duration
 import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
+import de.binauralbeats.app.ui.theme.TitleFont
 
 /**
  * The wake-alarm add-on's sheet: a list of alarms with an editor dialog, or -
@@ -101,7 +102,7 @@ fun WakeAlarmSheet(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = colors.surfaceDark.copy(alpha = 0.97f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
             modifier = Modifier
@@ -116,10 +117,9 @@ fun WakeAlarmSheet(
             ) {
                 Text(
                     stringResource(R.string.wake_header),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (owned) {
@@ -264,7 +264,7 @@ private fun WakeLockedCard(
     val colors = LocalBinauralColors.current
     Surface(
         color = colors.accentPrimary.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -291,7 +291,7 @@ private fun WakeLockedCard(
             Button(
                 onClick = onPurchase,
                 modifier = Modifier.fillMaxWidth().height(46.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colors.accentPrimary,
                     contentColor = colors.onAccent
@@ -317,18 +317,18 @@ private fun WakeLockedCard(
 private fun PermissionCard(text: String, onFix: () -> Unit) {
     val colors = LocalBinauralColors.current
     Surface(
-        color = colors.accentSecondary.copy(alpha = 0.12f),
-        shape = RoundedCornerShape(12.dp),
+        color = colors.warning.copy(alpha = 0.12f),
+        shape = RoundedCornerShape(18.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.WarningAmber, null, tint = colors.accentSecondary, modifier = Modifier.size(20.dp))
+            Icon(Icons.Default.WarningAmber, null, tint = colors.warning, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
             Text(text, fontSize = 12.sp, color = colors.onSurface, lineHeight = 17.sp, modifier = Modifier.weight(1f))
-            TextButton(onClick = onFix) { Text(stringResource(R.string.wake_fix), color = colors.accentSecondary) }
+            TextButton(onClick = onFix) { Text(stringResource(R.string.wake_fix), color = colors.warning) }
         }
     }
 }
@@ -344,7 +344,7 @@ private fun AlarmRow(
     val dim = if (alarm.enabled) 1f else 0.5f
     Surface(
         color = colors.overlay.copy(alpha = 0.05f),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
     ) {
         Row(
@@ -355,7 +355,7 @@ private fun AlarmRow(
                 Text(
                     formatTime(alarm.hour, alarm.minute),
                     fontSize = 32.sp,
-                    fontWeight = FontWeight.Light,
+                    fontFamily = TitleFont,
                     color = colors.onSurface.copy(alpha = dim)
                 )
                 Text(
@@ -368,7 +368,7 @@ private fun AlarmRow(
                     Text(
                         stringResource(R.string.wake_waiting_permission),
                         fontSize = 11.sp,
-                        color = colors.accentSecondary
+                        color = colors.warning
                     )
                 }
             }
@@ -425,10 +425,9 @@ private fun AlarmEditor(
                 ) {
                     Text(
                         stringResource(R.string.wake_edit_title),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
                         color = colors.accentPrimary,
-                        letterSpacing = 2.sp
+                        fontFamily = TitleFont
                     )
                     Spacer(Modifier.height(12.dp))
                     TimePicker(
@@ -601,7 +600,7 @@ private fun Chip(label: String, selected: Boolean, modifier: Modifier = Modifier
     Surface(
         onClick = onClick,
         color = if (selected) colors.accentPrimary.copy(alpha = 0.15f) else colors.overlay.copy(alpha = 0.06f),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         modifier = modifier
     ) {
         Row(
@@ -703,7 +702,7 @@ fun SleepTimerWakeRow(vm: WakeAlarmViewModel, onOpenWakeSheet: () -> Unit) {
 
     Surface(
         color = colors.accentPrimary.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(

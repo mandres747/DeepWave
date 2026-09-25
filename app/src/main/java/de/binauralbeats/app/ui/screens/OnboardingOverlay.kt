@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import kotlinx.coroutines.launch
+import de.binauralbeats.app.ui.theme.TitleFont
 
 private data class OnboardingPage(
     val icon: ImageVector,
@@ -148,7 +149,7 @@ fun OnboardingOverlay(onFinish: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colors.accentPrimary,
                     contentColor = colors.onAccent
@@ -194,7 +195,7 @@ private fun OnboardingPageContent(page: OnboardingPage) {
         Text(
             stringResource(page.titleRes),
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = TitleFont,
             color = colors.onSurface,
             textAlign = TextAlign.Center
         )

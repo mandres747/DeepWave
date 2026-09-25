@@ -19,7 +19,7 @@
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="stop">Stop</string>
-    <string name="presets_header">PRESETS</string>
+    <string name="presets_header">Presets</string>
     <string name="custom_presets">Custom Presets</string>
     <string name="custom_session">Custom Session</string>
     <string name="phase_info">Phase %1$d/%2$d</string>
@@ -44,8 +44,11 @@
     <string name="export_file_error">Could not create file</string>
 
     <!-- Phase Editor -->
-    <string name="phases_header">PHASES</string>
-    <string name="phases_info">%1$d phases · %2$d min</string>
+    <string name="phases_header">Phases</string>
+    <plurals name="phases_info">
+        <item quantity="one">%1$d phase · %2$d min</item>
+        <item quantity="other">%1$d phases · %2$d min</item>
+    </plurals>
     <string name="add_phase">Add Phase</string>
     <string name="save_as_preset">Save as Preset</string>
     <string name="save_preset_title">Save Preset</string>
@@ -56,10 +59,10 @@
     <string name="duration_label">Duration</string>
     <string name="modulation_label">Modulation</string>
     <string name="background_label">Background</string>
-    <string name="tone_type_label">Tone Type</string>
+    <string name="tone_type_label">Sound type</string>
 
     <!-- Breathing Guide -->
-    <string name="breathing_header">BREATHING GUIDE</string>
+    <string name="breathing_header">Breathing guide</string>
     <plurals name="breathing_cycles">
         <item quantity="one">%1$d cycle</item>
         <item quantity="other">%1$d cycles</item>
@@ -74,11 +77,17 @@
 
     <!-- Journal -->
     <string name="rate_session">Rate Session</string>
-    <string name="stars_desc">%1$d stars</string>
+    <plurals name="stars_desc">
+        <item quantity="one">%1$d star</item>
+        <item quantity="other">%1$d stars</item>
+    </plurals>
     <string name="mood_label">Mood:</string>
     <string name="notes_label">Notes</string>
-    <string name="journal_header">SESSION JOURNAL</string>
-    <string name="journal_entries">%1$d entries</string>
+    <string name="journal_header">Session journal</string>
+    <plurals name="journal_entries">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
     <string name="journal_empty">No sessions recorded yet.\nStart a session and rate it afterwards.</string>
     <string name="stat_sessions">Sessions</string>
     <string name="stat_total">Total</string>
@@ -165,24 +174,27 @@
     <string name="preset_sleep_30d_w2">Sleep Reset Week 2</string>
     <string name="preset_sleep_30d_w3">Sleep Reset Week 3</string>
     <string name="preset_sleep_30d_w4">Sleep Reset Week 4</string>
-    <string name="preset_adhd_focus">ADHD Deep Work</string>
-    <string name="preset_adhd_calm">ADHD Calming</string>
+    <string name="preset_adhd_focus">Intense Deep Work</string>
+    <string name="preset_adhd_calm">Inner Calm</string>
     <string name="preset_exam_cram">Exam Marathon</string>
     <string name="preset_writer_flow">Writer\'s Flow</string>
     <string name="preset_tinnitus">Soft Noise</string>
     <string name="preset_migraine">Quiet Mind</string>
     <string name="preset_ptsd_calm">Deep Calm</string>
-    <string name="preset_jet_lag">Jetlag Reset</string>
-    <string name="premium_presets_header">PREMIUM</string>
+    <string name="preset_jet_lag">Jet Lag Reset</string>
+    <string name="premium_presets_header">Premium</string>
 
     <!-- Statistics -->
-    <string name="stats_header">STATISTICS</string>
+    <string name="stats_header">Statistics</string>
     <string name="stats_total_sessions">Total Sessions</string>
     <string name="stats_total_time">Total Time</string>
     <string name="stats_avg_rating">Average</string>
     <string name="stats_current_streak">Current Streak</string>
     <string name="stats_best_streak">Best Streak</string>
-    <string name="stats_days">days</string>
+    <plurals name="stats_days_count">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
     <string name="stats_this_week">This Week</string>
     <string name="stats_top_presets">Top Presets</string>
     <string name="stats_no_data">No sessions yet. Start a session and rate it.</string>
@@ -192,7 +204,7 @@
     <string name="preset_limit_reached">Max. %1$d custom presets reached. Delete one or upgrade to Premium.</string>
 
     <!-- Settings -->
-    <string name="settings_header">SETTINGS</string>
+    <string name="settings_header">Settings</string>
     <string name="settings_language">Language</string>
     <string name="settings_theme">Theme</string>
     <string name="lang_system">System</string>
@@ -206,9 +218,9 @@
     <string name="guide_eyes_close">Close your eyes. Relax your body.</string>
     <string name="guide_thoughts">Let thoughts drift by like clouds.</string>
     <string name="guide_theta">Theta zone: Observe hypnagogic images.</string>
-    <string name="guide_gamma_trigger">Gamma trigger: "I am awake in the dream."</string>
+    <string name="guide_gamma_trigger">Gamma trigger: “I am awake in the dream.”</string>
     <string name="guide_awareness">Maintain awareness, let go of the body.</string>
-    <string name="guide_wbtb_intent">Set intention: "I will become aware in the dream."</string>
+    <string name="guide_wbtb_intent">Set intention: “I will become aware in the dream.”</string>
     <string name="guide_deep_cycle1">Deep sleep cycle 1.</string>
     <string name="guide_deep_cycle2">Deep sleep cycle 2.</string>
     <string name="guide_rem_prep">REM preparation.</string>
@@ -217,19 +229,19 @@
     <string name="guide_wake_journal">Gentle awakening. Write your dream journal!</string>
     <string name="guide_pmr">Progressive muscle relaxation.</string>
     <string name="guide_theta_body">Theta transition. Body becomes heavy.</string>
-    <string name="guide_mind_awake">"Mind Awake, Body Asleep."</string>
-    <string name="guide_vibrations">When vibrations occur: visualize "rolling upward."</string>
+    <string name="guide_mind_awake">“Mind Awake, Body Asleep.”</string>
+    <string name="guide_vibrations">When vibrations occur: visualize “rolling upward.”</string>
     <string name="guide_return">Return. Move fingers and toes.</string>
     <string name="guide_solf_396">396 Hz: Liberation from guilt and fear.</string>
     <string name="guide_solf_528">528 Hz: The frequency of love.</string>
     <string name="guide_solf_639">639 Hz: Harmonious relationships.</string>
     <string name="guide_solf_741">741 Hz: Self-expression and clarity.</string>
     <string name="guide_solf_852">852 Hz: Return to spiritual order.</string>
-    <string name="guide_solf_963">963 Hz: Connection with the Higher.</string>
+    <string name="guide_solf_963">963 Hz: Quiet contemplation.</string>
 
     <!-- Ambient mixer & sleep timer -->
     <string name="notif_ambient">Ambient sounds playing…</string>
-    <string name="mixer_header">AMBIENT SOUNDS</string>
+    <string name="mixer_header">Ambient sounds</string>
     <string name="mixer_open">Open ambient sounds and sleep timer</string>
     <string name="mixer_hint">Runs independently of the session – can also be combined. The sleep timer fades everything out gently.</string>
     <string name="sleep_timer">Sleep timer</string>
@@ -249,18 +261,18 @@
 
     <!-- Onboarding (first-launch walkthrough) -->
     <string name="onboarding_1_title">Welcome to DeepWave</string>
-    <string name="onboarding_1_body">DeepWave plays two slightly different tones - one per ear. Your brain hears the difference as a rhythm and follows it. Headphones are what make it work.</string>
+    <string name="onboarding_1_body">DeepWave plays two slightly different tones – one per ear. Your brain hears the difference as a rhythm and follows it. It works best with headphones.</string>
     <string name="onboarding_2_title">Sessions on your own arc</string>
     <string name="onboarding_2_body">Pick a preset or build your own session: every phase with its own frequency and length. The curve at the top shows the whole arc.</string>
-    <string name="onboarding_3_title">Ambient sounds and sleep timer</string>
+    <string name="onboarding_3_title">Ambient sounds and sleep timer (Premium)</string>
     <string name="onboarding_3_body">Rain, ocean or campfire run alongside your session. The sleep timer fades everything out gently at the end.</string>
     <string name="onboarding_4_title">Journal and statistics</string>
-    <string name="onboarding_4_body">Rate your sessions and see over time what actually works for you. Everything stays offline on your device.</string>
+    <string name="onboarding_4_body">Rate your sessions and see over time what actually works for you. Statistics are part of Premium. Everything stays offline on your device.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>
 
     <!-- App rating -->
-    <string name="settings_feedback">FEEDBACK</string>
+    <string name="settings_feedback">Feedback</string>
     <string name="rate_app">Rate app</string>
     <string name="rate_app_desc">Leave a review on the Play Store</string>
     <string name="review_prompt_title">Enjoying DeepWave?</string>
@@ -270,7 +282,7 @@
 
     <!-- Rhythm layer -->
     <string name="notif_rhythm">Rhythm running…</string>
-    <string name="rhythm_header">RHYTHM</string>
+    <string name="rhythm_header">Rhythm</string>
     <string name="rhythm_open">Open the rhythm track</string>
     <string name="rhythm_hint">An audible beat, independent of the session. For walking meditation, breath pacing or steady movement. The sleep timer fades it out too.</string>
     <string name="rhythm_mode">Mode</string>
@@ -284,7 +296,7 @@
     <string name="rhythm_volume">Volume</string>
     <string name="rhythm_start">Start rhythm</string>
     <string name="rhythm_stop">Stop rhythm</string>
-    <string name="rhythm_breath_hint">One cue per breath phase - in step with the breathing guide below.</string>
+    <string name="rhythm_breath_hint">One cue per breath phase – in step with the breathing guide below.</string>
 
     <!-- Rhythm layer: purchase -->
     <string name="rhythm_locked_title">Unlock the rhythm track</string>
@@ -306,7 +318,10 @@
     <string name="rhythm_step_remove">Remove step</string>
     <string name="rhythm_less">Less</string>
     <string name="rhythm_more">More</string>
-    <string name="rhythm_program_total">%1$d steps · %2$d min</string>
+    <plurals name="rhythm_program_total">
+        <item quantity="one">%1$d step · %2$d min</item>
+        <item quantity="other">%1$d steps · %2$d min</item>
+    </plurals>
     <string name="rhythm_program_running">Running: %1$d BPM · %2$s left</string>
     <string name="rhythm_start_program">Start program</string>
     <string name="rhythm_stop_program">Stop program</string>
@@ -332,10 +347,10 @@
     <string name="wake_swipe_to_stop">Swipe to stop</string>
     <!-- Sound alarm: sheet and editor -->
     <string name="wake_open">Open sound alarm</string>
-    <string name="wake_header">SOUND ALARM</string>
+    <string name="wake_header">Sound alarm</string>
     <string name="wake_hint">Wakes you with a frequency ramp that leads you out of sleep – from theta through alpha to beta, slowly getting louder, with a singing bowl at the wake time. Works without headphones.</string>
     <string name="wake_locked_title">Unlock sound alarm</string>
-    <string name="wake_locked_body">Multiple alarms with weekdays, three wake-up ramps, fading ambient sound and a full-screen alarm over the lock screen. One-time purchase, no subscription, works offline.</string>
+    <string name="wake_locked_body">Multiple alarms on chosen days, three wake-up ramps, an ambient fade-in and a full-screen alarm over the lock screen. One-time purchase, no subscription, works offline.</string>
     <string name="wake_unlock">Unlock</string>
     <string name="wake_unlock_price">Unlock – %1$s</string>
     <string name="wake_restore">Restore purchase</string>
@@ -346,8 +361,8 @@
     <string name="wake_add">Add alarm</string>
     <string name="wake_edit_title">Alarm</string>
     <string name="wake_time">Wake time</string>
-    <string name="wake_days">Weekdays</string>
-    <string name="wake_days_none_hint">Without a weekday the alarm rings once and then switches itself off.</string>
+    <string name="wake_days">Days</string>
+    <string name="wake_days_none_hint">With no day selected, the alarm rings once and then switches itself off.</string>
     <string name="wake_ramp">Wake-up ramp</string>
     <string name="wake_ramp_gentle">Gentle</string>
     <string name="wake_ramp_fresh">Fresh</string>
@@ -375,7 +390,7 @@
     <string name="sleep_wake_teaser">Wake gently tomorrow → Sound alarm</string>
     <string name="settings_version">Version %1$s (%2$d)</string>
     <!-- Premium (free download since 1.4.0) -->
-    <string name="premium_header">DEEPWAVE PREMIUM</string>
+    <string name="premium_header">DeepWave Premium</string>
     <string name="premium_intro">Unlock once, keep it forever – no subscription, no ads, no account.</string>
     <string name="premium_feature_presets">Premium presets for sleep, focus and relaxation</string>
     <string name="premium_feature_mixer">Ambient mixer with 8 sounds and sleep timer</string>
@@ -386,7 +401,7 @@
     <string name="premium_unlock_price">Unlock Premium – %1$s</string>
     <string name="premium_thanks">Thank you! Unlocked.</string>
     <string name="premium_active">Premium is unlocked.</string>
-    <string name="premium_promise">One-time purchase through Google Play, valid on all your devices with the same account.</string>
+    <string name="premium_promise">One-time purchase through Google Play, valid on all your devices with the same Google account.</string>
     <string name="premium_locked">Premium</string>
     <string name="bundle_title">Complete bundle</string>
     <string name="bundle_body">Premium, rhythm track and sound alarm together – cheaper than separately.</string>

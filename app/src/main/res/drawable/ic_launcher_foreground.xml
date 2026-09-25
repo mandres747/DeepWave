@@ -1,61 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Two tones, left and right ear, mirrored so that together they draw the
+     beat's envelope. Kept inside the 66 dp safe zone (x 24..84, y 29..79). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Outer halo arch -->
-    <path
-        android:pathData="M16,66 C16,34 32,20 54,20 C76,20 92,34 92,66"
-        android:strokeColor="#A8E6CF"
-        android:strokeWidth="4"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0.2"
-        android:fillColor="#00000000" />
-
-    <!-- Main headphone arch -->
-    <path
-        android:pathData="M20,66 C20,38 36,24 54,24 C72,24 88,38 88,66"
-        android:strokeColor="#A8E6CF"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:fillColor="#00000000" />
-
-    <!-- Arc 1: r=12 -->
-    <path
-        android:pathData="M42,54 A12,12 0 0,0 66,54"
-        android:strokeColor="#A8E6CF"
-        android:strokeWidth="2.5"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0.7"
-        android:fillColor="#00000000" />
-
-    <!-- Arc 2: r=22 -->
-    <path
-        android:pathData="M32,54 A22,22 0 0,0 76,54"
-        android:strokeColor="#A8E6CF"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0.45"
-        android:fillColor="#00000000" />
-
-    <!-- Arc 3: r=34 -->
-    <path
-        android:pathData="M20,54 A34,34 0 0,0 88,54"
-        android:strokeColor="#A8E6CF"
-        android:strokeWidth="1.2"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0.25"
-        android:fillColor="#00000000" />
-
-    <!-- Left ear cup (capsule: x=12 y=58 w=14 h=30 rx=7) -->
-    <path
-        android:pathData="M12,65 A7,7 0 0,1 26,65 L26,81 A7,7 0 0,1 12,81 Z"
-        android:fillColor="#A8E6CF" />
-
-    <!-- Right ear cup (capsule: x=82 y=58 w=14 h=30 rx=7) -->
-    <path
-        android:pathData="M82,65 A7,7 0 0,1 96,65 L96,81 A7,7 0 0,1 82,81 Z"
-        android:fillColor="#A8E6CF" />
+    <path android:pathData="M24,54 C31.2,68.6667 36.8,68.6667 44,54 C51.2,28.6667 56.8,28.6667 64,54 C71.2,68.6667 76.8,68.6667 84,54" android:strokeColor="#F1E9F4" android:strokeAlpha="0.85"
+        android:strokeWidth="3.5" android:strokeLineCap="round" android:fillColor="#00000000" />
+    <path android:pathData="M24,54 C31.2,39.3333 36.8,39.3333 44,54 C51.2,79.3333 56.8,79.3333 64,54 C71.2,39.3333 76.8,39.3333 84,54" android:strokeColor="#E07BDE"
+        android:strokeWidth="5.5" android:strokeLineCap="round" android:fillColor="#00000000" />
 </vector>

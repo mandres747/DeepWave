@@ -34,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import de.binauralbeats.app.data.RhythmPattern
 import de.binauralbeats.app.data.RhythmStep
 import de.binauralbeats.app.ui.components.BreathingPattern
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
+import de.binauralbeats.app.ui.theme.TitleFont
 
 /**
  * Controls for the audible tempo track. Three modes share one engine: a fixed
@@ -85,7 +87,7 @@ fun RhythmSheet(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = colors.surfaceDark.copy(alpha = 0.97f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
             modifier = Modifier
@@ -100,10 +102,9 @@ fun RhythmSheet(
             ) {
                 Text(
                     stringResource(R.string.rhythm_header),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
@@ -205,7 +206,7 @@ fun RhythmSheet(
                     Surface(
                         onClick = onStepAdd,
                         color = colors.overlay.copy(alpha = 0.06f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -245,8 +246,9 @@ fun RhythmSheet(
                             R.string.rhythm_program_running,
                             currentStep.bpm,
                             formatRemaining(remainingSeconds)
-                        ) else stringResource(
-                            R.string.rhythm_program_total,
+                        ) else pluralStringResource(
+                            R.plurals.rhythm_program_total,
+                            steps.size,
                             steps.size,
                             steps.sumOf { it.durationMinutes }
                         ),
@@ -301,7 +303,7 @@ fun RhythmSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colors.accentPrimary,
                     contentColor = colors.onAccent
@@ -346,7 +348,7 @@ private fun RhythmLockedCard(
 
     Surface(
         color = colors.accentPrimary.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -369,7 +371,7 @@ private fun RhythmLockedCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(46.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colors.accentPrimary,
                     contentColor = colors.onAccent
@@ -412,7 +414,7 @@ private fun RhythmStepRow(
     Surface(
         color = if (isCurrent) colors.accentPrimary.copy(alpha = 0.14f)
         else colors.overlay.copy(alpha = 0.05f),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -512,7 +514,7 @@ private fun <T> RhythmChipRow(
                 onClick = { onSelect(value) },
                 color = if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
                 else colors.overlay.copy(alpha = 0.06f),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.weight(1f)
             ) {
                 Row(

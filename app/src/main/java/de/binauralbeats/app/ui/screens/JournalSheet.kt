@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
@@ -31,6 +32,7 @@ import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import de.binauralbeats.app.ui.theme.TitleFont
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -63,7 +65,7 @@ fun RatingDialog(
                         IconButton(onClick = { rating = star }) {
                             Icon(
                                 if (star <= rating) Icons.Default.Star else Icons.Default.StarBorder,
-                                contentDescription = stringResource(R.string.stars_desc, star),
+                                contentDescription = pluralStringResource(R.plurals.stars_desc, star, star),
                                 tint = if (star <= rating) Color(0xFFFFD700) else colors.onSurface.copy(0.3f),
                                 modifier = Modifier.size(36.dp)
                             )
@@ -90,7 +92,7 @@ fun RatingDialog(
                                 else selectedMoods + mood.key
                             },
                             color = chipColor,
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(24.dp),
                             border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
                                 brush = Brush.linearGradient(listOf(borderColor, borderColor))
                             )
@@ -168,13 +170,12 @@ fun JournalOverlay(
                 Column {
                     Text(
                         stringResource(R.string.journal_header),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
                         color = colors.accentPrimary,
-                        letterSpacing = 2.sp
+                        fontFamily = TitleFont
                     )
                     Text(
-                        stringResource(R.string.journal_entries, entries.size),
+                        pluralStringResource(R.plurals.journal_entries, entries.size, entries.size),
                         fontSize = 11.sp,
                         color = colors.onSurfaceMuted
                     )
@@ -214,7 +215,7 @@ fun JournalOverlay(
 
                 Surface(
                     color = colors.overlay.copy(0.04f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(18.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -282,7 +283,7 @@ private fun JournalEntryCard(
 
     Surface(
         color = colors.overlay.copy(0.04f),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(18.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -327,7 +328,7 @@ private fun JournalEntryCard(
                         val mood = Moods.findByKey(moodKey)
                         Surface(
                             color = colors.accentPrimary.copy(0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(18.dp)
                         ) {
                             Text(
                                 if (mood != null) "${mood.emoji} ${stringResource(mood.labelRes)}" else moodKey,

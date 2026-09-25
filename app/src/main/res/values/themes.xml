@@ -7,7 +7,7 @@
          LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES, which Play flags as
          deprecated on every release (still true in activity 1.13.0). -->
     <style name="Base.Theme.BinauralBeats" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">#FF0F1F3D</item>
+        <item name="android:windowBackground">#FF1D0E1D</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Below Android 10 the system draws no scrim behind the buttons, so
              the bar keeps the dark scrim enableEdgeToEdge() used there. -->

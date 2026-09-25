@@ -1,5 +1,10 @@
 package de.binauralbeats.app.ui.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.draw.drawBehind
 import de.binauralbeats.app.ui.WakeAlarmViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -58,6 +63,7 @@ import de.binauralbeats.app.ui.components.BreathingGuide
 import de.binauralbeats.app.ui.components.FrequencyCurve
 import de.binauralbeats.app.ui.components.WaveformVisualizer
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
+import de.binauralbeats.app.ui.theme.TitleFont
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,8 +107,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         stringResource(R.string.app_name),
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        fontFamily = TitleFont,
                         color = colors.onSurface
                     )
                     Text(
@@ -120,7 +126,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(
                         color = colors.accentPrimary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -140,21 +146,25 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     Surface(
                         onClick = { viewModel.showJournal = true },
                         color = colors.accentPrimary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.weight(1f)
                     ) {
+                        // Six buttons share one row, about 50 dp each on a phone:
+                        // with the 12 dp padding a two-digit count wrapped to two lines.
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)
                         ) {
                             Icon(Icons.Default.Book, null, tint = colors.accentPrimary, modifier = Modifier.size(20.dp))
                             if (journalEntries.isNotEmpty()) {
                                 Text(
-                                    "${journalEntries.size}",
+                                    if (journalEntries.size > 99) "99+" else "${journalEntries.size}",
                                     fontSize = 12.sp,
                                     color = colors.accentPrimary,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    softWrap = false
                                 )
                             }
                         }
@@ -164,7 +174,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { if (viewModel.requirePremium()) viewModel.showStatistics = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(18.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
@@ -178,7 +188,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { if (viewModel.requirePremium()) viewModel.showMixer = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(18.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
@@ -200,7 +210,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { wakeVm.showSheet = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(18.dp),
                             // Wider than its neighbours while it shows a time, with less
                             // side padding: at 115 % font size "07:00" was cut to "07:0"
                             // on a 360 dp phone (Galaxy A54, 24.09.).
@@ -237,7 +247,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                         Surface(
                             onClick = { viewModel.showRhythm = true },
                             color = colors.accentPrimary.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(18.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Box(modifier = Modifier.padding(12.dp)) {
@@ -255,7 +265,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     Surface(
                         onClick = { viewModel.showSettings = true },
                         color = colors.accentPrimary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.weight(1f)
                     ) {
                         Box(modifier = Modifier.padding(12.dp)) {
@@ -339,7 +349,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
                         Surface(
                             color = colors.accentPrimary.copy(alpha = 0.08f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(18.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
@@ -390,21 +400,35 @@ fun MainScreen(viewModel: BinauralViewModel) {
                             Icon(Icons.Default.Stop, stringResource(R.string.stop), tint = Color(0xFFFF8A8A))
                         }
                     } else {
-                        Button(
-                            onClick = { viewModel.play() },
-                            modifier = Modifier
-                                .height(56.dp)
-                                .widthIn(min = 200.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary),
-                            shape = RoundedCornerShape(28.dp)
-                        ) {
-                            Icon(Icons.Default.PlayArrow, null, tint = colors.onAccent)
-                            Spacer(Modifier.width(8.dp))
+                        // "Schwebung": a round start button inside two faint rings,
+                        // the rings standing for the beat's envelope (docs/GESTALTUNG.md).
+                        val startLabel = stringResource(R.string.start_label)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .drawBehind {
+                                        drawCircle(colors.accentPrimary.copy(alpha = 0.07f), radius = size.minDimension / 2)
+                                        drawCircle(colors.accentPrimary.copy(alpha = 0.14f), radius = size.minDimension / 2 - 12.dp.toPx())
+                                    }
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                        .background(colors.accentPrimary)
+                                        .clickable(role = Role.Button, onClickLabel = startLabel) { viewModel.play() }
+                                        .semantics { contentDescription = startLabel }
+                                ) {
+                                    Icon(Icons.Default.PlayArrow, null, tint = colors.onAccent, modifier = Modifier.size(40.dp))
+                                }
+                            }
                             Text(
-                                stringResource(R.string.start_label),
-                                color = colors.onAccent,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
+                                startLabel,
+                                color = colors.onSurfaceMuted,
+                                fontSize = 14.sp
                             )
                         }
                     }
@@ -416,7 +440,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 item {
                     Surface(
                         color = colors.accentPrimary.copy(alpha = 0.08f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
@@ -468,10 +492,9 @@ fun MainScreen(viewModel: BinauralViewModel) {
             item {
                 Text(
                     stringResource(R.string.presets_header),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp,
+                    fontFamily = TitleFont,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
@@ -495,7 +518,7 @@ fun MainScreen(viewModel: BinauralViewModel) {
                 item {
                     Surface(
                         color = Color(0x33FF6B6B),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(18.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -544,10 +567,9 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     ) {
                         Text(
                             stringResource(R.string.premium_presets_header),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp,
                             color = colors.accentPrimary,
-                            letterSpacing = 2.sp
+                            fontFamily = TitleFont
                         )
                         if (!access.premium) LockBadge(size = 14.dp, tint = colors.accentPrimary)
                     }
@@ -819,7 +841,7 @@ private fun ControlsSection(viewModel: BinauralViewModel) {
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(stringResource(R.string.carrier_frequency), fontSize = 12.sp, color = colors.accentPrimary, fontWeight = FontWeight.SemiBold)
@@ -927,7 +949,7 @@ private fun WavExportSection(viewModel: BinauralViewModel) {
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -1072,7 +1094,7 @@ private fun PresetCategoryCard(
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(18.dp)
     ) {
         Column {
             Row(
@@ -1155,7 +1177,7 @@ private fun CustomPresetsCard(
 
     Surface(
         color = colors.accentPrimary.copy(alpha = 0.06f),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(18.dp)
     ) {
         Column {
             Row(

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -11,11 +12,23 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import de.binauralbeats.app.R
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 enum class ThemeMode { SYSTEM, DARK, LIGHT }
 
+/**
+ * "Schwebung" (docs/GESTALTUNG.md, 25.09.2026): plum night and orchid instead of
+ * navy and mint, which sat on Kopfkarte's navy and Nenne drei's green. The token
+ * names predate that and describe roles, not hues: primaryDark/primaryMid/
+ * surfaceVariant are the background gradient stops, surfaceDark the sheet ground.
+ * accentPrimary also colours text, so the light theme uses the darker orchid step
+ * (5.4 : 1 on the lightest gradient stop, white on it 7.4 : 1).
+ */
 data class BinauralColors(
     val primaryDark: Color,
     val primaryMid: Color,
@@ -27,51 +40,54 @@ data class BinauralColors(
     val onSurfaceMuted: Color,
     val onAccent: Color,
     val overlay: Color,
+    /** Hints that need doing something (exact alarms, full screen). Not an accent. */
+    val warning: Color,
     val isDark: Boolean
 )
 
-val LocalBinauralColors = staticCompositionLocalOf {
-    BinauralColors(
-        primaryDark = Color(0xFF1E3C72),
-        primaryMid = Color(0xFF2A5298),
-        accentPrimary = Color(0xFFA8E6CF),
-        accentSecondary = Color(0xFF7FCDCD),
-        surfaceDark = Color(0xFF0F1F3D),
-        surfaceVariant = Color(0xFF1A3561),
-        onSurface = Color.White,
-        onSurfaceMuted = Color(0xB3FFFFFF),
-        onAccent = Color(0xFF1E3C72),
-        overlay = Color.White,
-        isDark = true
-    )
-}
+/** Titles and the big frequency figures. One cut: Fraunces SOFT 100, opsz 72, weight 600. */
+val TitleFont = FontFamily(Font(R.font.fraunces_soft_semibold, FontWeight.SemiBold))
 
 private val DarkBinauralColors = BinauralColors(
-    primaryDark = Color(0xFF1E3C72),
-    primaryMid = Color(0xFF2A5298),
-    accentPrimary = Color(0xFFA8E6CF),
-    accentSecondary = Color(0xFF7FCDCD),
-    surfaceDark = Color(0xFF0F1F3D),
-    surfaceVariant = Color(0xFF1A3561),
-    onSurface = Color.White,
-    onSurfaceMuted = Color(0xB3FFFFFF),
-    onAccent = Color(0xFF1E3C72),
-    overlay = Color.White,
+    primaryDark = Color(0xFF2F182F),
+    primaryMid = Color(0xFF3A1D3A),
+    accentPrimary = Color(0xFFE07BDE),
+    accentSecondary = Color(0xFFF1E9F4),
+    surfaceDark = Color(0xFF1D0E1D),
+    surfaceVariant = Color(0xFF2A1529),
+    onSurface = Color(0xFFF1E9F4),
+    onSurfaceMuted = Color(0xFFBFA9C2),
+    onAccent = Color(0xFF1D0E1D),
+    overlay = Color(0xFFF1E9F4),
+    warning = Color(0xFFF2B35B),
     isDark = true
 )
 
 private val LightBinauralColors = BinauralColors(
-    primaryDark = Color(0xFFD8E2F3),
-    primaryMid = Color(0xFFC5D3EC),
-    accentPrimary = Color(0xFF2E8B6A),
-    accentSecondary = Color(0xFF4FA8A0),
-    surfaceDark = Color(0xFFF2F5FA),
-    surfaceVariant = Color(0xFFDDE6F3),
-    onSurface = Color(0xFF1A1A2E),
-    onSurfaceMuted = Color(0x99000000),
+    primaryDark = Color(0xFFF1E4EF),
+    primaryMid = Color(0xFFEAD7E7),
+    accentPrimary = Color(0xFF8A2E8A),
+    accentSecondary = Color(0xFFB35AB0),
+    surfaceDark = Color(0xFFF8F0F7),
+    surfaceVariant = Color(0xFFF4E9F2),
+    onSurface = Color(0xFF2A1530),
+    onSurfaceMuted = Color(0xFF6E5670),
     onAccent = Color.White,
-    overlay = Color(0xFF1A1A2E),
+    overlay = Color(0xFF2A1530),
+    warning = Color(0xFF9A5B00),
     isDark = false
+)
+
+val LocalBinauralColors = staticCompositionLocalOf { DarkBinauralColors }
+
+private val BaseTypography = Typography()
+
+/** Material's own titles (dialogs, sheets built from M3 parts) in the title face too. */
+private val DeepWaveTypography = BaseTypography.copy(
+    headlineLarge = BaseTypography.headlineLarge.copy(fontFamily = TitleFont),
+    headlineMedium = BaseTypography.headlineMedium.copy(fontFamily = TitleFont),
+    headlineSmall = BaseTypography.headlineSmall.copy(fontFamily = TitleFont),
+    titleLarge = BaseTypography.titleLarge.copy(fontFamily = TitleFont),
 )
 
 // Backward-compatible vals — still used in non-Composable contexts (notification, Canvas maps)
@@ -87,8 +103,8 @@ private val DarkColorScheme = darkColorScheme(
     surfaceVariant = DarkBinauralColors.surfaceVariant,
     onPrimary = DarkBinauralColors.onAccent,
     onSecondary = DarkBinauralColors.onAccent,
-    onBackground = Color.White,
-    onSurface = Color.White,
+    onBackground = DarkBinauralColors.onSurface,
+    onSurface = DarkBinauralColors.onSurface,
     onSurfaceVariant = DarkBinauralColors.onSurfaceMuted
 )
 
@@ -139,6 +155,7 @@ fun BinauralBeatsTheme(
     CompositionLocalProvider(LocalBinauralColors provides binauralColors) {
         MaterialTheme(
             colorScheme = materialScheme,
+            typography = DeepWaveTypography,
             content = content
         )
     }

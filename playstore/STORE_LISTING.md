@@ -41,10 +41,10 @@ PREMIUM – EINMALIG FREISCHALTEN
 • Unbegrenzt eigene Presets
 
 ADD-ONS – EINZELN ODER IM KOMPLETTPAKET
-• Klangwecker: weckt mit einer Frequenzrampe, die leise beginnt und langsam lauter wird, zur Weckzeit mit Klangschale. Mehrere Wecker mit Wochentagen, Vollbild über dem Sperrbildschirm, funktioniert ohne Kopfhörer. Beim Stellen des Sleep-Timers direkt „Morgen wecken“.
+• Klangwecker: weckt mit einer Frequenzrampe, die leise beginnt und langsam lauter wird, zur Weckzeit mit Klangschale. Mehrere Wecker mit Wochentagen, Vollbild über dem Sperrbildschirm, funktioniert ohne Kopfhörer. Mit Premium direkt beim Sleep-Timer „Morgen wecken“.
 • Rhythmus-Spur: hörbarer Takt für Gehmeditation, Atemtaktung oder gleichmäßige Bewegung – festes Tempo, mehrstufiges Programm oder ein Signal je Atemphase.
 
-Alle Käufe sind Einmalkäufe über Google Play und gelten auf allen deinen Geräten mit demselben Konto. Wer DeepWave früher als Kauf-App erworben hat, behält Premium automatisch.
+Alle Käufe sind Einmalkäufe über Google Play und gelten auf allen deinen Geräten mit demselben Google-Konto. Wer DeepWave früher als Kauf-App erworben hat, behält Premium automatisch.
 
 HINWEIS
 Binaurale Beats entstehen erst, wenn jedes Ohr seinen eigenen Ton hört – dafür Kopfhörer verwenden. Isochrone Töne funktionieren auch über den Lautsprecher. DeepWave ist kein Medizinprodukt und ersetzt keine ärztliche Behandlung.
@@ -64,7 +64,7 @@ Binaural beats, isochronic tones and a gentle sound alarm for sleep and focus
 
 DeepWave generates binaural beats and isochronic tones right on your device – for falling asleep, concentration and relaxation. Offline, no account, no ads, no subscription.
 
-INCLUDED
+INCLUDED FREE
 • 30+ presets for sleep, focus, meditation, energy, creativity and sports
 • Binaural beats (with headphones) and isochronic tones (also through the speaker)
 • Solfeggio frequencies from 396 to 963 Hz
@@ -81,10 +81,10 @@ PREMIUM – ONE-TIME UNLOCK
 • Unlimited custom presets
 
 ADD-ONS – SEPARATELY OR IN THE COMPLETE BUNDLE
-• Sound alarm: wakes you with a frequency ramp that starts quietly and slowly gets louder, with a singing bowl at the wake time. Multiple alarms with weekdays, full screen over the lock screen, works without headphones. "Wake me tomorrow" right where you set the sleep timer.
+• Sound alarm: wakes you with a frequency ramp that starts quietly and slowly gets louder, with a singing bowl at the wake time. Multiple alarms on chosen days, full screen over the lock screen, works without headphones. With Premium, “Wake me tomorrow” right where you set the sleep timer.
 • Rhythm track: an audible beat for walking meditation, breath pacing or steady movement – fixed tempo, a multi-step program, or one cue per breath phase.
 
-All purchases are one-time purchases through Google Play and apply to all your devices with the same account. If you bought DeepWave when it was a paid app, you keep Premium automatically.
+All purchases are one-time purchases through Google Play and apply to all your devices with the same Google account. If you bought DeepWave when it was a paid app, you keep Premium automatically.
 
 NOTE
 Binaural beats only arise when each ear hears its own tone – use headphones for them. Isochronic tones also work through the speaker. DeepWave is not a medical device and does not replace medical treatment.

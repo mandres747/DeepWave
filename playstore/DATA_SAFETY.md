@@ -16,7 +16,7 @@ lokal auf dem Gerät gespeichert und verlassen es niemals.
 **→ No**
 
 ### "Is all of the user data collected by your app encrypted in transit?"
-**→ Not applicable** (keine Datenübertragung, keine INTERNET-Berechtigung)
+**→ Not applicable** (die App überträgt keine Nutzerdaten; INTERNET kommt aus Google Play Billing und dient nur der Kaufabfrage bei Google, siehe Datenschutzerklärung Abschnitt 3)
 
 ### "Do you provide a way for users to request that their data is deleted?"
 **→ Yes** — Daten werden bei Deinstallation automatisch gelöscht.

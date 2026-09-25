@@ -45,6 +45,7 @@ import de.binauralbeats.app.billing.Access
 import de.binauralbeats.app.billing.Entitlements
 import de.binauralbeats.app.billing.PurchaseResult
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
+import de.binauralbeats.app.ui.theme.TitleFont
 
 /**
  * The one place Premium and the bundle are sold, opened by every locked
@@ -84,7 +85,7 @@ fun PremiumSheet(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = colors.surfaceDark.copy(alpha = 0.97f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
             modifier = Modifier
@@ -99,10 +100,9 @@ fun PremiumSheet(
             ) {
                 Text(
                     stringResource(R.string.premium_header),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
@@ -137,7 +137,7 @@ fun PremiumSheet(
             Button(
                 onClick = { buy(Entitlements.PRODUCT_PREMIUM) },
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary, contentColor = colors.onAccent)
             ) {
                 Text(
@@ -151,7 +151,7 @@ fun PremiumSheet(
                 Spacer(Modifier.height(16.dp))
                 Surface(
                     color = colors.accentPrimary.copy(alpha = 0.08f),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(Modifier.padding(14.dp)) {

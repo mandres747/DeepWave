@@ -62,7 +62,7 @@ fun FrequencyCurve(
         modifier = modifier
             .fillMaxWidth()
             .height(120.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(18.dp))
     ) {
         val w = size.width
         val h = size.height

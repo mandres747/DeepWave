@@ -76,6 +76,24 @@ fun WaveformVisualizer(
             }
         }
 
+        // The beat itself: the two tones drift in and out of phase, so their sum
+        // swells and fades. Drawn as a faint dashed envelope around both waves.
+        val upper = Path()
+        val lower = Path()
+        for (i in 0..steps) {
+            val x = w * i / steps
+            val t = i.toFloat() / steps
+            val e = (h * 0.42f) * kotlin.math.abs(kotlin.math.cos(PI * t + phase / 2).toFloat())
+            if (i == 0) { upper.moveTo(x, mid - e); lower.moveTo(x, mid + e) }
+            else { upper.lineTo(x, mid - e); lower.lineTo(x, mid + e) }
+        }
+        val dash = Stroke(
+            width = 1.dp.toPx(),
+            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()))
+        )
+        drawPath(upper, accentColor.copy(alpha = 0.35f), style = dash)
+        drawPath(lower, accentColor.copy(alpha = 0.35f), style = dash)
+
         drawPath(
             path = leftPath,
             brush = Brush.horizontalGradient(

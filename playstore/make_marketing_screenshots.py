@@ -21,13 +21,14 @@ OUT_ROOT = os.path.join(HERE, "screenshots")
 
 CANVAS = (1080, 1920)
 
-# App gradient, from ui/theme/Theme.kt (surfaceDark -> primaryDark -> primaryMid).
-GRADIENT = [(0x0F, 0x1F, 0x3D), (0x1E, 0x3C, 0x72), (0x2A, 0x52, 0x98)]
-ACCENT = (0xA8, 0xE6, 0xCF)
-WHITE = (0xFF, 0xFF, 0xFF)
-MUTED = (0xC8, 0xD6, 0xE8)
+# "Schwebung" palette, from ui/theme/Theme.kt (surfaceDark -> primaryDark -> primaryMid).
+GRADIENT = [(0x1D, 0x0E, 0x1D), (0x2F, 0x18, 0x2F), (0x3A, 0x1D, 0x3A)]
+ACCENT = (0xE0, 0x7B, 0xDE)
+WHITE = (0xF1, 0xE9, 0xF4)
+MUTED = (0xBF, 0xA9, 0xC2)
 
-FONT_BOLD = r"C:\Windows\Fonts\segoeuib.ttf"
+# Headlines in the app's own title face (bundled Fraunces cut).
+FONT_BOLD = os.path.join(os.path.dirname(HERE), "app", "src", "main", "res", "font", "fraunces_soft_semibold.ttf")
 FONT_REGULAR = r"C:\Windows\Fonts\segoeui.ttf"
 
 # (raw capture basename, headline, benefit line)
@@ -35,22 +36,22 @@ CAPTIONS = {
     "de-DE": [
         ("01-main", "Sessions, die dich\nrunterfahren", "Frequenzkurve, Wellenform und Phasen auf einen Blick"),
         ("02-presets", "Mehr als 30 Presets", "Schlaf, Fokus, Meditation, Kreativität, Sport und mehr"),
-        ("03-editor", "Bau dir deine Session", "Jede Phase mit Frequenz, Dauer, Modulation und Tonart"),
-        ("04-mixer", "Regen, Meer, Lagerfeuer", "Ambient-Mixer und Sleep-Timer, der sanft ausblendet"),
+        ("03-editor", "Bau dir deine Session", "Jede Phase mit Frequenz, Dauer, Modulation und Klangart"),
+        ("04-mixer", "Regen, Meer, Lagerfeuer", "Premium: Ambient-Mixer und Sleep-Timer, der sanft ausblendet"),
         ("05-breathing", "Atemführung, die mitläuft", "Box, 4-7-8, beruhigend oder energetisch"),
-        ("06-journal", "Dein Session-Journal", "Bewerte jede Session und finde, was wirklich wirkt"),
-        ("07-onboarding", "In 30 Sekunden startklar", "Kurzer Walkthrough beim Start - jederzeit überspringbar"),
-        ("08-stats", "Statistik über Wochen", "Sessions, Zeit, Serien und deine Top-Presets"),
+        ("06-journal", "Dein Session-Journal", "Bewerte jede Session und finde, was dir guttut"),
+        ("07-onboarding", "In 30 Sekunden startklar", "Kurzer Rundgang beim ersten Start – jederzeit überspringbar"),
+        ("08-stats", "Statistik über Wochen", "Premium: Sessions, Zeit, Serien und deine Top-Presets"),
     ],
     "en-US": [
         ("01-main", "Sessions that\nwind you down", "Frequency curve, waveform and phases at a glance"),
-        ("02-presets", "More than 30 presets", "Sleep, focus, meditation, creativity, sport and more"),
-        ("03-editor", "Build your own session", "Every phase with frequency, length, modulation and tone"),
-        ("04-mixer", "Rain, ocean, campfire", "Ambient mixer and a sleep timer that fades out gently"),
-        ("05-breathing", "A breathing guide\nthat runs along", "Box, 4-7-8, calming or energizing"),
+        ("02-presets", "More than 30 presets", "Sleep, focus, meditation, creativity, sports and more"),
+        ("03-editor", "Build your own session", "Every phase with frequency, length, modulation and sound type"),
+        ("04-mixer", "Rain, ocean, campfire", "Premium: ambient mixer and a sleep timer that fades out gently"),
+        ("05-breathing", "A breathing guide\nthat keeps pace", "Box, 4-7-8, calming or energizing"),
         ("06-journal", "Your session journal", "Rate every session and find what actually works"),
-        ("07-onboarding", "Ready in 30 seconds", "A short walkthrough on first launch - skippable any time"),
-        ("08-stats", "Statistics over weeks", "Sessions, time, streaks and your top presets"),
+        ("07-onboarding", "Ready in 30 seconds", "A short walkthrough on first launch – skippable any time"),
+        ("08-stats", "Statistics over weeks", "Premium: sessions, time, streaks and your top presets"),
     ],
 }
 
@@ -135,7 +136,7 @@ def compose(raw_path, headline, benefit, out_path):
             ((CANVAS[0] + framed.width) // 2, top + framed.height),
         ],
         radius=36,
-        outline=(255, 255, 255, 46),
+        outline=(0xE0, 0x7B, 0xDE, 60),
         width=2,
     )
     canvas = Image.alpha_composite(canvas, border)

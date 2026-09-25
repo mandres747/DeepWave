@@ -331,7 +331,7 @@ class WakeAlarmService : Service() {
 
     private fun rampNotification(): Notification =
         Notification.Builder(this, CHANNEL_RAMP)
-            .setSmallIcon(R.drawable.ic_headphones)
+            .setSmallIcon(R.drawable.ic_stat_wave)
             .setContentTitle(getString(R.string.wake_channel_alarm))
             .setContentText(getString(R.string.wake_notif_ramp, wakeTimeText()))
             .setContentIntent(openApp())
@@ -341,7 +341,7 @@ class WakeAlarmService : Service() {
 
     private fun alarmNotification(): Notification =
         Notification.Builder(this, CHANNEL_ALARM)
-            .setSmallIcon(R.drawable.ic_headphones)
+            .setSmallIcon(R.drawable.ic_stat_wave)
             .setContentTitle(getString(R.string.wake_notif_title))
             .setContentText(getString(R.string.wake_notif_text, wakeTimeText()))
             .setCategory(Notification.CATEGORY_ALARM)

@@ -38,6 +38,7 @@ import de.binauralbeats.app.R
 import de.binauralbeats.app.data.AmbientSound
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import java.util.Locale
+import de.binauralbeats.app.ui.theme.TitleFont
 
 @Composable
 fun MixerSheet(
@@ -57,7 +58,7 @@ fun MixerSheet(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = colors.surfaceDark.copy(alpha = 0.97f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
             modifier = Modifier
@@ -72,10 +73,9 @@ fun MixerSheet(
             ) {
                 Text(
                     stringResource(R.string.mixer_header),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
@@ -205,7 +205,7 @@ private fun TimerChipRow(
                 onClick = { onSelect(minutes) },
                 color = if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
                 else colors.overlay.copy(alpha = 0.06f),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.weight(1f)
             ) {
                 Row(

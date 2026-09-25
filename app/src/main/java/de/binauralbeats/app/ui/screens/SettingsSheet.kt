@@ -35,6 +35,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import de.binauralbeats.app.R
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import de.binauralbeats.app.ui.theme.ThemeMode
+import de.binauralbeats.app.ui.theme.TitleFont
 
 @Composable
 fun SettingsSheet(
@@ -54,7 +55,7 @@ fun SettingsSheet(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = colors.surfaceDark.copy(alpha = 0.97f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
             modifier = Modifier
@@ -68,10 +69,9 @@ fun SettingsSheet(
             ) {
                 Text(
                     stringResource(R.string.settings_header),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 IconButton(onClick = onClose) {
                     Icon(Icons.Default.Close, stringResource(R.string.close), tint = colors.onSurface)
@@ -86,7 +86,7 @@ fun SettingsSheet(
                 Surface(
                     onClick = onPremium,
                     color = colors.accentPrimary.copy(alpha = 0.08f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -165,7 +165,7 @@ fun SettingsSheet(
                 Surface(
                     onClick = onRateApp,
                     color = colors.overlay.copy(alpha = 0.06f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -242,7 +242,7 @@ private fun SettingsOptionRow(
                 onClick = { onSelect(key) },
                 color = if (isSelected) colors.accentPrimary.copy(alpha = 0.15f)
                 else colors.overlay.copy(alpha = 0.06f),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.weight(1f)
             ) {
                 Row(

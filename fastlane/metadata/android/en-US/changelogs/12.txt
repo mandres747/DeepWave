@@ -1,0 +1,3 @@
+• New look “Beat”: plum night and orchid, a new icon made of the two tones, a round start button
+• Sound alarm: tapping “Stop” during the wake-up ramp now also cancels the alarm at the wake time
+• Some presets renamed more neutrally (the sound stays the same)

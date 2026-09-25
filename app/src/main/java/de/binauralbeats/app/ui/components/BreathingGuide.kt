@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
+import de.binauralbeats.app.ui.theme.TitleFont
 
 enum class BreathPhase(@StringRes val labelRes: Int) {
     INHALE(R.string.inhale),
@@ -166,7 +167,7 @@ fun BreathingGuide(
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         modifier = modifier
     ) {
         Column(
@@ -180,10 +181,9 @@ fun BreathingGuide(
             ) {
                 Text(
                     stringResource(R.string.breathing_header),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = colors.accentPrimary,
-                    letterSpacing = 2.sp
+                    fontFamily = TitleFont
                 )
                 if (moment.cycle > 0) {
                     Text(

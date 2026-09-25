@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import de.binauralbeats.app.R
@@ -34,6 +35,7 @@ import de.binauralbeats.app.data.Phase
 import de.binauralbeats.app.data.ToneType
 import de.binauralbeats.app.ui.BinauralViewModel
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
+import de.binauralbeats.app.ui.theme.TitleFont
 
 @Composable
 fun PhaseEditorCard(
@@ -48,7 +50,7 @@ fun PhaseEditorCard(
 
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -59,13 +61,12 @@ fun PhaseEditorCard(
                 Column {
                     Text(
                         stringResource(R.string.phases_header),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
                         color = colors.accentPrimary,
-                        letterSpacing = 2.sp
+                        fontFamily = TitleFont
                     )
                     Text(
-                        stringResource(R.string.phases_info, phases.size, totalMinutes),
+                        pluralStringResource(R.plurals.phases_info, phases.size, phases.size, totalMinutes),
                         fontSize = 11.sp,
                         color = colors.onSurfaceMuted
                     )
@@ -124,7 +125,7 @@ fun PhaseEditorCard(
                     OutlinedButton(
                         onClick = { viewModel.addPhase() },
                         modifier = Modifier.fillMaxWidth().height(40.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.accentPrimary),
                         border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
                             brush = androidx.compose.ui.graphics.Brush.linearGradient(
@@ -142,7 +143,7 @@ fun PhaseEditorCard(
                     Button(
                         onClick = { viewModel.showSaveDialog = true },
                         modifier = Modifier.fillMaxWidth().height(40.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary)
                     ) {
                         Icon(Icons.Default.Save, null, Modifier.size(16.dp), tint = colors.onAccent)
@@ -181,7 +182,7 @@ private fun PhaseRow(
 
     Surface(
         color = bgColor,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         modifier = Modifier.padding(vertical = 2.dp)
     ) {
         Column {

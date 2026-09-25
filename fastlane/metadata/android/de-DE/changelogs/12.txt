@@ -1,0 +1,3 @@
+• Neues Aussehen „Schwebung“: Pflaumennacht und Orchidee, ein eigenes Symbol aus den zwei Tönen, runder Start-Knopf
+• Klangwecker: Wer während der Weckrampe auf „Aus“ tippt, wird zur Weckzeit nicht noch einmal geweckt
+• Einige Preset-Namen neutraler benannt (der Klang bleibt gleich)

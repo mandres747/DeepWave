@@ -70,6 +70,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.roundToInt
+import de.binauralbeats.app.ui.theme.TitleFont
 
 /**
  * The full-screen alarm over the lock screen: time, a slowly breathing circle,
@@ -154,7 +155,7 @@ private fun WakeScreen(wakeAt: Long, onSnooze: () -> Unit, onStop: () -> Unit) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(32.dp))
                 Text(stringResource(R.string.wake_notif_title), fontSize = 20.sp, color = colors.onSurfaceMuted)
-                Text(timeText, fontSize = 72.sp, fontWeight = FontWeight.Light, color = colors.onSurface)
+                Text(timeText, fontSize = 72.sp, fontFamily = TitleFont, color = colors.onSurface)
             }
 
             BreathingCircle(Modifier.size(220.dp))

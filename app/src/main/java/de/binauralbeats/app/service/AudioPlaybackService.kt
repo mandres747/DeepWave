@@ -255,7 +255,7 @@ class AudioPlaybackService : Service() {
         return Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.drawable.ic_headphones)
+            .setSmallIcon(R.drawable.ic_stat_wave)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()

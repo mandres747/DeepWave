@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +24,7 @@ import de.binauralbeats.app.data.JournalEntry
 import de.binauralbeats.app.ui.theme.LocalBinauralColors
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import de.binauralbeats.app.ui.theme.TitleFont
 
 data class SessionStats(
     val totalSessions: Int,
@@ -113,10 +115,9 @@ fun StatisticsOverlay(
                 ) {
                     Text(
                         stringResource(R.string.stats_header),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
                         color = colors.accentPrimary,
-                        letterSpacing = 2.sp
+                        fontFamily = TitleFont
                     )
                     Text(
                         stringResource(R.string.close),
@@ -181,12 +182,12 @@ fun StatisticsOverlay(
                     ) {
                         StatCard(
                             label = stringResource(R.string.stats_current_streak),
-                            value = "${stats.currentStreak} ${stringResource(R.string.stats_days)}",
+                            value = pluralStringResource(R.plurals.stats_days_count, stats.currentStreak, stats.currentStreak),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
                             label = stringResource(R.string.stats_best_streak),
-                            value = "${stats.bestStreak} ${stringResource(R.string.stats_days)}",
+                            value = pluralStringResource(R.plurals.stats_days_count, stats.bestStreak, stats.bestStreak),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -196,7 +197,7 @@ fun StatisticsOverlay(
                     item {
                         Surface(
                             color = colors.overlay.copy(alpha = 0.04f),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(24.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
@@ -245,7 +246,7 @@ private fun StatCard(
     val colors = LocalBinauralColors.current
     Surface(
         color = colors.overlay.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         modifier = modifier
     ) {
         Column(
@@ -255,7 +256,7 @@ private fun StatCard(
             Text(
                 value,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = TitleFont,
                 color = colors.accentPrimary
             )
             Spacer(Modifier.height(4.dp))
