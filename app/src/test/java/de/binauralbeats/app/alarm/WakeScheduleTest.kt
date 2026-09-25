@@ -149,6 +149,14 @@ class WakeScheduleTest {
     }
 
     @Test
+    fun `stopping during the ramp moves a weekday alarm to its next day, not this morning`() {
+        // Friday 25.09., stopped at 06:13 during the ramp for 06:30.
+        val wake = at(2026, 9, 25, 6, 30)
+        val next = WakeSchedule.plan(alarm(6, 30, weekdays), WakeSchedule.afterSkipping(wake))!!
+        assertEquals(at(2026, 9, 28, 6, 30), next.wakeAt)
+    }
+
+    @Test
     fun `ramp start crosses midnight`() {
         val wake = at(2026, 9, 24, 0, 10)
         assertEquals(

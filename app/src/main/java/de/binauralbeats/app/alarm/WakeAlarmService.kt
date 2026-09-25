@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.ZoneId
 import java.util.Date
 import android.text.format.DateFormat
 
@@ -78,7 +79,9 @@ class WakeAlarmService : Service() {
             ACTION_WAKE -> onWake(intent)
             ACTION_SNOOZE -> snooze()
             ACTION_DISMISS -> {
-                WakeLog.event(this, "dismissed")
+                val beforeWake = !_ringing.value && System.currentTimeMillis() < wakeAtMillis
+                WakeLog.event(this, if (beforeWake) "dismissed during the ramp" else "dismissed")
+                if (beforeWake) skipThisOccurrence()
                 finish()
             }
             else -> finish()
@@ -185,6 +188,29 @@ class WakeAlarmService : Service() {
             )
         }
         finish()
+    }
+
+    /**
+     * Stopped during the ramp: the user is awake, so the wake alarm still
+     * pending for this morning must not ring (overnight test on the A54,
+     * 25.09.: stopped at 06:13, rang again at 06:30). A one-off alarm is done;
+     * a repeating one moves on to its next occurrence, which also cancels the
+     * pending wake stage.
+     */
+    private fun skipThisOccurrence() {
+        val id = alarmId ?: return
+        val wakeAt = Instant.ofEpochMilli(wakeAtMillis).atZone(ZoneId.systemDefault())
+        val app = applicationContext
+        CoroutineScope(Dispatchers.IO).launch {
+            val repo = WakeAlarmRepository(app)
+            val alarm = repo.get(id)
+            if (alarm == null || alarm.isOneOff) {
+                AlarmScheduler.cancel(app, id)
+                alarm?.let { repo.upsert(it.copy(enabled = false)) }
+            } else {
+                AlarmScheduler.schedule(app, alarm, now = WakeSchedule.afterSkipping(wakeAt))
+            }
+        }
     }
 
     private val autoStop = Runnable {

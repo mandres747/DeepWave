@@ -67,6 +67,13 @@ object WakeSchedule {
     fun nextTrigger(alarm: WakeAlarm, now: Instant, zone: ZoneId): ZonedDateTime? =
         nextTrigger(alarm, now.atZone(zone))
 
+    /**
+     * The moment to plan from after an occurrence was stopped during its
+     * ramp: the wake time itself, so nextTrigger (strictly after) moves on to
+     * the following occurrence instead of this morning's.
+     */
+    fun afterSkipping(wakeAt: ZonedDateTime): ZonedDateTime = wakeAt
+
     /** A ramp shorter than this has no room for its phases; only the wake sound plays. */
     const val MIN_RAMP_MINUTES = 3
 
