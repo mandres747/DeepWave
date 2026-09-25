@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.BinauralBeats.V30" parent="Base.Theme.BinauralBeats.V29">
+        <!-- Draw into the camera cutout on every edge, as Android 15 does anyway. -->
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+    </style>
+
+    <style name="Theme.BinauralBeats" parent="Base.Theme.BinauralBeats.V30" />
+</resources>

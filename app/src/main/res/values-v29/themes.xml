@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From Android 10 the system adds its own scrim behind three-button
+         navigation when the bar is transparent (enforceNavigationBarContrast
+         stays at its default, true), and gesture navigation stays clear. -->
+    <style name="Base.Theme.BinauralBeats.V29" parent="Base.Theme.BinauralBeats">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+    </style>
+
+    <style name="Theme.BinauralBeats" parent="Base.Theme.BinauralBeats.V29" />
+</resources>

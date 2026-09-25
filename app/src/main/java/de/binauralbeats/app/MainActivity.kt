@@ -10,7 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import de.binauralbeats.app.ui.drawBehindSystemBars
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        drawBehindSystemBars()
 
         requestNotificationPermission()
         bindAudioService()

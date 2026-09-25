@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import de.binauralbeats.app.ui.drawBehindSystemBars
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
@@ -86,7 +86,7 @@ class WakeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         showOverLockScreen()
         WakeLog.event(this, "wake screen shown")
-        enableEdgeToEdge()
+        drawBehindSystemBars()
 
         // Back must not silently leave a ringing alarm behind the lock screen.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

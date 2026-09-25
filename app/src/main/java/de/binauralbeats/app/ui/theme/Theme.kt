@@ -1,6 +1,7 @@
 package de.binauralbeats.app.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -122,13 +123,15 @@ fun BinauralBeatsTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // No statusBarColor/navigationBarColor here: Android 15 ignores both,
-            // and on older versions they overwrote what enableEdgeToEdge() had
-            // just set, so the app asked for edge-to-edge and then painted over
-            // it. Only the icon contrast still needs saying.
+            // No statusBarColor/navigationBarColor here: the theme sets them
+            // (see themes.xml), Android 15 ignores both, and Play reports the
+            // calls as deprecated. Only the icon contrast still needs saying.
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = !isDark
-                isAppearanceLightNavigationBars = !isDark
+                // Below Android 10 the navigation bar keeps a dark scrim, so
+                // its buttons stay light even in the light theme.
+                isAppearanceLightNavigationBars =
+                    !isDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
             }
         }
     }
