@@ -1,1 +1,2 @@
 • Sound alarm: stopping it during the wake-up ramp no longer rings again at the wake time
+• Some presets renamed more neutrally (the sound stays the same)

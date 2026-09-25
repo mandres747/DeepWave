@@ -134,7 +134,7 @@
     <string name="preset_quick_med">Quick Meditation</string>
     <string name="preset_deep_med">Deep Meditation</string>
     <string name="preset_stress">Stress Relief</string>
-    <string name="preset_anxiety">Anxiety Relief</string>
+    <string name="preset_anxiety">Letting Go</string>
     <string name="preset_morning">Morning Boost</string>
     <string name="preset_energy">Energy Kick</string>
     <string name="preset_afternoon">Afternoon Revival</string>
@@ -160,7 +160,7 @@
     <!-- Premium Presets -->
     <string name="cat_premium_sleep">Premium: Sleep Program</string>
     <string name="cat_premium_focus">Premium: Focus Bundle</string>
-    <string name="cat_premium_therapy">Premium: Therapeutic</string>
+    <string name="cat_premium_therapy">Premium: Relaxation</string>
     <string name="preset_sleep_30d_w1">Sleep Reset Week 1</string>
     <string name="preset_sleep_30d_w2">Sleep Reset Week 2</string>
     <string name="preset_sleep_30d_w3">Sleep Reset Week 3</string>
@@ -169,9 +169,9 @@
     <string name="preset_adhd_calm">ADHD Calming</string>
     <string name="preset_exam_cram">Exam Marathon</string>
     <string name="preset_writer_flow">Writer\'s Flow</string>
-    <string name="preset_tinnitus">Tinnitus Relief</string>
-    <string name="preset_migraine">Migraine Relief</string>
-    <string name="preset_ptsd_calm">PTSD Calming</string>
+    <string name="preset_tinnitus">Soft Noise</string>
+    <string name="preset_migraine">Quiet Mind</string>
+    <string name="preset_ptsd_calm">Deep Calm</string>
     <string name="preset_jet_lag">Jetlag Reset</string>
     <string name="premium_presets_header">PREMIUM</string>
 
