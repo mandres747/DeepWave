@@ -1,16 +1,16 @@
 package de.binauralbeats.app.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
@@ -25,25 +25,30 @@ import kotlin.math.sin
 fun WaveformVisualizer(
     beatFrequency: Float,
     isPlaying: Boolean,
+    isPaused: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val colors = LocalBinauralColors.current
     val accentColor = colors.accentPrimary
     val secondaryColor = colors.accentSecondary
 
-    val transition = rememberInfiniteTransition(label = "waveform")
-    val phase by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = (2 * PI).toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (beatFrequency > 0) (1000f / beatFrequency).toInt().coerceIn(200, 5000) else 2000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "phase"
+    // Advanced frame by frame rather than by an infinite transition, so a pause
+    // holds the wave where it is, matching the sound that has stopped, and a
+    // resume carries on from there.
+    var phase by remember { mutableFloatStateOf(0f) }
+    val periodMillis by rememberUpdatedState(
+        if (beatFrequency > 0) (1000f / beatFrequency).coerceIn(200f, 5000f) else 2000f
     )
+    LaunchedEffect(isPlaying, isPaused) {
+        if (!isPlaying || isPaused) return@LaunchedEffect
+        var last = withFrameNanos { it }
+        while (true) {
+            val now = withFrameNanos { it }
+            val step = (now - last) / 1_000_000f / periodMillis * (2 * PI).toFloat()
+            phase = (phase + step) % (2 * PI).toFloat()
+            last = now
+        }
+    }
 
     Canvas(
         modifier = modifier

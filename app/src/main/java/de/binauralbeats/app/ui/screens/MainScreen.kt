@@ -282,7 +282,8 @@ fun MainScreen(viewModel: BinauralViewModel) {
                     .getOrNull(viewModel.currentPhaseIndex)?.frequency ?: 10f
                 WaveformVisualizer(
                     beatFrequency = currentFreq,
-                    isPlaying = viewModel.isPlaying
+                    isPlaying = viewModel.isPlaying,
+                    isPaused = viewModel.isPaused
                 )
             }
 
