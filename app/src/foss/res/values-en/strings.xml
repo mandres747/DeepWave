@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F-Droid build: there is no Premium here, so these texts must not mention it. -->
+<resources>
+    <string name="preset_limit_reached">Max. %1$d custom presets reached. Delete one to save a new one.</string>
+    <string name="onboarding_3_title">For sleep, focus and meditation</string>
+    <string name="onboarding_3_body">Ready-made presets in nine areas – from deep delta for falling asleep to beta for focused work. Plus a breathing guide with four patterns.</string>
+    <string name="onboarding_4_title">Journal</string>
+    <string name="onboarding_4_body">Rate your sessions and see over time what actually works for you. Everything stays offline on your device.</string>
+</resources>

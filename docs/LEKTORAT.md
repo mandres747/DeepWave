@@ -1,5 +1,28 @@
 # Endlektorat DeepWave
 
+## 2026-10-02 – Version 1.5.1 (13), nur F-Droid
+
+**Umfang:** Texte, die der F-Droid-Build zeigt: `app/src/foss/res/values{,-en}/strings.xml`
+(neu, überschreibt main), `fastlane/metadata/android/{de-DE,en-US}/changelogs/12.txt` und
+`13.txt`, `full_description.txt`/`short_description.txt` (nur geprüft). Abgleich gegen
+`foss/FeatureFlagsImpl.kt` (kein Premium, Mixer, Sleep-Timer, Statistik, Export, Rhythmus,
+Klangwecker) und `PremiumPresetProviderImpl` (leer).
+
+### Änderungen
+
+- Preset-Limit: „… oder upgrade auf Premium“ → „Lösche eines, um ein neues zu speichern.“
+  (Premium gibt es im F-Droid-Build nicht; zugleich Denglisch „upgrade“ beseitigt).
+- Einführung Seite 3 warb mit Ambient-Sounds und Sleep-Timer (Premium), die der Build nicht
+  hat → „Für Schlaf, Fokus und Meditation“: neun Preset-Bereiche + Atemführung mit vier Mustern.
+- Einführung Seite 4: „Die Statistik gehört zu Premium“ gestrichen, Titel „Journal“.
+- changelogs/12.txt nannte den Klangwecker (nicht im F-Droid-Build) → ersetzt durch die
+  Absturzbehebung. 13.txt fasst alles seit 1.1.0 zusammen, was im F-Droid-Build ankommt.
+
+### Bewusst belassen
+
+- Play-Texte in `main/res` unverändert (dort gibt es Premium).
+- Beschreibung „30+ Presets in 9 Kategorien“ stimmt mit dem F-Droid-Umfang überein.
+
 ## 2026-09-26 – Version 1.5.0 (12)
 
 **Umfang:** `app/src/main/res/values/strings.xml` (de), `values-en/strings.xml` (en),

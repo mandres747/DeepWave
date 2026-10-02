@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F-Droid build: there is no Premium here, so these texts must not mention it. -->
+<resources>
+    <string name="preset_limit_reached">Max. %1$d eigene Presets erreicht. Lösche eines, um ein neues zu speichern.</string>
+    <string name="onboarding_3_title">Für Schlaf, Fokus und Meditation</string>
+    <string name="onboarding_3_body">Fertige Presets in neun Bereichen – von tiefem Delta zum Einschlafen bis Beta fürs konzentrierte Arbeiten. Dazu eine Atemführung mit vier Mustern.</string>
+    <string name="onboarding_4_title">Journal</string>
+    <string name="onboarding_4_body">Bewerte deine Sessions und sieh im Verlauf, was für dich wirklich funktioniert. Alles bleibt offline auf deinem Gerät.</string>
+</resources>

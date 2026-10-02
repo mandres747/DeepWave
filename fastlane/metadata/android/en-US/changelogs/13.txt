@@ -1,3 +1,6 @@
 • Fixed: pressing Stop after Pause crashed the app
 • New look “Beat”: plum night and orchid, a new icon made of the two tones, a round start button
+• New: short walkthrough on first launch – skippable at any time
+• Sound: isochronic pulses without clicks, modulated presets at the right frequency
 • Some presets renamed more neutrally (the sound stays the same)
+• Version number in the settings

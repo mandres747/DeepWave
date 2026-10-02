@@ -1,3 +1,6 @@
 • Behoben: Stoppen nach Pause beendete die App
 • Neues Aussehen „Schwebung“: Pflaumennacht und Orchidee, ein eigenes Symbol aus den zwei Tönen, runder Start-Knopf
+• Neu: kurze Einführung beim ersten Start – jederzeit überspringbar
+• Klang: isochrone Pulse ohne Knacken, modulierte Presets mit der richtigen Frequenz
 • Einige Preset-Namen neutraler benannt (der Klang bleibt gleich)
+• Versionsnummer in den Einstellungen
