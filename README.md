@@ -38,8 +38,8 @@ unlimited custom presets.
 ## Privacy
 
 DeepWave collects no data whatsoever. See the
-[privacy policy](https://mandres747.github.io/DeepWave/) (also available
-[auf Deutsch](https://mandres747.github.io/DeepWave/datenschutz.html)).
+[privacy policy](https://wunderkammer-apps.de/deepwave/) (also available
+[auf Deutsch](https://wunderkammer-apps.de/deepwave/datenschutz.html)).
 
 ## Building
 
